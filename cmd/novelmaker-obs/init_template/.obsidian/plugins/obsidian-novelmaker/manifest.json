@@ -1,0 +1,10 @@
+{
+  "id": "novel-maker",
+  "name": "Novel Maker",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "小說創作輔助插件，透過 CLI 協助生成章節",
+  "author": "Patchouli",
+  "authorUrl": "",
+  "isDesktopOnly": true
+}

@@ -14,7 +14,7 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-//go:embed init_template
+//go:embed all:init_template
 var initTemplateFolder embed.FS
 
 var rootCmd = &cobra.Command{

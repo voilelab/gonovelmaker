@@ -31,20 +31,8 @@
 
 ### 安裝
 
-1. 克隆儲存庫：
 ```bash
-git clone https://github.com/voilelab/gonovelmaker.git
-cd gonovelmaker
-```
-
-2. 建置 CLI 工具：
-```bash
-go build ./cmd/novelmaker-obs
-```
-
-3. （可選）將執行檔移至 PATH：
-```bash
-mv novelmaker-obs /usr/local/bin/
+go install github.com/voilelab/gonovelmaker/cmd/novelmaker-obs@latest
 ```
 
 ## 設定

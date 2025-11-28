@@ -49,7 +49,6 @@ const (
 
 type Vault struct {
 	root *os.Root
-	path string
 }
 
 func NewVault(root string) (*Vault, error) {
@@ -57,7 +56,7 @@ func NewVault(root string) (*Vault, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Vault{root: rt, path: root}, nil
+	return &Vault{root: rt}, nil
 }
 
 func (v *Vault) Close() error {
@@ -160,8 +159,7 @@ func (v *Vault) LoadCharacters() ([]novelmaker.Character, error) {
 
 func (v *Vault) AddCharacter(c *novelmaker.Character) error {
 	// Ensure Character directory exists on disk
-	charDir := filepath.Join(v.path, charDirName)
-	if err := os.MkdirAll(charDir, 0755); err != nil {
+	if err := v.root.MkdirAll(charDirName, 0755); err != nil {
 		return fmt.Errorf("failed to create Character directory: %w", err)
 	}
 
@@ -175,9 +173,9 @@ main: %t
 
 	// Destination file
 	filename := fmt.Sprintf("%s.md", c.ID)
-	dstPath := filepath.Join(charDir, filename)
+	dstPath := filepath.Join(charDirName, filename)
 
-	if err := os.WriteFile(dstPath, []byte(frontmatter), 0644); err != nil {
+	if err := v.root.WriteFile(dstPath, []byte(frontmatter), 0644); err != nil {
 		return fmt.Errorf("failed to write character file %s: %w", dstPath, err)
 	}
 
@@ -217,8 +215,7 @@ func (v *Vault) LoadChapters() ([]novelmaker.Chapter, error) {
 
 func (v *Vault) AddChapter(c *novelmaker.Chapter) error {
 	// Ensure Story directory exists on disk
-	storyDir := filepath.Join(v.path, storyDirName)
-	if err := os.MkdirAll(storyDir, 0755); err != nil {
+	if err := v.root.MkdirAll(storyDirName, 0755); err != nil {
 		return fmt.Errorf("failed to create Story directory: %w", err)
 	}
 
@@ -232,9 +229,9 @@ index: %d
 
 	// Destination file: include index for readability
 	filename := fmt.Sprintf("%03d_%s.md", c.Index, c.ID)
-	dstPath := filepath.Join(storyDir, filename)
+	dstPath := filepath.Join(storyDirName, filename)
 
-	if err := os.WriteFile(dstPath, []byte(frontmatter), 0644); err != nil {
+	if err := v.root.WriteFile(dstPath, []byte(frontmatter), 0644); err != nil {
 		return fmt.Errorf("failed to write chapter file %s: %w", dstPath, err)
 	}
 

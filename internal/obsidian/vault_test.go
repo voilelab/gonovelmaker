@@ -40,9 +40,6 @@ func TestNewVault(t *testing.T) {
 		if vault.root == nil {
 			t.Error("vault.root is nil")
 		}
-		if vault.path != tmpDir {
-			t.Errorf("vault.path = %s, want %s", vault.path, tmpDir)
-		}
 	})
 
 	t.Run("invalid directory", func(t *testing.T) {

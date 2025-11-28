@@ -33,7 +33,7 @@ using OpenAI API.`,
 
 	g.cmd.Flags().StringVarP(&g.charPrompt, "prompt", "p", "", "Description/prompt for the character to generate")
 	g.cmd.Flags().StringVarP(&g.charName, "name", "n", "", "Name for the character (optional, will be extracted from AI response if not provided)")
-	g.cmd.MarkFlagRequired("name")
+	g.cmd.MarkFlagRequired("prompt")
 
 	// Allow overriding config values per-command
 	g.cmd.Flags().StringVar(&g.apiKey, "api-key", "", "OpenAI API key to override config (optional)")

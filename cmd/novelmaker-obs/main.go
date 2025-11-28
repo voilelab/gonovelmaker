@@ -1,10 +1,8 @@
 package main
 
 import (
-	"embed"
 	"encoding/json"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,9 +12,6 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
-
-//go:embed all:init_template
-var initTemplateFolder embed.FS
 
 var rootCmd = &cobra.Command{
 	Use:   "novelmaker-obs",
@@ -120,15 +115,16 @@ func runInit(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to get current directory: %w", err)
 	}
 
-	// Check if Config/ already exists
-	configDir := filepath.Join(cwd, "Config")
-	if _, err := os.Stat(configDir); err == nil {
-		return fmt.Errorf("Config/ directory already exists")
+	// Create vault
+	vault, err := obsidian.NewVault(cwd)
+	if err != nil {
+		return fmt.Errorf("failed to open vault: %w", err)
 	}
+	defer vault.Close()
 
-	// Copy embedded template folder recursively
-	if err := copyEmbedFS(initTemplateFolder, "init_template", cwd); err != nil {
-		return fmt.Errorf("failed to copy template files: %w", err)
+	// Initialize vault structure
+	if err := vault.Initialize(); err != nil {
+		return fmt.Errorf("failed to initialize vault: %w", err)
 	}
 
 	fmt.Println("✓ Successfully initialized novel project structure!")
@@ -452,52 +448,6 @@ func runGenChar(cmd *cobra.Command, args []string) error {
 	fmt.Printf("  ID: %s\n", charID)
 
 	return nil
-}
-
-// copyEmbedFS recursively copies files from an embedded FS to a destination directory
-func copyEmbedFS(embedFS embed.FS, srcRoot, dstRoot string) error {
-	return fs.WalkDir(embedFS, srcRoot, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		// Get relative path from srcRoot
-		relPath, err := filepath.Rel(srcRoot, path)
-		if err != nil {
-			return err
-		}
-
-		// Skip the root directory itself
-		if relPath == "." {
-			return nil
-		}
-
-		// Construct destination path
-		dstPath := filepath.Join(dstRoot, relPath)
-
-		if d.IsDir() {
-			// Create directory
-			return os.MkdirAll(dstPath, 0755)
-		}
-
-		// Read file content from embedded FS
-		content, err := fs.ReadFile(embedFS, path)
-		if err != nil {
-			return fmt.Errorf("failed to read embedded file %s: %w", path, err)
-		}
-
-		// Ensure parent directory exists
-		if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
-			return fmt.Errorf("failed to create directory for %s: %w", dstPath, err)
-		}
-
-		// Write file to destination
-		if err := os.WriteFile(dstPath, content, 0644); err != nil {
-			return fmt.Errorf("failed to write file %s: %w", dstPath, err)
-		}
-
-		return nil
-	})
 }
 
 func slugify(s string) string {

@@ -1,6 +1,7 @@
 package obsidian
 
 import (
+	"embed"
 	"fmt"
 	"io/fs"
 	"os"
@@ -11,6 +12,9 @@ import (
 
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
+
+//go:embed all:init_template
+var initTemplateFolder embed.FS
 
 // WorldbookFrontmatter represents the YAML frontmatter for worldbook entries
 type WorldbookFrontmatter struct {
@@ -61,6 +65,15 @@ func NewVault(root string) (*Vault, error) {
 
 func (v *Vault) Close() error {
 	return v.root.Close()
+}
+
+func (v *Vault) Initialize() error {
+	// Check if Config/ already exists
+	if _, err := v.root.Stat(configDirName); err == nil {
+		return fmt.Errorf("Config/ directory already exists")
+	}
+
+	return copyEmbedFS(initTemplateFolder, "init_template", v.root)
 }
 
 func (v *Vault) LoadProject() (*novelmaker.Project, error) {

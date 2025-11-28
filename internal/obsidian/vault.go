@@ -40,6 +40,13 @@ type ProjectFrontmatter struct {
 	SystemPromptChar string `yaml:"system_prompt_char"`
 }
 
+const (
+	configDirName = "Config"
+	worldDirName  = "World"
+	charDirName   = "Character"
+	storyDirName  = "Story"
+)
+
 type Vault struct {
 	root *os.Root
 	path string
@@ -58,7 +65,7 @@ func (v *Vault) Close() error {
 }
 
 func (v *Vault) LoadProject() (*novelmaker.Project, error) {
-	projectPath := filepath.Join("Config", "project.md")
+	projectPath := filepath.Join(configDirName, "project.md")
 	content, err := v.root.ReadFile(projectPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read project file %s: %w", projectPath, err)
@@ -90,11 +97,9 @@ func (v *Vault) LoadProject() (*novelmaker.Project, error) {
 }
 
 func (v *Vault) LoadWorldbooks() ([]novelmaker.Worldbook, error) {
-	worldDir := "World"
-
-	entries, err := fs.ReadDir(v.root.FS(), worldDir)
+	entries, err := fs.ReadDir(v.root.FS(), worldDirName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read worldbook directory %s: %w", worldDir, err)
+		return nil, fmt.Errorf("failed to read worldbook directory %s: %w", worldDirName, err)
 	}
 
 	var worldbooks []novelmaker.Worldbook
@@ -104,7 +109,7 @@ func (v *Vault) LoadWorldbooks() ([]novelmaker.Worldbook, error) {
 			continue
 		}
 
-		filePath := filepath.Join(worldDir, entry.Name())
+		filePath := filepath.Join(worldDirName, entry.Name())
 		wb, err := v.loadWorldbookFromRoot(filePath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to load worldbook %s: %v\n", filePath, err)
@@ -117,15 +122,13 @@ func (v *Vault) LoadWorldbooks() ([]novelmaker.Worldbook, error) {
 }
 
 func (v *Vault) LoadCharacters() ([]novelmaker.Character, error) {
-	charDir := "Character"
-
 	// Check if Character directory exists
-	entries, err := fs.ReadDir(v.root.FS(), charDir)
+	entries, err := fs.ReadDir(v.root.FS(), charDirName)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []novelmaker.Character{}, nil
 		}
-		return nil, fmt.Errorf("failed to read character directory %s: %w", charDir, err)
+		return nil, fmt.Errorf("failed to read character directory %s: %w", charDirName, err)
 	}
 
 	var characters []novelmaker.Character
@@ -135,7 +138,7 @@ func (v *Vault) LoadCharacters() ([]novelmaker.Character, error) {
 			continue
 		}
 
-		filePath := filepath.Join(charDir, entry.Name())
+		filePath := filepath.Join(charDirName, entry.Name())
 		char, err := v.loadCharacterFromRoot(filePath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to load character %s: %v\n", filePath, err)
@@ -157,7 +160,7 @@ func (v *Vault) LoadCharacters() ([]novelmaker.Character, error) {
 
 func (v *Vault) AddCharacter(c *novelmaker.Character) error {
 	// Ensure Character directory exists on disk
-	charDir := filepath.Join(v.path, "Character")
+	charDir := filepath.Join(v.path, charDirName)
 	if err := os.MkdirAll(charDir, 0755); err != nil {
 		return fmt.Errorf("failed to create Character directory: %w", err)
 	}
@@ -183,11 +186,9 @@ main: %t
 }
 
 func (v *Vault) LoadChapters() ([]novelmaker.Chapter, error) {
-	storyDir := "Story"
-
-	entries, err := fs.ReadDir(v.root.FS(), storyDir)
+	entries, err := fs.ReadDir(v.root.FS(), storyDirName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read story directory %s: %w", storyDir, err)
+		return nil, fmt.Errorf("failed to read story directory %s: %w", storyDirName, err)
 	}
 
 	var chapters []novelmaker.Chapter
@@ -197,7 +198,7 @@ func (v *Vault) LoadChapters() ([]novelmaker.Chapter, error) {
 			continue
 		}
 
-		filePath := filepath.Join(storyDir, entry.Name())
+		filePath := filepath.Join(storyDirName, entry.Name())
 		ch, err := v.loadChapterFromRoot(filePath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: failed to load chapter %s: %v\n", filePath, err)
@@ -216,7 +217,7 @@ func (v *Vault) LoadChapters() ([]novelmaker.Chapter, error) {
 
 func (v *Vault) AddChapter(c *novelmaker.Chapter) error {
 	// Ensure Story directory exists on disk
-	storyDir := filepath.Join(v.path, "Story")
+	storyDir := filepath.Join(v.path, storyDirName)
 	if err := os.MkdirAll(storyDir, 0755); err != nil {
 		return fmt.Errorf("failed to create Story directory: %w", err)
 	}

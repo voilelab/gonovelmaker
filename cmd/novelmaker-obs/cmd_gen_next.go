@@ -11,12 +11,15 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
+const maxPrevChapters = 10
+
 type GenNextCmd struct {
-	title         string
-	chapterPrompt string
-	apiKey        string
-	baseURL       string
-	model         string
+	title        string
+	prompt       string
+	prevChapters int
+	apiKey       string
+	baseURL      string
+	model        string
 
 	cmd *cobra.Command
 }
@@ -32,7 +35,8 @@ and previous chapters using OpenAI API.`,
 	}
 
 	g.cmd.Flags().StringVarP(&g.title, "title", "t", "", "Title for the next chapter (required)")
-	g.cmd.Flags().StringVarP(&g.chapterPrompt, "prompt", "p", "", "Additional prompt/instruction for chapter generation (optional)")
+	g.cmd.Flags().StringVarP(&g.prompt, "prompt", "p", "", "Additional prompt/instruction for chapter generation (optional)")
+	g.cmd.Flags().IntVarP(&g.prevChapters, "prev-chapters", "c", 3, "Number of previous chapters to include as context (optional, default 3, max 10)")
 	g.cmd.MarkFlagRequired("title")
 
 	// Allow overriding config values per-command
@@ -123,9 +127,12 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("target title cannot be empty")
 	}
 
+	prevK := min(g.prevChapters, len(chapters), maxPrevChapters)
+	prevChapters := chapters[len(chapters)-prevK:]
+
 	// Call OpenAI API
 	content, err := renderer.RenderPrompt(
-		project, worldbooks, characters, chapters, g.title, g.chapterPrompt)
+		project, worldbooks, characters, prevChapters, g.title, g.prompt)
 	if err != nil {
 		return fmt.Errorf("failed to generate chapter: %w", err)
 	}

@@ -12,11 +12,11 @@ import (
 )
 
 type GenCharCmd struct {
-	charPrompt string
-	charName   string
-	apiKey     string
-	baseURL    string
-	model      string
+	prompt  string
+	name    string
+	apiKey  string
+	baseURL string
+	model   string
 
 	cmd *cobra.Command
 }
@@ -31,8 +31,8 @@ using OpenAI API.`,
 		RunE: g.run,
 	}
 
-	g.cmd.Flags().StringVarP(&g.charPrompt, "prompt", "p", "", "Description/prompt for the character to generate")
-	g.cmd.Flags().StringVarP(&g.charName, "name", "n", "", "Name for the character (optional, will be extracted from AI response if not provided)")
+	g.cmd.Flags().StringVarP(&g.prompt, "prompt", "p", "", "Description/prompt for the character to generate")
+	g.cmd.Flags().StringVarP(&g.name, "name", "n", "", "Name for the character (optional, will be extracted from AI response if not provided)")
 	g.cmd.MarkFlagRequired("prompt")
 
 	// Allow overriding config values per-command
@@ -97,7 +97,7 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 	fmt.Println("Generating character with OpenAI...")
 	fmt.Printf("  Project: %s\n", project.Name)
 	fmt.Printf("  Model: %s\n", effectiveModel)
-	fmt.Printf("  Prompt: %s\n", g.charPrompt)
+	fmt.Printf("  Prompt: %s\n", g.prompt)
 	fmt.Printf("  Context: %d worldbook entries, %d existing characters\n", len(worldbooks), len(characters))
 
 	// Load prompt templates
@@ -115,13 +115,13 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 
 	// Call OpenAI API
 	profile, extractedName, err := renderer.RenderCharacter(
-		project, worldbooks, characters, g.charPrompt, g.charName)
+		project, worldbooks, characters, g.prompt, g.name)
 	if err != nil {
 		return fmt.Errorf("failed to generate character: %w", err)
 	}
 
 	// Use provided name or extracted name
-	finalName := g.charName
+	finalName := g.name
 	if finalName == "" {
 		finalName = extractedName
 	}

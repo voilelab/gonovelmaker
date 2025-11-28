@@ -24,7 +24,7 @@ class NovelMakerPlugin extends Plugin {
 			id: 'gen-next-chapter',
 			name: '生成下一章',
 			callback: () => {
-				new GenNextModal(this.app, async (title, prompt) => {
+				new GenNextModal(this.app, async (title, prompt, prevCount) => {
 					try {
 						new Notice('正在生成下一章...');
 						
@@ -35,6 +35,9 @@ class NovelMakerPlugin extends Plugin {
 						let cmd = `${this.settings.cliPath} gen-next --title "${title}"`;
 						if (prompt && prompt.trim()) {
 							cmd += ` --prompt "${prompt}"`;
+						}
+						if (prevCount !== null && prevCount !== undefined) {
+							cmd += ` --prev-chapters ${prevCount}`;
 						}
 						if (this.settings.baseUrl && this.settings.baseUrl.trim()) {
 							cmd += ` --base-url "${this.settings.baseUrl}"`;
@@ -126,7 +129,10 @@ class GenNextModal extends Modal {
 		super(app);
 		this.title = '';
 		this.prompt = '';
+		this.prevCount = 3; // Default value
 		this.onSubmit = onSubmit;
+
+		this.prevSetting = null;
 	}
 
 	onOpen() {
@@ -142,6 +148,23 @@ class GenNextModal extends Modal {
 					.setPlaceholder('e.g., 第3章')
 					.onChange((value) => {
 						this.title = value;
+					})
+			);
+
+		this.prevSetting = new Setting(contentEl)
+			.setName('前幾章數量 (前3章)')
+			.setDesc('要包含多少前面的章節作為上下文（預設：3，最大：10）')
+			.addSlider((text) =>
+				text
+					.setValue(3)
+					.setLimits(0, 10, 1)
+					.onChange((num) => {
+						if (isNaN(num)) {
+							return;
+						}
+
+						this.prevCount = num;
+						this.prevSetting.setName(`前幾章數量 (前${num}章)`);
 					})
 			);
 
@@ -174,7 +197,7 @@ class GenNextModal extends Modal {
 							return;
 						}
 						this.close();
-						this.onSubmit(this.title, this.prompt);
+						this.onSubmit(this.title, this.prompt, this.prevCount);
 					})
 			);
 	}

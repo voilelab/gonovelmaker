@@ -1,4 +1,4 @@
-package obsidian
+package nmutil
 
 import (
 	"embed"
@@ -20,7 +20,7 @@ func TestCopyEmbedFS(t *testing.T) {
 		}
 		defer root.Close()
 
-		err = copyEmbedFS(testEmbedFS, "test_embed_files", root)
+		err = CopyEmbedFS(testEmbedFS, "test_embed_files", root)
 		if err != nil {
 			t.Fatalf("copyEmbedFS failed: %v", err)
 		}
@@ -49,7 +49,7 @@ func TestCopyEmbedFS(t *testing.T) {
 		}
 		defer root.Close()
 
-		err = copyEmbedFS(testEmbedFS, "test_embed_files", root)
+		err = CopyEmbedFS(testEmbedFS, "test_embed_files", root)
 		if err != nil {
 			t.Fatalf("copyEmbedFS failed: %v", err)
 		}
@@ -85,7 +85,7 @@ func TestCopyEmbedFS(t *testing.T) {
 		}
 		defer root.Close()
 
-		err = copyEmbedFS(testEmbedFS, "test_embed_files", root)
+		err = CopyEmbedFS(testEmbedFS, "test_embed_files", root)
 		if err != nil {
 			t.Fatalf("copyEmbedFS failed: %v", err)
 		}
@@ -117,7 +117,7 @@ func TestCopyEmbedFS(t *testing.T) {
 		}
 		defer root.Close()
 
-		err = copyEmbedFS(testEmbedFS, "test_embed_files", root)
+		err = CopyEmbedFS(testEmbedFS, "test_embed_files", root)
 		if err != nil {
 			t.Fatalf("copyEmbedFS failed: %v", err)
 		}
@@ -157,7 +157,7 @@ func TestCopyEmbedFS(t *testing.T) {
 
 		// Create a minimal embed.FS for testing empty directory
 		var emptyFS embed.FS
-		err = copyEmbedFS(emptyFS, "nonexistent", root)
+		err = CopyEmbedFS(emptyFS, "nonexistent", root)
 
 		// Should handle gracefully - either succeed or return appropriate error
 		// We don't enforce specific behavior for empty/nonexistent paths
@@ -185,7 +185,7 @@ func TestCopyEmbedFS(t *testing.T) {
 		}
 
 		// Copy should still work
-		err = copyEmbedFS(testEmbedFS, "test_embed_files", root)
+		err = CopyEmbedFS(testEmbedFS, "test_embed_files", root)
 		if err != nil {
 			t.Fatalf("copyEmbedFS failed with existing directory: %v", err)
 		}
@@ -209,7 +209,7 @@ func TestCopyEmbedFS(t *testing.T) {
 		}
 		defer root.Close()
 
-		err = copyEmbedFS(testEmbedFS, "test_embed_files", root)
+		err = CopyEmbedFS(testEmbedFS, "test_embed_files", root)
 		if err != nil {
 			t.Fatalf("copyEmbedFS failed: %v", err)
 		}
@@ -231,7 +231,7 @@ func TestCopyEmbedFS(t *testing.T) {
 		}
 		defer root.Close()
 
-		err = copyEmbedFS(testEmbedFS, "test_embed_files", root)
+		err = CopyEmbedFS(testEmbedFS, "test_embed_files", root)
 		if err != nil {
 			t.Fatalf("copyEmbedFS failed: %v", err)
 		}

@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/voilelab/gonovelmaker/internal/nmutil"
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
@@ -67,13 +68,27 @@ func (v *Vault) Close() error {
 	return v.root.Close()
 }
 
+func (v *Vault) AddPlugin(pluginFS embed.FS, pluginName string) error {
+	err := v.root.MkdirAll(filepath.Join(".obsidian", "plugins", pluginName), 0755)
+	if err != nil {
+		return fmt.Errorf("failed to create plugins directory: %w", err)
+	}
+
+	pluginPath := filepath.Join(".obsidian", "plugins", pluginName)
+	dstRoot, err := v.root.OpenRoot(pluginPath)
+	if err != nil {
+		return fmt.Errorf("failed to open plugin directory %s: %w", pluginPath, err)
+	}
+	return nmutil.CopyEmbedFS(pluginFS, pluginName, dstRoot)
+}
+
 func (v *Vault) Initialize() error {
 	// Check if Config/ already exists
 	if _, err := v.root.Stat(configDirName); err == nil {
 		return fmt.Errorf("Config/ directory already exists")
 	}
 
-	return copyEmbedFS(initTemplateFolder, "init_template", v.root)
+	return nmutil.CopyEmbedFS(initTemplateFolder, "init_template", v.root)
 }
 
 func (v *Vault) LoadProject() (*novelmaker.Project, error) {

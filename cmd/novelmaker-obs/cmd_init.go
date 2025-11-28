@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"os"
 
@@ -8,7 +9,12 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 )
 
+//go:embed obsidian-novelmaker
+var obsidianNovelmakerTemplate embed.FS
+
 type InitCmd struct {
+	includePlugin bool
+
 	cmd *cobra.Command
 }
 
@@ -21,6 +27,8 @@ func NewInitCmd() *InitCmd {
 along with sample files.`,
 		RunE: initCmd.run,
 	}
+
+	initCmd.cmd.Flags().BoolVar(&initCmd.includePlugin, "include-plugin", true, "Include Obsidian plugin files in the initialization")
 
 	return initCmd
 }
@@ -44,6 +52,14 @@ func (i *InitCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println("✓ Successfully initialized novel project structure!")
+
+	if i.includePlugin {
+		err = vault.AddPlugin(obsidianNovelmakerTemplate, "obsidian-novelmaker")
+		if err != nil {
+			return fmt.Errorf("failed to copy Obsidian plugin files: %w", err)
+		}
+		fmt.Println("✓ Included Obsidian plugin files.")
+	}
 
 	return nil
 }

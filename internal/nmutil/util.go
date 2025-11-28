@@ -1,4 +1,4 @@
-package obsidian
+package nmutil
 
 import (
 	"embed"
@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 )
 
-// copyEmbedFS recursively copies files from an embedded FS to a destination directory
-func copyEmbedFS(embedFS embed.FS, srcRoot string, dstRoot *os.Root) error {
+// CopyEmbedFS recursively copies files from an embedded FS to a destination directory
+func CopyEmbedFS(embedFS embed.FS, srcRoot string, dstRoot *os.Root) error {
 	return fs.WalkDir(embedFS, srcRoot, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err

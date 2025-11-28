@@ -128,13 +128,6 @@ func runInit(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println("✓ Successfully initialized novel project structure!")
-	fmt.Printf("  Created in: %s\n", cwd)
-	fmt.Println("  - Config/project.md")
-	fmt.Println("  - World/001_world_sample.md")
-	fmt.Println("  - Character/001_character_sample.md")
-	fmt.Println("  - Story/001_prologue.md")
-	fmt.Println("  - README.md")
-	fmt.Println("  - .obsidian/app.json")
 
 	return nil
 }

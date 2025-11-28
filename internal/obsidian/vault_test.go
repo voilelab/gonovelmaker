@@ -628,6 +628,173 @@ func TestVault_AddChapter(t *testing.T) {
 	})
 }
 
+func TestVault_Initialize(t *testing.T) {
+	t.Run("initialize new vault", func(t *testing.T) {
+		tmpDir := createTestVault(t)
+
+		vault, err := NewVault(tmpDir)
+		if err != nil {
+			t.Fatalf("NewVault failed: %v", err)
+		}
+		defer vault.Close()
+
+		err = vault.Initialize()
+		if err != nil {
+			t.Fatalf("Initialize failed: %v", err)
+		}
+
+		// Verify Config directory was created
+		configPath := filepath.Join(tmpDir, "Config")
+		if _, err := os.Stat(configPath); os.IsNotExist(err) {
+			t.Error("Config directory should be created")
+		}
+
+		// Verify project.md exists in Config
+		projectPath := filepath.Join(tmpDir, "Config", "project.md")
+		if _, err := os.Stat(projectPath); os.IsNotExist(err) {
+			t.Error("Config/project.md should be created")
+		}
+
+		// Verify other directories were created
+		worldPath := filepath.Join(tmpDir, "World")
+		if _, err := os.Stat(worldPath); os.IsNotExist(err) {
+			t.Error("World directory should be created")
+		}
+
+		charPath := filepath.Join(tmpDir, "Character")
+		if _, err := os.Stat(charPath); os.IsNotExist(err) {
+			t.Error("Character directory should be created")
+		}
+
+		storyPath := filepath.Join(tmpDir, "Story")
+		if _, err := os.Stat(storyPath); os.IsNotExist(err) {
+			t.Error("Story directory should be created")
+		}
+
+		// Verify sample files exist
+		charSamplePath := filepath.Join(tmpDir, "Character", "character_sample.md")
+		if _, err := os.Stat(charSamplePath); os.IsNotExist(err) {
+			t.Error("Character/character_sample.md should be created")
+		}
+
+		worldSamplePath := filepath.Join(tmpDir, "World", "001_world_sample.md")
+		if _, err := os.Stat(worldSamplePath); os.IsNotExist(err) {
+			t.Error("World/001_world_sample.md should be created")
+		}
+
+		storySamplePath := filepath.Join(tmpDir, "Story", "001_prologue.md")
+		if _, err := os.Stat(storySamplePath); os.IsNotExist(err) {
+			t.Error("Story/001_prologue.md should be created")
+		}
+
+		// Verify README exists
+		readmePath := filepath.Join(tmpDir, "README.md")
+		if _, err := os.Stat(readmePath); os.IsNotExist(err) {
+			t.Error("README.md should be created")
+		}
+
+		// Verify project.md has valid frontmatter
+		content, err := os.ReadFile(projectPath)
+		if err != nil {
+			t.Fatalf("failed to read project.md: %v", err)
+		}
+
+		contentStr := string(content)
+		if !strings.Contains(contentStr, "---") {
+			t.Error("project.md should have frontmatter")
+		}
+		if !strings.Contains(contentStr, "id:") {
+			t.Error("project.md should have id field")
+		}
+		if !strings.Contains(contentStr, "name:") {
+			t.Error("project.md should have name field")
+		}
+	})
+
+	t.Run("error when Config already exists", func(t *testing.T) {
+		tmpDir := createTestVault(t)
+
+		// Create Config directory beforehand
+		configPath := filepath.Join(tmpDir, "Config")
+		if err := os.MkdirAll(configPath, 0755); err != nil {
+			t.Fatalf("failed to create Config directory: %v", err)
+		}
+
+		vault, err := NewVault(tmpDir)
+		if err != nil {
+			t.Fatalf("NewVault failed: %v", err)
+		}
+		defer vault.Close()
+
+		err = vault.Initialize()
+		if err == nil {
+			t.Error("expected error when Config directory already exists, got nil")
+		}
+
+		if !strings.Contains(err.Error(), "already exists") {
+			t.Errorf("error should mention 'already exists', got: %v", err)
+		}
+	})
+
+	t.Run("initialize creates readable files", func(t *testing.T) {
+		tmpDir := createTestVault(t)
+
+		vault, err := NewVault(tmpDir)
+		if err != nil {
+			t.Fatalf("NewVault failed: %v", err)
+		}
+		defer vault.Close()
+
+		err = vault.Initialize()
+		if err != nil {
+			t.Fatalf("Initialize failed: %v", err)
+		}
+
+		// Try to load the project after initialization
+		project, err := vault.LoadProject()
+		if err != nil {
+			t.Fatalf("LoadProject after Initialize failed: %v", err)
+		}
+
+		if project.ID == "" {
+			t.Error("initialized project should have an ID")
+		}
+		if project.Name == "" {
+			t.Error("initialized project should have a name")
+		}
+
+		// Try to load worldbooks
+		worldbooks, err := vault.LoadWorldbooks()
+		if err != nil {
+			t.Fatalf("LoadWorldbooks after Initialize failed: %v", err)
+		}
+
+		if len(worldbooks) == 0 {
+			t.Error("expected at least one sample worldbook after initialization")
+		}
+
+		// Try to load characters
+		characters, err := vault.LoadCharacters()
+		if err != nil {
+			t.Fatalf("LoadCharacters after Initialize failed: %v", err)
+		}
+
+		if len(characters) == 0 {
+			t.Error("expected at least one sample character after initialization")
+		}
+
+		// Try to load chapters
+		chapters, err := vault.LoadChapters()
+		if err != nil {
+			t.Fatalf("LoadChapters after Initialize failed: %v", err)
+		}
+
+		if len(chapters) == 0 {
+			t.Error("expected at least one sample chapter after initialization")
+		}
+	})
+}
+
 func TestVault_Close(t *testing.T) {
 	tmpDir := createTestVault(t)
 	vault, err := NewVault(tmpDir)

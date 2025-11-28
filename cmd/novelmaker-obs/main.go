@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
@@ -174,7 +175,16 @@ func runScan(cmd *cobra.Command, args []string) error {
 	}
 
 	if jsonOutput {
-		return obsidian.PrintJSON(project, worldbooks, chapters)
+		data := map[string]any{
+			"project":    project,
+			"worldbooks": worldbooks,
+			"chapters":   chapters,
+		}
+
+		encoder := json.NewEncoder(os.Stdout)
+		encoder.SetIndent("", "  ")
+
+		return encoder.Encode(data)
 	}
 
 	// Pretty print

@@ -1,16 +1,15 @@
 package nmutil
 
 import (
-	"embed"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 )
 
-// CopyEmbedFS recursively copies files from an embedded FS to a destination directory
-func CopyEmbedFS(embedFS embed.FS, srcRoot string, dstRoot *os.Root) error {
-	return fs.WalkDir(embedFS, srcRoot, func(path string, d fs.DirEntry, err error) error {
+// CopyFS recursively copies files from an embedded FS to a destination directory
+func CopyFS(inpFs fs.FS, srcRoot string, dstRoot *os.Root) error {
+	return fs.WalkDir(inpFs, srcRoot, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -31,7 +30,7 @@ func CopyEmbedFS(embedFS embed.FS, srcRoot string, dstRoot *os.Root) error {
 		}
 
 		// Read file content from embedded FS
-		content, err := fs.ReadFile(embedFS, path)
+		content, err := fs.ReadFile(inpFs, path)
 		if err != nil {
 			return fmt.Errorf("failed to read embedded file %s: %w", path, err)
 		}

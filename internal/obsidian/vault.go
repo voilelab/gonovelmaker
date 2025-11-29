@@ -81,7 +81,7 @@ func (v *Vault) UpdatePlugin(pluginFS embed.FS, pluginName string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open plugin directory %s: %w", pluginPath, err)
 	}
-	return nmutil.CopyEmbedFS(pluginFS, pluginName, dstRoot)
+	return nmutil.CopyFS(pluginFS, pluginName, dstRoot)
 }
 
 func (v *Vault) Initialize() error {
@@ -90,7 +90,7 @@ func (v *Vault) Initialize() error {
 		return fmt.Errorf("Config/ directory already exists")
 	}
 
-	return nmutil.CopyEmbedFS(initTemplateFolder, "init_template", v.root)
+	return nmutil.CopyFS(initTemplateFolder, "init_template", v.root)
 }
 
 func (v *Vault) LoadProject() (*novelmaker.Project, error) {

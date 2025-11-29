@@ -529,9 +529,6 @@ Minimal world.`
 			t.Errorf("expected 2 chapters, got %d", len(data.Chapters))
 		}
 		for i, ch := range data.Chapters {
-			if ch.ID == "" {
-				t.Errorf("chapter %d missing ID", i)
-			}
 			if ch.Title == "" {
 				t.Errorf("chapter %d missing title", i)
 			}

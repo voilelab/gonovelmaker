@@ -68,9 +68,6 @@ func TestGenNextCmd_Run_Success(t *testing.T) {
 		if !strings.Contains(newChapter.Content, "dummy response") {
 			t.Error("new chapter should contain dummy backend response")
 		}
-		if newChapter.ID == "" {
-			t.Error("new chapter should have an ID")
-		}
 	})
 
 	t.Run("generate first chapter in empty vault", func(t *testing.T) {

@@ -27,7 +27,6 @@ type Character struct {
 }
 
 type Chapter struct {
-	ID        string    `json:"id"`
 	Index     int       `json:"index"`
 	Title     string    `json:"title"`
 	Prompt    string    `json:"prompt"`

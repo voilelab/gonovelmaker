@@ -322,7 +322,6 @@ func (v *Vault) loadChapterFromRoot(path string) (*novelmaker.Chapter, error) {
 	}
 
 	return &novelmaker.Chapter{
-		ID:        path,
 		Index:     fm.Index,
 		Title:     fm.Title,
 		Prompt:    fm.Prompt,

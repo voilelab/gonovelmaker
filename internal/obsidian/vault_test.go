@@ -391,10 +391,6 @@ This is the content of chapter one.`
 			t.Fatalf("expected 1 chapter, got %d", len(chapters))
 		}
 
-		if chapters[0].ID != "Story/001_ch1.md" {
-			t.Errorf("expected chapter ID 'Story/001_ch1.md', got '%s'", chapters[0].ID)
-		}
-
 		if chapters[0].Title != "Chapter One" {
 			t.Errorf("expected chapter title 'Chapter One', got '%s'", chapters[0].Title)
 		}
@@ -454,14 +450,14 @@ This is chapter two.`
 		}
 
 		// Check sorting by index
-		if chapters[0].Index != 1 || chapters[0].ID != "Story/001_ch1.md" {
-			t.Errorf("first chapter should be prologue with index 1, got %s with index %d", chapters[0].ID, chapters[0].Index)
+		if chapters[0].Index != 1 {
+			t.Errorf("first chapter should be prologue with index 1, got index %d", chapters[0].Index)
 		}
-		if chapters[1].Index != 2 || chapters[1].ID != "Story/002_ch2.md" {
-			t.Errorf("second chapter should be chapter-one with index 2, got %s with index %d", chapters[1].ID, chapters[1].Index)
+		if chapters[1].Index != 2 {
+			t.Errorf("second chapter should be chapter-one with index 2, got index %d", chapters[1].Index)
 		}
-		if chapters[2].Index != 3 || chapters[2].ID != "Story/003_ch3.md" {
-			t.Errorf("third chapter should be chapter-two with index 3, got %s with index %d", chapters[2].ID, chapters[2].Index)
+		if chapters[2].Index != 3 {
+			t.Errorf("third chapter should be chapter-two with index 3, got index %d", chapters[2].Index)
 		}
 	})
 

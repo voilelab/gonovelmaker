@@ -99,7 +99,7 @@ func (s *ScanCmd) run(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("=== CHARACTERS (%d total) ===\n", len(characters))
 	for _, ch := range characters {
-		fmt.Printf("Name: %s | ID: %s\n", ch.Name, ch.ID)
+		fmt.Printf("Name: %s \n", ch.Name)
 		content := ch.Profile
 		if len(content) > 100 {
 			content = content[:97] + "..."
@@ -109,7 +109,7 @@ func (s *ScanCmd) run(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("=== CHAPTERS (%d total) ===\n", len(chapters))
 	for _, ch := range chapters {
-		fmt.Printf("[%d] %s (ID: %s)\n", ch.Index, ch.Title, ch.ID)
+		fmt.Printf("[%d] %s\n", ch.Index, ch.Title)
 		content := ch.Content
 		if len(content) > 100 {
 			content = content[:97] + "..."

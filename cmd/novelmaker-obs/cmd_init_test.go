@@ -195,9 +195,6 @@ func TestInitCmd_Run_CreatesValidFiles(t *testing.T) {
 		}
 
 		// Verify sample chapter has required fields
-		if chapters[0].ID == "" {
-			t.Error("sample chapter should have ID")
-		}
 		if chapters[0].Title == "" {
 			t.Error("sample chapter should have title")
 		}

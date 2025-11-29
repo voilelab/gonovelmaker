@@ -379,7 +379,7 @@ index: 1
 prompt: test prompt
 ---
 This is the content of chapter one.`
-		writeTestFile(t, tmpDir, "Story/001_chapter-one.md", chapterContent)
+		writeTestFile(t, tmpDir, "Story/001_ch1.md", chapterContent)
 
 		vault, err := NewVault(tmpDir)
 		if err != nil {
@@ -396,8 +396,8 @@ This is the content of chapter one.`
 			t.Fatalf("expected 1 chapter, got %d", len(chapters))
 		}
 
-		if chapters[0].ID != "chapter-one" {
-			t.Errorf("expected chapter ID 'chapter-one', got '%s'", chapters[0].ID)
+		if chapters[0].ID != "Story/001_ch1.md" {
+			t.Errorf("expected chapter ID 'Story/001_ch1.md', got '%s'", chapters[0].ID)
 		}
 
 		if chapters[0].Title != "Chapter One" {
@@ -421,30 +421,27 @@ This is the content of chapter one.`
 		tmpDir := createTestVault(t)
 
 		ch1 := `---
-id: prologue
 title: Prologue
 index: 1
 ---
 This is the prologue.`
 
 		ch2 := `---
-id: chapter-one
 title: Chapter One
 index: 2
 ---
 This is chapter one.`
 
 		ch3 := `---
-id: chapter-two
 title: Chapter Two
 index: 3
 ---
 This is chapter two.`
 
 		// Write in non-sorted order
-		writeTestFile(t, tmpDir, "Story/002_chapter-one.md", ch2)
-		writeTestFile(t, tmpDir, "Story/003_chapter-two.md", ch3)
-		writeTestFile(t, tmpDir, "Story/001_prologue.md", ch1)
+		writeTestFile(t, tmpDir, "Story/002_ch2.md", ch2)
+		writeTestFile(t, tmpDir, "Story/003_ch3.md", ch3)
+		writeTestFile(t, tmpDir, "Story/001_ch1.md", ch1)
 
 		vault, err := NewVault(tmpDir)
 		if err != nil {
@@ -462,13 +459,13 @@ This is chapter two.`
 		}
 
 		// Check sorting by index
-		if chapters[0].Index != 1 || chapters[0].ID != "prologue" {
+		if chapters[0].Index != 1 || chapters[0].ID != "Story/001_ch1.md" {
 			t.Errorf("first chapter should be prologue with index 1, got %s with index %d", chapters[0].ID, chapters[0].Index)
 		}
-		if chapters[1].Index != 2 || chapters[1].ID != "chapter-one" {
+		if chapters[1].Index != 2 || chapters[1].ID != "Story/002_ch2.md" {
 			t.Errorf("second chapter should be chapter-one with index 2, got %s with index %d", chapters[1].ID, chapters[1].Index)
 		}
-		if chapters[2].Index != 3 || chapters[2].ID != "chapter-two" {
+		if chapters[2].Index != 3 || chapters[2].ID != "Story/003_ch3.md" {
 			t.Errorf("third chapter should be chapter-two with index 3, got %s with index %d", chapters[2].ID, chapters[2].Index)
 		}
 	})
@@ -579,7 +576,6 @@ func TestVault_AddChapter(t *testing.T) {
 		defer vault.Close()
 
 		chapter := &novelmaker.Chapter{
-			ID:        "test-chapter",
 			Index:     5,
 			Title:     "Test Chapter",
 			Prompt:    "This is the chapter prompt.",
@@ -593,16 +589,13 @@ func TestVault_AddChapter(t *testing.T) {
 		}
 
 		// Verify file was created with correct name format
-		filePath := filepath.Join(tmpDir, "Story", "005_test-chapter.md")
+		filePath := filepath.Join(tmpDir, "Story", "005_ch5.md")
 		content, err := os.ReadFile(filePath)
 		if err != nil {
 			t.Fatalf("failed to read created file: %v", err)
 		}
 
 		contentStr := string(content)
-		if !strings.Contains(contentStr, "id: test-chapter") {
-			t.Error("file should contain 'id: test-chapter'")
-		}
 		if !strings.Contains(contentStr, "title: Test Chapter") {
 			t.Error("file should contain 'title: Test Chapter'")
 		}
@@ -627,7 +620,6 @@ func TestVault_AddChapter(t *testing.T) {
 		defer vault.Close()
 
 		chapter := &novelmaker.Chapter{
-			ID:      "new-chapter",
 			Index:   1,
 			Title:   "New Chapter",
 			Content: "Content.",
@@ -644,7 +636,7 @@ func TestVault_AddChapter(t *testing.T) {
 			t.Error("Story directory should be created")
 		}
 
-		filePath := filepath.Join(dirPath, "001_new-chapter.md")
+		filePath := filepath.Join(dirPath, "001_ch1.md")
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			t.Error("chapter file should be created")
 		}
@@ -705,9 +697,9 @@ func TestVault_Initialize(t *testing.T) {
 			t.Error("World/001_world_sample.md should be created")
 		}
 
-		storySamplePath := filepath.Join(tmpDir, "Story", "001_prologue.md")
+		storySamplePath := filepath.Join(tmpDir, "Story", "001_ch1.md")
 		if _, err := os.Stat(storySamplePath); os.IsNotExist(err) {
-			t.Error("Story/001_prologue.md should be created")
+			t.Error("Story/001_ch1.md should be created")
 		}
 
 		// Verify README exists

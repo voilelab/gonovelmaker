@@ -25,7 +25,6 @@ type WorldbookFrontmatter struct {
 
 // ChapterFrontmatter represents the YAML frontmatter for chapters
 type ChapterFrontmatter struct {
-	ID     string `yaml:"id"`
 	Title  string `yaml:"title"`
 	Index  int    `yaml:"index"`
 	Prompt string `yaml:"prompt"`
@@ -248,7 +247,6 @@ func (v *Vault) AddChapter(c *novelmaker.Chapter) (string, error) {
 	}
 
 	chapterMeta := &ChapterFrontmatter{
-		ID:     c.ID,
 		Index:  c.Index,
 		Title:  c.Title,
 		Prompt: c.Prompt,
@@ -263,7 +261,7 @@ func (v *Vault) AddChapter(c *novelmaker.Chapter) (string, error) {
 	frontmatter := fmt.Sprintf("---\n%s\n---\n%s\n", string(bs), c.Content)
 
 	// Destination file: include index for readability
-	filename := fmt.Sprintf("%03d_%s.md", c.Index, c.ID)
+	filename := fmt.Sprintf("%03d_ch%d.md", c.Index, c.Index)
 	dstPath := filepath.Join(storyDirName, filename)
 
 	if err := v.root.WriteFile(dstPath, []byte(frontmatter), 0644); err != nil {
@@ -310,10 +308,6 @@ func (v *Vault) loadChapterFromRoot(path string) (*novelmaker.Chapter, error) {
 		return nil, fmt.Errorf("failed to parse frontmatter in %s: %w", path, err)
 	}
 
-	if fm.ID == "" {
-		return nil, fmt.Errorf("missing or invalid 'id' in frontmatter of %s", path)
-	}
-
 	if fm.Title == "" {
 		return nil, fmt.Errorf("missing or invalid 'title' in frontmatter of %s", path)
 	}
@@ -330,7 +324,7 @@ func (v *Vault) loadChapterFromRoot(path string) (*novelmaker.Chapter, error) {
 	}
 
 	return &novelmaker.Chapter{
-		ID:        fm.ID,
+		ID:        path,
 		Index:     fm.Index,
 		Title:     fm.Title,
 		Prompt:    fm.Prompt,

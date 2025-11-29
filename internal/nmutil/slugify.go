@@ -1,8 +1,8 @@
-package main
+package nmutil
 
 import "strings"
 
-func slugify(s string) string {
+func Slugify(s string) string {
 	s = strings.ToLower(s)
 	s = strings.ReplaceAll(s, " ", "_")
 	s = strings.ReplaceAll(s, ":", "")

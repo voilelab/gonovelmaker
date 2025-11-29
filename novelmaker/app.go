@@ -51,15 +51,17 @@ type Renderer struct {
 	BaseURL           string
 	ChapterTemplate   *template.Template
 	CharacterTemplate *template.Template
+	timeout           time.Duration
 }
 
-func NewRenderer(apiKey, model, baseURL string, chapterTempl, characterTempl *template.Template) *Renderer {
+func NewRenderer(apiKey, model, baseURL string, chapterTempl, characterTempl *template.Template, timeout time.Duration) *Renderer {
 	return &Renderer{
 		APIKey:            apiKey,
 		Model:             model,
 		BaseURL:           baseURL,
 		ChapterTemplate:   chapterTempl,
 		CharacterTemplate: characterTempl,
+		timeout:           timeout,
 	}
 }
 
@@ -110,7 +112,14 @@ func (r *Renderer) RenderPrompt(
 		openai.UserMessage(promptContent),
 	}
 
-	chatCompletion, err := client.Chat.Completions.New(context.TODO(),
+	ctx := context.Background()
+	if r.timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, r.timeout)
+		defer cancel()
+	}
+
+	chatCompletion, err := client.Chat.Completions.New(ctx,
 		openai.ChatCompletionNewParams{
 			Messages: msgs,
 			Model:    r.Model,
@@ -168,7 +177,14 @@ func (r *Renderer) RenderCharacter(
 		openai.UserMessage(promptContent),
 	}
 
-	chatCompletion, err := client.Chat.Completions.New(context.TODO(),
+	ctx := context.Background()
+	if r.timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, r.timeout)
+		defer cancel()
+	}
+
+	chatCompletion, err := client.Chat.Completions.New(ctx,
 		openai.ChatCompletionNewParams{
 			Messages: msgs,
 			Model:    r.Model,

@@ -17,6 +17,7 @@ type Config struct {
 	OpenAIKey string `toml:"openai_api_key"`
 	Model     string `toml:"model"`
 	BaseURL   string `toml:"base_url"`
+	Timeout   int    `toml:"timeout"`
 }
 
 // Load reads the configuration from ~/.novelmaker/config.toml

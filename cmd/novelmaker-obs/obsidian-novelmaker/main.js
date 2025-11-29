@@ -9,7 +9,8 @@ const DEFAULT_SETTINGS = {
 	cliPath: './novelmaker-obs',
 	baseUrl: '',
 	apiKey: '',
-	model: ''
+	model: '',
+	timeout: 60, // default timeout in seconds
 };
 
 class NovelMakerPlugin extends Plugin {
@@ -47,6 +48,9 @@ class NovelMakerPlugin extends Plugin {
 						}
 						if (this.settings.model && this.settings.model.trim()) {
 							cmd += ` --model "${this.settings.model}"`;
+						}
+						if (this.settings.timeout && !isNaN(this.settings.timeout)) {
+							cmd += ` --timeout ${this.settings.timeout}`;
 						}
 						
 						// Call CLI with the input, setting cwd to vault path
@@ -91,6 +95,9 @@ class NovelMakerPlugin extends Plugin {
 						}
 						if (this.settings.model && this.settings.model.trim()) {
 							cmd += ` --model "${this.settings.model}"`;
+						}
+						if (this.settings.timeout && !isNaN(this.settings.timeout)) {
+							cmd += ` --timeout ${this.settings.timeout}`;
 						}
 						
 						// Call CLI with the input, setting cwd to vault path
@@ -276,6 +283,8 @@ class NovelMakerSettingTab extends PluginSettingTab {
 	constructor(app, plugin) {
 		super(app, plugin);
 		this.plugin = plugin;
+
+		this.timeoutSetting = null;
 	}
 
 	display() {
@@ -343,6 +352,23 @@ class NovelMakerSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.model)
 					.onChange(async (value) => {
 						this.plugin.settings.model = value;
+						await this.plugin.saveSettings();
+					})
+			);
+		
+		this.timeoutSetting = new Setting(containerEl)
+			.setName(`API 請求超時 (秒) (${this.plugin.settings.timeout} 秒)`)
+			.setDesc('設定與 LLM API 通訊的超時時間（秒）（預設：60 秒）')
+			.addSlider((slider) =>
+				slider
+					.setLimits(10, 300, 10)
+					.setValue(this.plugin.settings.timeout)
+					.onChange(async (value) => {
+						if (isNaN(value)) {
+							return;
+						}
+						this.plugin.settings.timeout = value;
+						this.timeoutSetting.setName(`API 請求超時 (秒) (${value} 秒)`);
 						await this.plugin.saveSettings();
 					})
 			);

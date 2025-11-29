@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/voilelab/gonovelmaker/internal/config"
@@ -20,6 +21,7 @@ type GenNextCmd struct {
 	apiKey       string
 	baseURL      string
 	model        string
+	timeout      int
 
 	cmd *cobra.Command
 }
@@ -43,6 +45,7 @@ and previous chapters using OpenAI API.`,
 	g.cmd.Flags().StringVar(&g.apiKey, "api-key", "", "OpenAI API key to override config (optional)")
 	g.cmd.Flags().StringVar(&g.baseURL, "base-url", "", "OpenAI base URL to override config (optional)")
 	g.cmd.Flags().StringVar(&g.model, "model", "", "Model to use, overrides config (optional)")
+	g.cmd.Flags().IntVar(&g.timeout, "timeout", 0, "Timeout in seconds for the API request (optional)")
 	return g
 }
 
@@ -102,6 +105,10 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 	if g.baseURL != "" {
 		effectiveBaseURL = g.baseURL
 	}
+	effectiveTimeout := time.Duration(cfg.Timeout) * time.Second
+	if g.timeout > 0 {
+		effectiveTimeout = time.Duration(g.timeout) * time.Second
+	}
 
 	fmt.Println("Generating next chapter with OpenAI...")
 	fmt.Printf("  Project: %s\n", project.Name)
@@ -120,7 +127,9 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		effectiveModel,
 		effectiveBaseURL,
 		promptTemplates.ChapterTemplate,
-		promptTemplates.CharacterTemplate)
+		promptTemplates.CharacterTemplate,
+		effectiveTimeout,
+	)
 
 	// Validate target title
 	if g.title == "" {

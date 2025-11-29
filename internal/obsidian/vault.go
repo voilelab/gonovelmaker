@@ -100,7 +100,7 @@ func (v *Vault) LoadProject() (*novelmaker.Project, error) {
 		return nil, fmt.Errorf("failed to read project file %s: %w", projectPath, err)
 	}
 
-	fm, body, err := parseFrontmatter[ProjectFrontmatter](content)
+	fm, body, err := nmutil.ParseFrontmatter[ProjectFrontmatter](content)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse project frontmatter: %w", err)
 	}
@@ -287,7 +287,7 @@ func (v *Vault) loadWorldbookFromRoot(path string) (*novelmaker.Worldbook, error
 		return nil, fmt.Errorf("failed to read file %s: %w", path, err)
 	}
 
-	fm, body, err := parseFrontmatter[WorldbookFrontmatter](content)
+	fm, body, err := nmutil.ParseFrontmatter[WorldbookFrontmatter](content)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse frontmatter in %s: %w", path, err)
 	}
@@ -317,7 +317,7 @@ func (v *Vault) loadChapterFromRoot(path string) (*novelmaker.Chapter, error) {
 		return nil, fmt.Errorf("failed to read file %s: %w", path, err)
 	}
 
-	fm, body, err := parseFrontmatter[ChapterFrontmatter](content)
+	fm, body, err := nmutil.ParseFrontmatter[ChapterFrontmatter](content)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse frontmatter in %s: %w", path, err)
 	}
@@ -357,7 +357,7 @@ func (v *Vault) loadCharacterFromRoot(path string) (*novelmaker.Character, error
 		return nil, fmt.Errorf("failed to read file %s: %w", path, err)
 	}
 
-	fm, body, err := parseFrontmatter[CharacterFrontmatter](content)
+	fm, body, err := nmutil.ParseFrontmatter[CharacterFrontmatter](content)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse frontmatter in %s: %w", path, err)
 	}

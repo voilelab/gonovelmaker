@@ -1,4 +1,4 @@
-package obsidian
+package nmutil
 
 import (
 	"bytes"
@@ -8,9 +8,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// parseFrontmatter extracts YAML frontmatter from markdown content
+// ParseFrontmatter extracts YAML frontmatter from markdown content
 // Returns the parsed frontmatter as type T, the body content, and any error
-func parseFrontmatter[T any](content []byte) (*T, string, error) {
+func ParseFrontmatter[T any](content []byte) (*T, string, error) {
 	str := string(content)
 
 	// Check if file starts with ---

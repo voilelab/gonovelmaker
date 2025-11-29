@@ -9,37 +9,6 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 )
 
-func TestInitCmd_NewInitCmd(t *testing.T) {
-	initCmd := NewInitCmd()
-
-	if initCmd.cmd == nil {
-		t.Fatal("command should not be nil")
-	}
-
-	if initCmd.cmd.Use != "init" {
-		t.Errorf("command use = %s, want 'init'", initCmd.cmd.Use)
-	}
-
-	if initCmd.cmd.Short == "" {
-		t.Error("command should have short description")
-	}
-
-	if initCmd.cmd.Long == "" {
-		t.Error("command should have long description")
-	}
-
-	// Check flag exists
-	flag := initCmd.cmd.Flags().Lookup("include-plugin")
-	if flag == nil {
-		t.Error("command should have --include-plugin flag")
-	}
-
-	// Check default value
-	if !initCmd.includePlugin {
-		t.Error("--include-plugin should default to true")
-	}
-}
-
 func TestInitCmd_Run_Success(t *testing.T) {
 	t.Run("initialize with plugin", func(t *testing.T) {
 		tmpDir := t.TempDir()

@@ -54,6 +54,12 @@ func (s *ScanCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load worldbooks: %w", err)
 	}
 
+	// Load characters
+	characters, err := vault.LoadCharacters()
+	if err != nil {
+		return fmt.Errorf("failed to load characters: %w", err)
+	}
+
 	// Load chapters
 	chapters, err := vault.LoadChapters()
 	if err != nil {
@@ -64,6 +70,7 @@ func (s *ScanCmd) run(cmd *cobra.Command, args []string) error {
 		data := map[string]any{
 			"project":    project,
 			"worldbooks": worldbooks,
+			"characters": characters,
 			"chapters":   chapters,
 		}
 
@@ -87,6 +94,16 @@ func (s *ScanCmd) run(cmd *cobra.Command, args []string) error {
 		content := wb.Content
 		if len(content) > 80 {
 			content = content[:77] + "..."
+		}
+		fmt.Printf("    %s\n\n", strings.ReplaceAll(content, "\n", " "))
+	}
+
+	fmt.Printf("=== CHARACTERS (%d total) ===\n", len(characters))
+	for _, ch := range characters {
+		fmt.Printf("Name: %s | ID: %s\n", ch.Name, ch.ID)
+		content := ch.Profile
+		if len(content) > 100 {
+			content = content[:97] + "..."
 		}
 		fmt.Printf("    %s\n\n", strings.ReplaceAll(content, "\n", " "))
 	}

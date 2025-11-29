@@ -29,11 +29,13 @@ Configuration:
 	scanCmd := NewScanCmd()
 	genNextCmd := NewGenNextCmd()
 	genCharCmd := NewGenCharCmd()
+	exportCmd := NewExportCmd()
 
 	rootCmd.AddCommand(initCmd.cmd)
 	rootCmd.AddCommand(scanCmd.cmd)
 	rootCmd.AddCommand(genNextCmd.cmd)
 	rootCmd.AddCommand(genCharCmd.cmd)
+	rootCmd.AddCommand(exportCmd.cmd)
 
 	// Initialize config (creates empty config file if it doesn't exist)
 	config.Load()

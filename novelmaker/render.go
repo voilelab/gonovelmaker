@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"strings"
 	"text/template"
 	"time"
 
@@ -111,7 +110,7 @@ type CharacterPromptData struct {
 
 // RenderCharacter generates a new character profile using the specified OpenAI model
 func (r *Renderer) RenderCharacter(
-	project *Project, worldbook []Worldbook, characters []Character, prompt string, name string) (profile string, extractedName string, err error) {
+	project *Project, worldbook []Worldbook, characters []Character, prompt string, name string) (string, error) {
 
 	data := CharacterPromptData{
 		ProjectName: project.Name,
@@ -124,7 +123,7 @@ func (r *Renderer) RenderCharacter(
 
 	var buf bytes.Buffer
 	if err := r.CharacterTemplate.Execute(&buf, data); err != nil {
-		return "", "", fmt.Errorf("failed to execute character template: %w", err)
+		return "", fmt.Errorf("failed to execute character template: %w", err)
 	}
 	promptContent := buf.String()
 
@@ -158,35 +157,8 @@ func (r *Renderer) RenderCharacter(
 		})
 
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
-	profile = chatCompletion.Choices[0].Message.Content
-
-	// Try to extract name from the response if not provided
-	if name == "" {
-		lines := strings.Split(profile, "\n")
-		for i, line := range lines {
-			line = strings.TrimSpace(line)
-			// Look for "Name: XXX" pattern
-			if strings.HasPrefix(strings.ToLower(line), "name:") {
-				extractedName = strings.TrimSpace(strings.TrimPrefix(line, "Name:"))
-				extractedName = strings.TrimSpace(strings.TrimPrefix(extractedName, "name:"))
-				// Remove this line from the profile
-				profile = strings.Join(append(lines[:i], lines[i+1:]...), "\n")
-				break
-			}
-			// Look for "# Name" or "## Name" pattern in first few lines
-			if i < 3 && (strings.HasPrefix(line, "# ") || strings.HasPrefix(line, "## ")) {
-				extractedName = strings.TrimPrefix(line, "##")
-				extractedName = strings.TrimPrefix(extractedName, "#")
-				extractedName = strings.TrimSpace(extractedName)
-				if extractedName != "" {
-					break
-				}
-			}
-		}
-	}
-
-	return profile, extractedName, nil
+	return chatCompletion.Choices[0].Message.Content, nil
 }

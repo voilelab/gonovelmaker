@@ -37,9 +37,9 @@ using OpenAI API.`,
 
 	g.cmd.Flags().BoolVarP(&g.json, "json", "j", false, "Output in JSON format")
 
+	g.cmd.Flags().StringVarP(&g.name, "name", "n", "", "Name for the character (required)")
 	g.cmd.Flags().StringVarP(&g.prompt, "prompt", "p", "", "Description/prompt for the character to generate")
-	g.cmd.Flags().StringVarP(&g.name, "name", "n", "", "Name for the character (optional, will be extracted from AI response if not provided)")
-	g.cmd.MarkFlagRequired("prompt")
+	g.cmd.MarkFlagRequired("name")
 
 	// Allow overriding config values per-command
 	g.cmd.Flags().StringVar(&g.apiKey, "api-key", "", "OpenAI API key to override config (optional)")
@@ -128,29 +128,19 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 	)
 
 	// Call OpenAI API
-	profile, extractedName, err := renderer.RenderCharacter(
+	profile, err := renderer.RenderCharacter(
 		project, worldbooks, characters, g.prompt, g.name)
 	if err != nil {
 		return fmt.Errorf("failed to generate character: %w", err)
 	}
 
-	// Use provided name or extracted name
-	finalName := g.name
-	if finalName == "" {
-		finalName = extractedName
-	}
-
-	if finalName == "" {
-		return fmt.Errorf("could not determine character name. Please provide --name flag")
-	}
-
 	// Generate character ID
-	charID := slugify(finalName)
+	charID := slugify(g.name)
 
 	// Create character struct
 	ch := novelmaker.Character{
 		ID:      charID,
-		Name:    finalName,
+		Name:    g.name,
 		Main:    false,
 		Profile: profile,
 	}
@@ -164,7 +154,7 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 	if !g.json {
 		fmt.Printf("\n✓ Successfully generated character!\n")
 		fmt.Printf("  File: %s\n", autoPath)
-		fmt.Printf("  Name: %s\n", finalName)
+		fmt.Printf("  Name: %s\n", g.name)
 		fmt.Printf("  ID: %s\n", charID)
 	} else {
 		output := map[string]any{

@@ -122,6 +122,41 @@ class NovelMakerPlugin extends Plugin {
 				}).open();
 			}
 		});
+
+		// Register export command
+		this.addCommand({
+			id: 'export-novel',
+			name: '匯出小說',
+			callback: () => {
+				new ExportModal(this.app, async (outputPath) => {
+					const loadingModal = new LoadingModal(this.app, '正在匯出小說...請稍候');
+					loadingModal.open();
+
+					try {
+						// Get vault path
+						const vaultPath = this.app.vault.adapter.basePath;
+						
+						// Build the command using configured CLI path
+						let cmd = `${this.settings.cliPath} export --output "${outputPath}" --type txt`;
+						
+						// Call CLI with the input, setting cwd to vault path
+						const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
+
+						// Show success notification
+						new Notice('✅ 小說匯出成功！');
+						
+						// Optionally show output in console
+						if (stdout) console.log(stdout);
+						if (stderr) console.error(stderr);
+					} catch (error) {
+						new Notice(`❌ 錯誤: ${error.message}`);
+						console.error(error);
+					} finally {
+						loadingModal.forceCloseNow();
+					}
+				}).open();
+			}
+		});
 	}
 
 	onunload() {
@@ -378,6 +413,92 @@ class NovelMakerSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+	}
+}
+
+class ExportModal extends Modal {
+	constructor(app, onSubmit) {
+		super(app);
+		this.outputPath = '';
+		this.onSubmit = onSubmit;
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		
+		contentEl.createEl('h2', { text: '匯出小說' });
+
+		const pathSetting = new Setting(contentEl)
+			.setName('輸出檔案路徑')
+			.setDesc('選擇小說匯出的檔案路徑')
+			.addText((text) => {
+				text
+					.setPlaceholder('選擇檔案位置...')
+					.setValue(this.outputPath)
+					.onChange((value) => {
+						this.outputPath = value;
+					});
+				text.inputEl.style.width = '100%';
+			})
+			.addButton((btn) =>
+				btn
+					.setButtonText('瀏覽...')
+					.onClick(async () => {
+						try {
+							// Use Electron's dialog
+							const { dialog } = require('electron').remote;
+							const result = await dialog.showSaveDialog({
+								title: '選擇匯出位置',
+								defaultPath: 'novel.txt',
+								filters: [
+									{ name: '文字檔案', extensions: ['txt'] },
+									{ name: '所有檔案', extensions: ['*'] }
+								],
+								properties: ['createDirectory', 'showOverwriteConfirmation']
+							});
+
+							if (!result.canceled && result.filePath) {
+								this.outputPath = result.filePath;
+								// Update the text input with selected path
+								const textInput = pathSetting.controlEl.querySelector('input[type="text"]');
+								if (textInput) {
+									textInput.value = this.outputPath;
+								}
+							}
+						} catch (error) {
+							// Fallback if electron.remote is not available
+							console.error('File dialog error:', error);
+							new Notice('⚠ 無法開啟檔案對話框，請手動輸入路徑');
+						}
+					})
+			);
+
+		new Setting(contentEl)
+			.addButton((btn) =>
+				btn
+					.setButtonText('取消')
+					.onClick(() => {
+						this.close();
+					})
+			)
+			.addButton((btn) =>
+				btn
+					.setButtonText('匯出')
+					.setCta()
+					.onClick(() => {
+						if (!this.outputPath || !this.outputPath.trim()) {
+							new Notice('❌ 請選擇或輸入輸出檔案路徑');
+							return;
+						}
+						this.close();
+						this.onSubmit(this.outputPath);
+					})
+			);
+	}
+
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
 	}
 }
 

@@ -20,7 +20,6 @@ var initTemplateFolder embed.FS
 
 // WorldbookFrontmatter represents the YAML frontmatter for worldbook entries
 type WorldbookFrontmatter struct {
-	ID   string   `yaml:"id"`
 	Tags []string `yaml:"tags"`
 }
 
@@ -285,10 +284,6 @@ func (v *Vault) loadWorldbookFromRoot(path string) (*novelmaker.Worldbook, error
 		return nil, fmt.Errorf("failed to parse frontmatter in %s: %w", path, err)
 	}
 
-	if fm.ID == "" {
-		return nil, fmt.Errorf("missing or invalid 'id' in frontmatter of %s", path)
-	}
-
 	// Get file modification time
 	info, _ := v.root.Stat(path)
 	updatedAt := time.Now()
@@ -297,7 +292,7 @@ func (v *Vault) loadWorldbookFromRoot(path string) (*novelmaker.Worldbook, error
 	}
 
 	return &novelmaker.Worldbook{
-		ID:        fm.ID,
+		ID:        path,
 		Tags:      fm.Tags,
 		Content:   body,
 		UpdatedAt: updatedAt,

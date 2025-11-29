@@ -145,7 +145,6 @@ func TestVault_LoadWorldbooks(t *testing.T) {
 		tmpDir := createTestVault(t)
 
 		wb1 := `---
-id: magic-system
 tags:
   - magic
   - rules
@@ -153,7 +152,6 @@ tags:
 The magic system is based on elements.`
 
 		wb2 := `---
-id: geography
 tags:
   - world
   - locations
@@ -181,7 +179,7 @@ The world consists of three continents.`
 		// Find magic-system worldbook
 		var magicWB *novelmaker.Worldbook
 		for i := range worldbooks {
-			if worldbooks[i].ID == "magic-system" {
+			if worldbooks[i].ID == "World/001_magic.md" {
 				magicWB = &worldbooks[i]
 				break
 			}

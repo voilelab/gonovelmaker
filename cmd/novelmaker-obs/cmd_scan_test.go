@@ -47,7 +47,6 @@ This is a fantasy world with magic and dragons.`
 
 	// Create worldbook entries
 	wb1 := `---
-id: magic-system
 tags:
   - magic
   - rules
@@ -56,7 +55,6 @@ Magic in this world is based on elemental manipulation.`
 	writeTestFile(t, tmpDir, "World/001_magic-system.md", wb1)
 
 	wb2 := `---
-id: geography
 tags:
   - world
   - locations
@@ -145,10 +143,10 @@ func TestScanCmd_Run_TextOutput(t *testing.T) {
 		if !strings.Contains(output, "=== WORLDBOOK (2 entries) ===") {
 			t.Error("output should contain worldbook section with count")
 		}
-		if !strings.Contains(output, "ID: magic-system") {
+		if !strings.Contains(output, "ID: World/001_magic-system.md") {
 			t.Error("output should contain magic-system worldbook")
 		}
-		if !strings.Contains(output, "ID: geography") {
+		if !strings.Contains(output, "ID: World/002_geography.md") {
 			t.Error("output should contain geography worldbook")
 		}
 		if !strings.Contains(output, "elemental manipulation") {

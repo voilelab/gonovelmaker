@@ -12,6 +12,7 @@ import (
 
 	"github.com/voilelab/gonovelmaker/internal/nmutil"
 	"github.com/voilelab/gonovelmaker/novelmaker"
+	"gopkg.in/yaml.v3"
 )
 
 //go:embed all:init_template
@@ -192,13 +193,19 @@ func (v *Vault) AddCharacter(c *novelmaker.Character) error {
 		return fmt.Errorf("failed to create Character directory: %w", err)
 	}
 
+	characterMeta := &CharacterFrontmatter{
+		ID:   c.ID,
+		Name: c.Name,
+		Main: c.Main,
+	}
+
+	bs, err := yaml.Marshal(characterMeta)
+	if err != nil {
+		return fmt.Errorf("failed to marshal character frontmatter: %w", err)
+	}
+
 	// Prepare frontmatter similar to CLI behavior
-	frontmatter := fmt.Sprintf(`---
-id: %s
-name: %s
-main: %t
----
-%s`, c.ID, c.Name, c.Main, c.Profile)
+	frontmatter := fmt.Sprintf("---\n%s\n---\n%s\n", string(bs), c.Profile)
 
 	// Destination file
 	filename := fmt.Sprintf("%s.md", c.ID)
@@ -248,13 +255,20 @@ func (v *Vault) AddChapter(c *novelmaker.Chapter) error {
 		return fmt.Errorf("failed to create Story directory: %w", err)
 	}
 
+	chapterMeta := &ChapterFrontmatter{
+		ID:     c.ID,
+		Index:  c.Index,
+		Title:  c.Title,
+		Prompt: c.Prompt,
+	}
+
+	bs, err := yaml.Marshal(chapterMeta)
+	if err != nil {
+		return fmt.Errorf("failed to marshal chapter frontmatter: %w", err)
+	}
+
 	// Prepare frontmatter similar to loader expectations
-	frontmatter := fmt.Sprintf(`---
-id: %s
-title: %s
-index: %d
----
-%s`, c.ID, c.Title, c.Index, c.Content)
+	frontmatter := fmt.Sprintf("---\n%s\n---\n%s\n", string(bs), c.Content)
 
 	// Destination file: include index for readability
 	filename := fmt.Sprintf("%03d_%s.md", c.Index, c.ID)
@@ -331,6 +345,7 @@ func (v *Vault) loadChapterFromRoot(path string) (*novelmaker.Chapter, error) {
 		ID:        fm.ID,
 		Index:     fm.Index,
 		Title:     fm.Title,
+		Prompt:    fm.Prompt,
 		Content:   body,
 		UpdatedAt: updatedAt,
 	}, nil

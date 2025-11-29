@@ -398,6 +398,53 @@ Charlie is a main character.`
 }
 
 func TestVault_LoadChapters(t *testing.T) {
+	t.Run("single chapter", func(t *testing.T) {
+		tmpDir := createTestVault(t)
+		chapterContent := `---
+id: chapter-one
+title: Chapter One
+index: 1
+prompt: test prompt
+---
+This is the content of chapter one.`
+		writeTestFile(t, tmpDir, "Story/001_chapter-one.md", chapterContent)
+
+		vault, err := NewVault(tmpDir)
+		if err != nil {
+			t.Fatalf("NewVault failed: %v", err)
+		}
+		defer vault.Close()
+
+		chapters, err := vault.LoadChapters()
+		if err != nil {
+			t.Fatalf("LoadChapters failed: %v", err)
+		}
+
+		if len(chapters) != 1 {
+			t.Fatalf("expected 1 chapter, got %d", len(chapters))
+		}
+
+		if chapters[0].ID != "chapter-one" {
+			t.Errorf("expected chapter ID 'chapter-one', got '%s'", chapters[0].ID)
+		}
+
+		if chapters[0].Title != "Chapter One" {
+			t.Errorf("expected chapter title 'Chapter One', got '%s'", chapters[0].Title)
+		}
+
+		if chapters[0].Index != 1 {
+			t.Errorf("expected chapter index 1, got %d", chapters[0].Index)
+		}
+
+		if chapters[0].Prompt != "test prompt" {
+			t.Errorf("expected chapter prompt 'test prompt', got '%s'", chapters[0].Prompt)
+		}
+
+		if chapters[0].Content != "This is the content of chapter one." {
+			t.Errorf("expected chapter content 'This is the content of chapter one.', got '%s'", chapters[0].Content)
+		}
+	})
+
 	t.Run("multiple chapters with sorting", func(t *testing.T) {
 		tmpDir := createTestVault(t)
 
@@ -563,6 +610,7 @@ func TestVault_AddChapter(t *testing.T) {
 			ID:        "test-chapter",
 			Index:     5,
 			Title:     "Test Chapter",
+			Prompt:    "This is the chapter prompt.",
 			Content:   "This is the chapter content.",
 			UpdatedAt: time.Now(),
 		}
@@ -588,6 +636,9 @@ func TestVault_AddChapter(t *testing.T) {
 		}
 		if !strings.Contains(contentStr, "index: 5") {
 			t.Error("file should contain 'index: 5'")
+		}
+		if !strings.Contains(contentStr, "This is the chapter prompt.") {
+			t.Error("file should contain chapter prompt")
 		}
 		if !strings.Contains(contentStr, "This is the chapter content.") {
 			t.Error("file should contain chapter content")

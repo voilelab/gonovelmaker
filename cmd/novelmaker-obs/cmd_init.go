@@ -10,7 +10,7 @@ import (
 )
 
 //go:embed obsidian-novelmaker
-var obsidianNovelmakerTemplate embed.FS
+var obsidianNovelmaker embed.FS
 
 type InitCmd struct {
 	includePlugin bool
@@ -54,7 +54,7 @@ func (i *InitCmd) run(cmd *cobra.Command, args []string) error {
 	fmt.Println("✓ Successfully initialized novel project structure!")
 
 	if i.includePlugin {
-		err = vault.AddPlugin(obsidianNovelmakerTemplate, "obsidian-novelmaker")
+		err = vault.UpdatePlugin(obsidianNovelmaker, "obsidian-novelmaker")
 		if err != nil {
 			return fmt.Errorf("failed to copy Obsidian plugin files: %w", err)
 		}

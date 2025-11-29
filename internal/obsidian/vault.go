@@ -68,7 +68,7 @@ func (v *Vault) Close() error {
 	return v.root.Close()
 }
 
-func (v *Vault) AddPlugin(pluginFS embed.FS, pluginName string) error {
+func (v *Vault) UpdatePlugin(pluginFS embed.FS, pluginName string) error {
 	err := v.root.MkdirAll(filepath.Join(".obsidian", "plugins", pluginName), 0755)
 	if err != nil {
 		return fmt.Errorf("failed to create plugins directory: %w", err)

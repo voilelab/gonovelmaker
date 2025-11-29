@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/voilelab/gonovelmaker/internal/config"
+	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 	"github.com/voilelab/gonovelmaker/internal/nmutil"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 	"github.com/voilelab/gonovelmaker/novelmaker"
@@ -118,10 +119,14 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load prompt templates: %w", err)
 	}
 
-	renderer := novelmaker.NewRenderer(
+	llmBackend := llmbackend.NewOpenAIBackend(
 		effectiveAPIKey,
 		effectiveModel,
 		effectiveBaseURL,
+	)
+
+	renderer := novelmaker.NewRenderer(
+		llmBackend,
 		promptTemplates.ChapterTemplate,
 		promptTemplates.CharacterTemplate,
 		effectiveTimeout,

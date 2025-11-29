@@ -7,24 +7,20 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/openai/openai-go/v3"
-	"github.com/openai/openai-go/v3/option"
+	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 )
 
 type Renderer struct {
-	APIKey            string
-	Model             string
-	BaseURL           string
+	llmBackend llmbackend.LLMBackend
+
 	ChapterTemplate   *template.Template
 	CharacterTemplate *template.Template
 	timeout           time.Duration
 }
 
-func NewRenderer(apiKey, model, baseURL string, chapterTempl, characterTempl *template.Template, timeout time.Duration) *Renderer {
+func NewRenderer(llmBackend llmbackend.LLMBackend, chapterTempl, characterTempl *template.Template, timeout time.Duration) *Renderer {
 	return &Renderer{
-		APIKey:            apiKey,
-		Model:             model,
-		BaseURL:           baseURL,
+		llmBackend:        llmBackend,
 		ChapterTemplate:   chapterTempl,
 		CharacterTemplate: characterTempl,
 		timeout:           timeout,
@@ -62,20 +58,14 @@ func (r *Renderer) RenderPrompt(
 	}
 	promptContent := buf.String()
 
-	opts := []option.RequestOption{option.WithAPIKey(r.APIKey)}
-	if r.BaseURL != "" {
-		opts = append(opts, option.WithBaseURL(r.BaseURL))
-	}
-	client := openai.NewClient(opts...)
-
 	systemPrompt := project.SystemPrompt
 	if systemPrompt == "" {
 		systemPrompt = "You are a helpful assistant that writes novels."
 	}
 
-	msgs := []openai.ChatCompletionMessageParamUnion{
-		openai.SystemMessage(systemPrompt),
-		openai.UserMessage(promptContent),
+	msgs := []llmbackend.Message{
+		{Role: llmbackend.RoleSystem, Content: systemPrompt},
+		{Role: llmbackend.RoleUser, Content: promptContent},
 	}
 
 	ctx := context.Background()
@@ -85,17 +75,13 @@ func (r *Renderer) RenderPrompt(
 		defer cancel()
 	}
 
-	chatCompletion, err := client.Chat.Completions.New(ctx,
-		openai.ChatCompletionNewParams{
-			Messages: msgs,
-			Model:    r.Model,
-		})
+	chatCompletion, err := r.llmBackend.ChatCompletion(msgs, ctx)
 
 	if err != nil {
 		return "", err
 	}
 
-	return chatCompletion.Choices[0].Message.Content, nil
+	return chatCompletion, nil
 }
 
 // CharacterPromptData holds the data for rendering character prompts
@@ -127,20 +113,14 @@ func (r *Renderer) RenderCharacter(
 	}
 	promptContent := buf.String()
 
-	opts := []option.RequestOption{option.WithAPIKey(r.APIKey)}
-	if r.BaseURL != "" {
-		opts = append(opts, option.WithBaseURL(r.BaseURL))
-	}
-	client := openai.NewClient(opts...)
-
 	systemPrompt := project.SystemPromptChar
 	if systemPrompt == "" {
 		systemPrompt = "You are a helpful assistant that creates detailed character profiles for novels."
 	}
 
-	msgs := []openai.ChatCompletionMessageParamUnion{
-		openai.SystemMessage(systemPrompt),
-		openai.UserMessage(promptContent),
+	msgs := []llmbackend.Message{
+		{Role: llmbackend.RoleSystem, Content: systemPrompt},
+		{Role: llmbackend.RoleUser, Content: promptContent},
 	}
 
 	ctx := context.Background()
@@ -150,15 +130,11 @@ func (r *Renderer) RenderCharacter(
 		defer cancel()
 	}
 
-	chatCompletion, err := client.Chat.Completions.New(ctx,
-		openai.ChatCompletionNewParams{
-			Messages: msgs,
-			Model:    r.Model,
-		})
+	chatCompletion, err := r.llmBackend.ChatCompletion(msgs, ctx)
 
 	if err != nil {
 		return "", err
 	}
 
-	return chatCompletion.Choices[0].Message.Content, nil
+	return chatCompletion, nil
 }

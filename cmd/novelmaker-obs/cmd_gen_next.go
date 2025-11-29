@@ -171,6 +171,7 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		ID:      chapterID,
 		Index:   nextIndex,
 		Title:   g.title,
+		Prompt:  g.prompt,
 		Content: content,
 	}
 

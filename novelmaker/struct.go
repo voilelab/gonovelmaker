@@ -31,6 +31,7 @@ type Chapter struct {
 	ID        string    `json:"id"`
 	Index     int       `json:"index"`
 	Title     string    `json:"title"`
+	Prompt    string    `json:"prompt"`
 	Content   string    `json:"content"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

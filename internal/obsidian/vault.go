@@ -25,9 +25,10 @@ type WorldbookFrontmatter struct {
 
 // ChapterFrontmatter represents the YAML frontmatter for chapters
 type ChapterFrontmatter struct {
-	ID    string `yaml:"id"`
-	Title string `yaml:"title"`
-	Index int    `yaml:"index"`
+	ID     string `yaml:"id"`
+	Title  string `yaml:"title"`
+	Index  int    `yaml:"index"`
+	Prompt string `yaml:"prompt"`
 }
 
 // CharacterFrontmatter represents the YAML frontmatter for characters

@@ -74,11 +74,6 @@ novelmaker-obs init
 - `README.md` - 專案說明
 - `.obsidian/app.json` - Obsidian 設定
 
-如果目錄已存在專案，使用 `--force` 或 `-f` 強制覆寫：
-```bash
-novelmaker-obs init --force
-```
-
 ### 掃描現有專案結構
 
 ```bash

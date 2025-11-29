@@ -26,9 +26,10 @@ class NovelMakerPlugin extends Plugin {
 			name: '生成下一章',
 			callback: () => {
 				new GenNextModal(this.app, async (title, prompt, prevCount) => {
+					const loadingModal = new LoadingModal(this.app, '正在生成下一章...請稍候');
+					loadingModal.open();
+
 					try {
-						new Notice('正在生成下一章...');
-						
 						// Get vault path
 						const vaultPath = this.app.vault.adapter.basePath;
 						
@@ -65,6 +66,8 @@ class NovelMakerPlugin extends Plugin {
 					} catch (error) {
 						new Notice(`❌ 錯誤: ${error.message}`);
 						console.error(error);
+					} finally {
+						loadingModal.close();
 					}
 				}).open();
 			}
@@ -76,9 +79,10 @@ class NovelMakerPlugin extends Plugin {
 			name: '生成角色',
 			callback: () => {
 				new GenCharModal(this.app, async (name, prompt) => {
+					const loadingModal = new LoadingModal(this.app, '正在生成角色...請稍候');
+					loadingModal.open();
+
 					try {
-						new Notice('正在生成角色...');
-						
 						// Get vault path
 						const vaultPath = this.app.vault.adapter.basePath;
 						
@@ -102,7 +106,7 @@ class NovelMakerPlugin extends Plugin {
 						
 						// Call CLI with the input, setting cwd to vault path
 						const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
-						
+
 						// Show success notification
 						new Notice('✅ 角色生成成功！');
 						
@@ -112,6 +116,8 @@ class NovelMakerPlugin extends Plugin {
 					} catch (error) {
 						new Notice(`❌ 錯誤: ${error.message}`);
 						console.error(error);
+					} finally {
+						loadingModal.close();
 					}
 				}).open();
 			}
@@ -372,6 +378,25 @@ class NovelMakerSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+	}
+}
+
+class LoadingModal extends Modal {
+	constructor(app, message = "處理中…請稍候") {
+		super(app);
+		this.message = message;
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		contentEl.empty();
+		contentEl.createEl("h3", { text: this.message });
+		contentEl.createEl("div", { text: "⏳ CLI 執行中…" });
+	}
+
+	onClose() {
+		let { contentEl } = this;
+		contentEl.empty();
 	}
 }
 

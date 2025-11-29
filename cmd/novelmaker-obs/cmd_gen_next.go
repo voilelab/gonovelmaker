@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,6 +16,7 @@ import (
 const maxPrevChapters = 10
 
 type GenNextCmd struct {
+	json         bool
 	title        string
 	prompt       string
 	prevChapters int
@@ -35,6 +37,8 @@ func NewGenNextCmd() *GenNextCmd {
 and previous chapters using OpenAI API.`,
 		RunE: g.run,
 	}
+
+	g.cmd.Flags().BoolVarP(&g.json, "json", "j", false, "Output in JSON format")
 
 	g.cmd.Flags().StringVarP(&g.title, "title", "t", "", "Title for the next chapter (required)")
 	g.cmd.Flags().StringVarP(&g.prompt, "prompt", "p", "", "Additional prompt/instruction for chapter generation (optional)")
@@ -110,11 +114,13 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		effectiveTimeout = time.Duration(g.timeout) * time.Second
 	}
 
-	fmt.Println("Generating next chapter with OpenAI...")
-	fmt.Printf("  Project: %s\n", project.Name)
-	fmt.Printf("  Model: %s\n", effectiveModel)
-	fmt.Printf("  Target: %s\n", g.title)
-	fmt.Printf("  Context: %d worldbook entries, %d characters, %d previous chapters\n", len(worldbooks), len(characters), len(chapters))
+	if !g.json {
+		fmt.Println("Generating next chapter with OpenAI...")
+		fmt.Printf("  Project: %s\n", project.Name)
+		fmt.Printf("  Model: %s\n", effectiveModel)
+		fmt.Printf("  Target: %s\n", g.title)
+		fmt.Printf("  Context: %d worldbook entries, %d characters, %d previous chapters\n", len(worldbooks), len(characters), len(chapters))
+	}
 
 	// Load prompt templates
 	promptTemplates, err := config.LoadPromptTemplates()
@@ -161,7 +167,6 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 	// Generate ID based on number of chapters
 	chapterID := fmt.Sprintf("ch%d", len(chapters)+1)
 
-	// Create chapter struct and add via Vault helper (no --out-file behavior)
 	ch := novelmaker.Chapter{
 		ID:      chapterID,
 		Index:   nextIndex,
@@ -173,11 +178,23 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to add chapter to vault: %w", err)
 	}
 
-	autoPath := filepath.Join(cwd, "Story", fmt.Sprintf("%03d_%s.md", nextIndex, chapterID))
-	fmt.Printf("\n✓ Successfully generated chapter!\n")
-	fmt.Printf("  File: %s\n", autoPath)
-	fmt.Printf("  Index: %d\n", nextIndex)
-	fmt.Printf("  Title: %s\n", g.title)
+	autoPath := filepath.Join("Story", fmt.Sprintf("%03d_%s.md", nextIndex, chapterID))
+
+	if !g.json {
+		fmt.Printf("\n✓ Successfully generated chapter!\n")
+		fmt.Printf("  File: %s\n", autoPath)
+		fmt.Printf("  Index: %d\n", nextIndex)
+		fmt.Printf("  Title: %s\n", g.title)
+	} else {
+		output := map[string]any{
+			"filepath": autoPath,
+		}
+		encoder := json.NewEncoder(os.Stdout)
+		encoder.SetIndent("", "  ")
+		if err := encoder.Encode(output); err != nil {
+			return fmt.Errorf("failed to encode JSON output: %w", err)
+		}
+	}
 
 	return nil
 }

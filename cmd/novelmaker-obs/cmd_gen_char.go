@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 )
 
 type GenCharCmd struct {
+	json    bool
 	prompt  string
 	name    string
 	apiKey  string
@@ -32,6 +34,8 @@ func NewGenCharCmd() *GenCharCmd {
 using OpenAI API.`,
 		RunE: g.run,
 	}
+
+	g.cmd.Flags().BoolVarP(&g.json, "json", "j", false, "Output in JSON format")
 
 	g.cmd.Flags().StringVarP(&g.prompt, "prompt", "p", "", "Description/prompt for the character to generate")
 	g.cmd.Flags().StringVarP(&g.name, "name", "n", "", "Name for the character (optional, will be extracted from AI response if not provided)")
@@ -100,11 +104,13 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 		effectiveTimeout = time.Duration(g.timeout) * time.Second
 	}
 
-	fmt.Println("Generating character with OpenAI...")
-	fmt.Printf("  Project: %s\n", project.Name)
-	fmt.Printf("  Model: %s\n", effectiveModel)
-	fmt.Printf("  Prompt: %s\n", g.prompt)
-	fmt.Printf("  Context: %d worldbook entries, %d existing characters\n", len(worldbooks), len(characters))
+	if !g.json {
+		fmt.Println("Generating character with OpenAI...")
+		fmt.Printf("  Project: %s\n", project.Name)
+		fmt.Printf("  Model: %s\n", effectiveModel)
+		fmt.Printf("  Prompt: %s\n", g.prompt)
+		fmt.Printf("  Context: %d worldbook entries, %d existing characters\n", len(worldbooks), len(characters))
+	}
 
 	// Load prompt templates
 	promptTemplates, err := config.LoadPromptTemplates()
@@ -149,15 +155,26 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 		Profile: profile,
 	}
 
-	// Always use Vault helper to add character to vault (do not support --out-file here)
 	if err := vault.AddCharacter(&ch); err != nil {
 		return fmt.Errorf("failed to add character to vault: %w", err)
 	}
 
-	autoPath := filepath.Join(cwd, "Character", fmt.Sprintf("%s.md", charID))
-	fmt.Printf("\n✓ Successfully generated character!\n")
-	fmt.Printf("  File: %s\n", autoPath)
-	fmt.Printf("  Name: %s\n", finalName)
-	fmt.Printf("  ID: %s\n", charID)
+	autoPath := filepath.Join("Character", fmt.Sprintf("%s.md", charID))
+
+	if !g.json {
+		fmt.Printf("\n✓ Successfully generated character!\n")
+		fmt.Printf("  File: %s\n", autoPath)
+		fmt.Printf("  Name: %s\n", finalName)
+		fmt.Printf("  ID: %s\n", charID)
+	} else {
+		output := map[string]any{
+			"filepath": autoPath,
+		}
+		encoder := json.NewEncoder(os.Stdout)
+		encoder.SetIndent("", "  ")
+		if err := encoder.Encode(output); err != nil {
+			return fmt.Errorf("failed to encode JSON output: %w", err)
+		}
+	}
 	return nil
 }

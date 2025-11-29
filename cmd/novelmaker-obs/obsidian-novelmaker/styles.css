@@ -19,3 +19,7 @@
 .novelmaker-warning-text {
 	color: var(--text-normal);
 }
+
+.loading-modal .modal-close-button {
+	display: none !important;
+}

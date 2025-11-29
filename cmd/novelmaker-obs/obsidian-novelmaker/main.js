@@ -67,7 +67,7 @@ class NovelMakerPlugin extends Plugin {
 						new Notice(`❌ 錯誤: ${error.message}`);
 						console.error(error);
 					} finally {
-						loadingModal.close();
+						loadingModal.forceCloseNow();
 					}
 				}).open();
 			}
@@ -117,7 +117,7 @@ class NovelMakerPlugin extends Plugin {
 						new Notice(`❌ 錯誤: ${error.message}`);
 						console.error(error);
 					} finally {
-						loadingModal.close();
+						loadingModal.forceCloseNow();
 					}
 				}).open();
 			}
@@ -388,15 +388,37 @@ class LoadingModal extends Modal {
 	}
 
 	onOpen() {
-		const { contentEl } = this;
-		contentEl.empty();
-		contentEl.createEl("h3", { text: this.message });
-		contentEl.createEl("div", { text: "⏳ CLI 執行中…" });
+		// remove X
+		const closeBtn = this.containerEl.querySelector(".modal-close-button");
+		if (closeBtn) closeBtn.remove();
+
+		// block ESC
+		this.scope.register([], 'Escape', evt => {
+			evt.preventDefault();
+		});
+
+		// block clicking background
+		this.containerEl.onclick = (evt) => {
+			evt.stopPropagation();
+		};
+
+		// UI
+		this.contentEl.empty();
+		this.setTitle(this.message);
+		this.contentEl.createEl("div", { text: "⏳ 生成中…" });
 	}
 
-	onClose() {
-		let { contentEl } = this;
-		contentEl.empty();
+	// prevent close
+	close() {
+		if (this.forceClose) {
+			super.close();
+		}
+	}
+
+	// safe manual close
+	forceCloseNow() {
+		this.forceClose = true;
+		this.close();
 	}
 }
 

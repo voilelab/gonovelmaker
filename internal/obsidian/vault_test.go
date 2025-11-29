@@ -224,7 +224,6 @@ The world consists of three continents.`
 		tmpDir := createTestVault(t)
 
 		wb := `---
-id: magic-system
 tags:
   - magic
 ---
@@ -271,21 +270,18 @@ func TestVault_LoadCharacters(t *testing.T) {
 		tmpDir := createTestVault(t)
 
 		char1 := `---
-id: alice
 name: Alice
 main: true
 ---
 Alice is the protagonist.`
 
 		char2 := `---
-id: bob
 name: Bob
 main: false
 ---
 Bob is a side character.`
 
 		char3 := `---
-id: charlie
 name: Charlie
 main: true
 ---
@@ -373,7 +369,6 @@ func TestVault_LoadChapters(t *testing.T) {
 	t.Run("single chapter", func(t *testing.T) {
 		tmpDir := createTestVault(t)
 		chapterContent := `---
-id: chapter-one
 title: Chapter One
 index: 1
 prompt: test prompt

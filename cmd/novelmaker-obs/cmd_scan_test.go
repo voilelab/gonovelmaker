@@ -64,7 +64,6 @@ The world consists of three continents separated by vast oceans.`
 
 	// Create characters
 	char1 := `---
-id: alice
 name: Alice
 main: true
 ---
@@ -72,7 +71,6 @@ Alice is a brave knight who seeks to protect her kingdom.`
 	writeTestFile(t, tmpDir, "Character/alice.md", char1)
 
 	char2 := `---
-id: bob
 name: Bob
 main: false
 ---
@@ -81,7 +79,6 @@ Bob is a wise old wizard who mentors the protagonist.`
 
 	// Create chapters
 	ch1 := `---
-id: prologue
 title: The Beginning
 index: 1
 prompt: Write an engaging prologue that introduces the main character.
@@ -90,7 +87,6 @@ It was a dark and stormy night when Alice first discovered her destiny.`
 	writeTestFile(t, tmpDir, "Story/001_prologue.md", ch1)
 
 	ch2 := `---
-id: chapter-one
 title: Chapter One - The Journey Begins
 index: 2
 prompt: Continue the story as Alice leaves her village.
@@ -262,7 +258,6 @@ World description.`
 		// Create worldbook with long content (>80 chars)
 		longContent := strings.Repeat("This is a very long worldbook entry that should be truncated in the output. ", 5)
 		wb := `---
-id: long-entry
 tags:
   - test
 ---

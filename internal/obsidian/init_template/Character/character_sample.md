@@ -1,5 +1,4 @@
 ---
-id: char_example
 name: 主角名字
 main: true
 ---

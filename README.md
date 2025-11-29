@@ -1,5 +1,7 @@
 # gonovelmaker
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/voilelab/gonovelmaker)](https://goreportcard.com/report/github.com/voilelab/gonovelmaker)
+
 一個用於管理 Obsidian vault 中小說專案的命令列工具，整合 OpenAI 功能。
 目前專注於生成中文小說，所以預設模板和範例均為中文內容。
 

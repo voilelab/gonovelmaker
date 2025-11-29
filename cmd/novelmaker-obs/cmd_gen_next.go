@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -175,20 +174,19 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		Content: content,
 	}
 
-	if err := vault.AddChapter(&ch); err != nil {
+	filePath, err := vault.AddChapter(&ch)
+	if err != nil {
 		return fmt.Errorf("failed to add chapter to vault: %w", err)
 	}
 
-	autoPath := filepath.Join("Story", fmt.Sprintf("%03d_%s.md", nextIndex, chapterID))
-
 	if !g.json {
 		fmt.Printf("\n✓ Successfully generated chapter!\n")
-		fmt.Printf("  File: %s\n", autoPath)
+		fmt.Printf("  File: %s\n", filePath)
 		fmt.Printf("  Index: %d\n", nextIndex)
 		fmt.Printf("  Title: %s\n", g.title)
 	} else {
 		output := map[string]any{
-			"filepath": autoPath,
+			"filepath": filePath,
 		}
 		encoder := json.NewEncoder(os.Stdout)
 		encoder.SetIndent("", "  ")

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -146,20 +145,19 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 		Profile: profile,
 	}
 
-	if err := vault.AddCharacter(&ch); err != nil {
+	filePath, err := vault.AddCharacter(&ch)
+	if err != nil {
 		return fmt.Errorf("failed to add character to vault: %w", err)
 	}
 
-	autoPath := filepath.Join("Character", fmt.Sprintf("%s.md", charID))
-
 	if !g.json {
 		fmt.Printf("\n✓ Successfully generated character!\n")
-		fmt.Printf("  File: %s\n", autoPath)
+		fmt.Printf("  File: %s\n", filePath)
 		fmt.Printf("  Name: %s\n", g.name)
 		fmt.Printf("  ID: %s\n", charID)
 	} else {
 		output := map[string]any{
-			"filepath": autoPath,
+			"filepath": filePath,
 		}
 		encoder := json.NewEncoder(os.Stdout)
 		encoder.SetIndent("", "  ")

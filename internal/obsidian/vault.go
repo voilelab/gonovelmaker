@@ -181,10 +181,10 @@ func (v *Vault) LoadCharacters() ([]novelmaker.Character, error) {
 	return characters, nil
 }
 
-func (v *Vault) AddCharacter(c *novelmaker.Character) error {
+func (v *Vault) AddCharacter(c *novelmaker.Character) (string, error) {
 	// Ensure Character directory exists on disk
 	if err := v.root.MkdirAll(charDirName, 0755); err != nil {
-		return fmt.Errorf("failed to create Character directory: %w", err)
+		return "", fmt.Errorf("failed to create Character directory: %w", err)
 	}
 
 	characterMeta := &CharacterFrontmatter{
@@ -195,7 +195,7 @@ func (v *Vault) AddCharacter(c *novelmaker.Character) error {
 
 	bs, err := yaml.Marshal(characterMeta)
 	if err != nil {
-		return fmt.Errorf("failed to marshal character frontmatter: %w", err)
+		return "", fmt.Errorf("failed to marshal character frontmatter: %w", err)
 	}
 
 	// Prepare frontmatter similar to CLI behavior
@@ -206,11 +206,10 @@ func (v *Vault) AddCharacter(c *novelmaker.Character) error {
 	dstPath := filepath.Join(charDirName, filename)
 
 	if err := v.root.WriteFile(dstPath, []byte(frontmatter), 0644); err != nil {
-		return fmt.Errorf("failed to write character file %s: %w", dstPath, err)
+		return "", fmt.Errorf("failed to write character file %s: %w", dstPath, err)
 	}
 
-	return nil
-
+	return dstPath, nil
 }
 
 func (v *Vault) LoadChapters() ([]novelmaker.Chapter, error) {
@@ -243,10 +242,10 @@ func (v *Vault) LoadChapters() ([]novelmaker.Chapter, error) {
 	return chapters, nil
 }
 
-func (v *Vault) AddChapter(c *novelmaker.Chapter) error {
+func (v *Vault) AddChapter(c *novelmaker.Chapter) (string, error) {
 	// Ensure Story directory exists on disk
 	if err := v.root.MkdirAll(storyDirName, 0755); err != nil {
-		return fmt.Errorf("failed to create Story directory: %w", err)
+		return "", fmt.Errorf("failed to create Story directory: %w", err)
 	}
 
 	chapterMeta := &ChapterFrontmatter{
@@ -258,7 +257,7 @@ func (v *Vault) AddChapter(c *novelmaker.Chapter) error {
 
 	bs, err := yaml.Marshal(chapterMeta)
 	if err != nil {
-		return fmt.Errorf("failed to marshal chapter frontmatter: %w", err)
+		return "", fmt.Errorf("failed to marshal chapter frontmatter: %w", err)
 	}
 
 	// Prepare frontmatter similar to loader expectations
@@ -269,10 +268,10 @@ func (v *Vault) AddChapter(c *novelmaker.Chapter) error {
 	dstPath := filepath.Join(storyDirName, filename)
 
 	if err := v.root.WriteFile(dstPath, []byte(frontmatter), 0644); err != nil {
-		return fmt.Errorf("failed to write chapter file %s: %w", dstPath, err)
+		return "", fmt.Errorf("failed to write chapter file %s: %w", dstPath, err)
 	}
 
-	return nil
+	return dstPath, nil
 }
 
 func (v *Vault) loadWorldbookFromRoot(path string) (*novelmaker.Worldbook, error) {

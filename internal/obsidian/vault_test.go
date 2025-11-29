@@ -104,7 +104,6 @@ This is the world description.`
 	t.Run("missing name field", func(t *testing.T) {
 		tmpDir := createTestVault(t)
 		projectContent := `---
-id: test-project
 ---
 World content`
 
@@ -510,7 +509,7 @@ func TestVault_AddCharacter(t *testing.T) {
 			UpdatedAt: time.Now(),
 		}
 
-		err = vault.AddCharacter(char)
+		_, err = vault.AddCharacter(char)
 		if err != nil {
 			t.Fatalf("AddCharacter failed: %v", err)
 		}
@@ -553,7 +552,7 @@ func TestVault_AddCharacter(t *testing.T) {
 			Profile: "Profile content.",
 		}
 
-		err = vault.AddCharacter(char)
+		_, err = vault.AddCharacter(char)
 		if err != nil {
 			t.Fatalf("AddCharacter failed: %v", err)
 		}
@@ -590,7 +589,7 @@ func TestVault_AddChapter(t *testing.T) {
 			UpdatedAt: time.Now(),
 		}
 
-		err = vault.AddChapter(chapter)
+		_, err = vault.AddChapter(chapter)
 		if err != nil {
 			t.Fatalf("AddChapter failed: %v", err)
 		}
@@ -636,7 +635,7 @@ func TestVault_AddChapter(t *testing.T) {
 			Content: "Content.",
 		}
 
-		err = vault.AddChapter(chapter)
+		_, err = vault.AddChapter(chapter)
 		if err != nil {
 			t.Fatalf("AddChapter failed: %v", err)
 		}
@@ -728,9 +727,6 @@ func TestVault_Initialize(t *testing.T) {
 		contentStr := string(content)
 		if !strings.Contains(contentStr, "---") {
 			t.Error("project.md should have frontmatter")
-		}
-		if !strings.Contains(contentStr, "id:") {
-			t.Error("project.md should have id field")
 		}
 		if !strings.Contains(contentStr, "name:") {
 			t.Error("project.md should have name field")

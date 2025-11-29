@@ -12,14 +12,12 @@ type Project struct {
 }
 
 type Worldbook struct {
-	ID        string    `json:"id"`
 	Tags      []string  `json:"tags"`
 	Content   string    `json:"content"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Character struct {
-	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Main      bool      `json:"main"`
 	Profile   string    `json:"profile"`

@@ -139,12 +139,6 @@ func TestScanCmd_Run_TextOutput(t *testing.T) {
 		if !strings.Contains(output, "=== WORLDBOOK (2 entries) ===") {
 			t.Error("output should contain worldbook section with count")
 		}
-		if !strings.Contains(output, "ID: World/001_magic-system.md") {
-			t.Error("output should contain magic-system worldbook")
-		}
-		if !strings.Contains(output, "ID: World/002_geography.md") {
-			t.Error("output should contain geography worldbook")
-		}
 		if !strings.Contains(output, "elemental manipulation") {
 			t.Error("output should contain worldbook content snippet")
 		}
@@ -503,9 +497,6 @@ Minimal world.`
 			t.Errorf("expected 2 worldbooks, got %d", len(data.Worldbooks))
 		}
 		for i, wb := range data.Worldbooks {
-			if wb.ID == "" {
-				t.Errorf("worldbook %d missing ID", i)
-			}
 			if wb.Content == "" {
 				t.Errorf("worldbook %d missing content", i)
 			}
@@ -516,9 +507,6 @@ Minimal world.`
 			t.Errorf("expected 2 characters, got %d", len(data.Characters))
 		}
 		for i, char := range data.Characters {
-			if char.ID == "" {
-				t.Errorf("character %d missing ID", i)
-			}
 			if char.Name == "" {
 				t.Errorf("character %d missing name", i)
 			}

@@ -57,9 +57,6 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 		}
 
 		// Verify character properties
-		if newChar.ID != "Character/charlie.md" {
-			t.Errorf("new character ID = %s, want 'Character/charlie.md'", newChar.ID)
-		}
 		if newChar.Name != "Charlie" {
 			t.Errorf("new character name = %s, want 'Charlie'", newChar.Name)
 		}
@@ -113,10 +110,6 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 
 		if newChar == nil {
 			t.Fatal("newly created character not found")
-		}
-
-		if newChar.ID != "Character/diana.md" {
-			t.Errorf("new character ID = %s, want 'Character/diana.md'", newChar.ID)
 		}
 	})
 
@@ -204,15 +197,6 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 
 		if newChar == nil {
 			t.Fatal("newly created character not found")
-		}
-
-		// ID should be slugified
-		if newChar.ID == "" {
-			t.Error("character ID should not be empty")
-		}
-		// ID should not contain special characters
-		if strings.ContainsAny(newChar.ID, " '") {
-			t.Errorf("character ID should not contain special characters, got: %s", newChar.ID)
 		}
 	})
 }

@@ -175,27 +175,6 @@ The world consists of three continents.`
 		if len(worldbooks) != 2 {
 			t.Fatalf("expected 2 worldbooks, got %d", len(worldbooks))
 		}
-
-		// Find magic-system worldbook
-		var magicWB *novelmaker.Worldbook
-		for i := range worldbooks {
-			if worldbooks[i].ID == "World/001_magic.md" {
-				magicWB = &worldbooks[i]
-				break
-			}
-		}
-
-		if magicWB == nil {
-			t.Fatal("magic-system worldbook not found")
-		}
-
-		if magicWB.Content != "The magic system is based on elements." {
-			t.Errorf("magicWB.Content = %s, want 'The magic system is based on elements.'", magicWB.Content)
-		}
-
-		if len(magicWB.Tags) != 2 {
-			t.Errorf("magicWB.Tags length = %d, want 2", len(magicWB.Tags))
-		}
 	})
 
 	t.Run("empty worldbook directory", func(t *testing.T) {

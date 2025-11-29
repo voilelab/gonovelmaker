@@ -288,7 +288,6 @@ func (v *Vault) loadWorldbookFromRoot(path string) (*novelmaker.Worldbook, error
 	}
 
 	return &novelmaker.Worldbook{
-		ID:        path,
 		Tags:      fm.Tags,
 		Content:   body,
 		UpdatedAt: updatedAt,
@@ -353,7 +352,6 @@ func (v *Vault) loadCharacterFromRoot(path string) (*novelmaker.Character, error
 	}
 
 	return &novelmaker.Character{
-		ID:        path,
 		Name:      fm.Name,
 		Main:      fm.Main,
 		Profile:   body,

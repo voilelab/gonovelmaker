@@ -89,7 +89,7 @@ func (s *ScanCmd) run(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("=== WORLDBOOK (%d entries) ===\n", len(worldbooks))
 	for i, wb := range worldbooks {
-		fmt.Printf("[%d] ID: %s | Tags: %s\n", i+1, wb.ID, strings.Join(wb.Tags, ","))
+		fmt.Printf("[%d] Tags: %s\n", i+1, strings.Join(wb.Tags, ","))
 		content := wb.Content
 		if len(content) > 80 {
 			content = content[:77] + "..."

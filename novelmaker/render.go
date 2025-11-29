@@ -12,39 +12,6 @@ import (
 	"github.com/openai/openai-go/v3/option"
 )
 
-type Project struct {
-	ID               string    `json:"id"`
-	Name             string    `json:"name"`
-	World            string    `json:"world"`
-	SystemPrompt     string    `json:"system_prompt"`
-	SystemPromptChar string    `json:"system_prompt_char"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
-}
-
-type Worldbook struct {
-	ID        string    `json:"id"`
-	Tags      []string  `json:"tags"`
-	Content   string    `json:"content"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type Character struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Main      bool      `json:"main"`
-	Profile   string    `json:"profile"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type Chapter struct {
-	ID        string    `json:"id"`
-	Index     int       `json:"index"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
 type Renderer struct {
 	APIKey            string
 	Model             string

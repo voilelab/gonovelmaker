@@ -82,7 +82,6 @@ func (s *ScanCmd) run(cmd *cobra.Command, args []string) error {
 
 	// Pretty print
 	fmt.Println("=== PROJECT ===")
-	fmt.Printf("ID: %s\n", project.ID)
 	fmt.Printf("Name: %s\n", project.Name)
 	fmt.Printf("World: %s\n", project.World)
 	fmt.Printf("Created: %s\n", project.CreatedAt.Format("2006-01-02 15:04:05"))

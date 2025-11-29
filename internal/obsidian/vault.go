@@ -41,7 +41,6 @@ type CharacterFrontmatter struct {
 
 // ProjectFrontmatter represents the YAML frontmatter for project config
 type ProjectFrontmatter struct {
-	ID               string `yaml:"id"`
 	Name             string `yaml:"name"`
 	SystemPrompt     string `yaml:"system_prompt"`
 	SystemPromptChar string `yaml:"system_prompt_char"`
@@ -105,17 +104,12 @@ func (v *Vault) LoadProject() (*novelmaker.Project, error) {
 		return nil, fmt.Errorf("failed to parse project frontmatter: %w", err)
 	}
 
-	if fm.ID == "" {
-		return nil, fmt.Errorf("project config missing 'id' field")
-	}
-
 	if fm.Name == "" {
 		return nil, fmt.Errorf("project config missing 'name' field")
 	}
 
 	now := time.Now()
 	return &novelmaker.Project{
-		ID:               fm.ID,
 		Name:             fm.Name,
 		World:            body,
 		SystemPrompt:     fm.SystemPrompt,

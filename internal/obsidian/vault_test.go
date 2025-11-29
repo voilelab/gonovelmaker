@@ -54,7 +54,6 @@ func TestVault_LoadProject(t *testing.T) {
 	t.Run("valid project", func(t *testing.T) {
 		tmpDir := createTestVault(t)
 		projectContent := `---
-id: test-project
 name: Test Project
 system_prompt: Test system prompt
 system_prompt_char: Test character prompt
@@ -74,9 +73,6 @@ This is the world description.`
 			t.Fatalf("LoadProject failed: %v", err)
 		}
 
-		if project.ID != "test-project" {
-			t.Errorf("project.ID = %s, want test-project", project.ID)
-		}
 		if project.Name != "Test Project" {
 			t.Errorf("project.Name = %s, want Test Project", project.Name)
 		}
@@ -102,27 +98,6 @@ This is the world description.`
 		_, err = vault.LoadProject()
 		if err == nil {
 			t.Error("expected error for missing project file, got nil")
-		}
-	})
-
-	t.Run("missing id field", func(t *testing.T) {
-		tmpDir := createTestVault(t)
-		projectContent := `---
-name: Test Project
----
-World content`
-
-		writeTestFile(t, tmpDir, "Config/project.md", projectContent)
-
-		vault, err := NewVault(tmpDir)
-		if err != nil {
-			t.Fatalf("NewVault failed: %v", err)
-		}
-		defer vault.Close()
-
-		_, err = vault.LoadProject()
-		if err == nil {
-			t.Error("expected error for missing id field, got nil")
 		}
 	})
 
@@ -807,9 +782,6 @@ func TestVault_Initialize(t *testing.T) {
 			t.Fatalf("LoadProject after Initialize failed: %v", err)
 		}
 
-		if project.ID == "" {
-			t.Error("initialized project should have an ID")
-		}
 		if project.Name == "" {
 			t.Error("initialized project should have a name")
 		}

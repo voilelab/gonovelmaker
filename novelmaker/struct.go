@@ -3,7 +3,6 @@ package novelmaker
 import "time"
 
 type Project struct {
-	ID               string    `json:"id"`
 	Name             string    `json:"name"`
 	World            string    `json:"world"`
 	SystemPrompt     string    `json:"system_prompt"`

@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/voilelab/gonovelmaker/internal/config"
-	"github.com/voilelab/gonovelmaker/internal/nmutil"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
@@ -142,12 +141,8 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to generate character: %w", err)
 	}
 
-	// Generate character ID
-	charID := nmutil.Slugify(g.name)
-
 	// Create character struct
 	ch := novelmaker.Character{
-		ID:      charID,
 		Name:    g.name,
 		Main:    false,
 		Profile: profile,
@@ -162,7 +157,6 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 		fmt.Printf("\n✓ Successfully generated character!\n")
 		fmt.Printf("  File: %s\n", filePath)
 		fmt.Printf("  Name: %s\n", g.name)
-		fmt.Printf("  ID: %s\n", charID)
 	} else {
 		output := map[string]any{
 			"filepath": filePath,

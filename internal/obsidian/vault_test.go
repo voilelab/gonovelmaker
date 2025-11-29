@@ -492,7 +492,6 @@ func TestVault_AddCharacter(t *testing.T) {
 		defer vault.Close()
 
 		char := &novelmaker.Character{
-			ID:        "test-char",
 			Name:      "Test Character",
 			Main:      true,
 			Profile:   "This is a test character profile.",
@@ -505,7 +504,7 @@ func TestVault_AddCharacter(t *testing.T) {
 		}
 
 		// Verify file was created
-		filePath := filepath.Join(tmpDir, "Character", "test-char.md")
+		filePath := filepath.Join(tmpDir, "Character", "test_character.md")
 		content, err := os.ReadFile(filePath)
 		if err != nil {
 			t.Fatalf("failed to read created file: %v", err)
@@ -533,7 +532,6 @@ func TestVault_AddCharacter(t *testing.T) {
 		defer vault.Close()
 
 		char := &novelmaker.Character{
-			ID:      "new-char",
 			Name:    "New Character",
 			Main:    false,
 			Profile: "Profile content.",
@@ -550,7 +548,7 @@ func TestVault_AddCharacter(t *testing.T) {
 			t.Error("Character directory should be created")
 		}
 
-		filePath := filepath.Join(dirPath, "new-char.md")
+		filePath := filepath.Join(dirPath, "new_character.md")
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			t.Error("character file should be created")
 		}

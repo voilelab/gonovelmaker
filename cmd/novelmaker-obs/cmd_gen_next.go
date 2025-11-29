@@ -171,11 +171,7 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		nextIndex = maxIndex + 1
 	}
 
-	// Generate ID based on number of chapters
-	chapterID := fmt.Sprintf("ch%d", len(chapters)+1)
-
 	ch := novelmaker.Chapter{
-		ID:      chapterID,
 		Index:   nextIndex,
 		Title:   g.title,
 		Prompt:  g.prompt,

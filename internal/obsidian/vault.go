@@ -198,7 +198,7 @@ func (v *Vault) AddCharacter(c *novelmaker.Character) (string, error) {
 	frontmatter := fmt.Sprintf("---\n%s\n---\n%s\n", string(bs), c.Profile)
 
 	// Destination file
-	filename := fmt.Sprintf("%s.md", c.ID)
+	filename := fmt.Sprintf("%s.md", nmutil.Slugify(c.Name))
 	dstPath := filepath.Join(charDirName, filename)
 
 	if err := v.root.WriteFile(dstPath, []byte(frontmatter), 0644); err != nil {

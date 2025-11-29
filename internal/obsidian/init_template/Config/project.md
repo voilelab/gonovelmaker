@@ -1,5 +1,4 @@
 ---
-id: my-first-project
 name: 我的第一個小說專案
 system_prompt: |
   是一位連載小說寫作助手。

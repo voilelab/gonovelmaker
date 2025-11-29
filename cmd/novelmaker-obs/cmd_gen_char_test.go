@@ -57,8 +57,8 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 		}
 
 		// Verify character properties
-		if newChar.ID != "charlie" {
-			t.Errorf("new character ID = %s, want 'charlie'", newChar.ID)
+		if newChar.ID != "Character/charlie.md" {
+			t.Errorf("new character ID = %s, want 'Character/charlie.md'", newChar.ID)
 		}
 		if newChar.Name != "Charlie" {
 			t.Errorf("new character name = %s, want 'Charlie'", newChar.Name)
@@ -115,8 +115,8 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 			t.Fatal("newly created character not found")
 		}
 
-		if newChar.ID != "diana" {
-			t.Errorf("new character ID = %s, want 'diana'", newChar.ID)
+		if newChar.ID != "Character/diana.md" {
+			t.Errorf("new character ID = %s, want 'Character/diana.md'", newChar.ID)
 		}
 	})
 

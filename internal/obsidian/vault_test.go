@@ -517,9 +517,6 @@ func TestVault_AddCharacter(t *testing.T) {
 		}
 
 		contentStr := string(content)
-		if !strings.Contains(contentStr, "id: test-char") {
-			t.Error("file should contain 'id: test-char'")
-		}
 		if !strings.Contains(contentStr, "name: Test Character") {
 			t.Error("file should contain 'name: Test Character'")
 		}

@@ -32,7 +32,6 @@ type ChapterFrontmatter struct {
 
 // CharacterFrontmatter represents the YAML frontmatter for characters
 type CharacterFrontmatter struct {
-	ID   string `yaml:"id"`
 	Name string `yaml:"name"`
 	Main bool   `yaml:"main"`
 }
@@ -186,7 +185,6 @@ func (v *Vault) AddCharacter(c *novelmaker.Character) (string, error) {
 	}
 
 	characterMeta := &CharacterFrontmatter{
-		ID:   c.ID,
 		Name: c.Name,
 		Main: c.Main,
 	}
@@ -344,10 +342,6 @@ func (v *Vault) loadCharacterFromRoot(path string) (*novelmaker.Character, error
 		return nil, fmt.Errorf("failed to parse frontmatter in %s: %w", path, err)
 	}
 
-	if fm.ID == "" {
-		return nil, fmt.Errorf("missing or invalid 'id' in frontmatter of %s", path)
-	}
-
 	if fm.Name == "" {
 		return nil, fmt.Errorf("missing or invalid 'name' in frontmatter of %s", path)
 	}
@@ -360,7 +354,7 @@ func (v *Vault) loadCharacterFromRoot(path string) (*novelmaker.Character, error
 	}
 
 	return &novelmaker.Character{
-		ID:        fm.ID,
+		ID:        path,
 		Name:      fm.Name,
 		Main:      fm.Main,
 		Profile:   body,

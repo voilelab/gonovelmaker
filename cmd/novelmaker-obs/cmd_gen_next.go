@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/voilelab/gonovelmaker/internal/config"
-	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
@@ -25,11 +24,15 @@ type GenNextCmd struct {
 	model        string
 	timeout      int
 
+	llmBackendMaker LLMBackendMaker
+
 	cmd *cobra.Command
 }
 
-func NewGenNextCmd() *GenNextCmd {
-	g := &GenNextCmd{}
+func NewGenNextCmd(llmBackendMaker LLMBackendMaker) *GenNextCmd {
+	g := &GenNextCmd{
+		llmBackendMaker: llmBackendMaker,
+	}
 	g.cmd = &cobra.Command{
 		Use:   "gen-next",
 		Short: "Generate the next chapter using OpenAI API",
@@ -128,7 +131,7 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load prompt templates: %w", err)
 	}
 
-	llmBackend := llmbackend.NewOpenAIBackend(
+	llmBackend := g.llmBackendMaker(
 		effectiveAPIKey,
 		effectiveModel,
 		effectiveBaseURL,

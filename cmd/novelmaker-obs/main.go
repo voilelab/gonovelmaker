@@ -27,8 +27,8 @@ Configuration:
 
 	initCmd := NewInitCmd()
 	scanCmd := NewScanCmd()
-	genNextCmd := NewGenNextCmd()
-	genCharCmd := NewGenCharCmd()
+	genNextCmd := NewGenNextCmd(openAIBackendMaker)
+	genCharCmd := NewGenCharCmd(openAIBackendMaker)
 	exportCmd := NewExportCmd()
 	updatePluginCmd := NewUpdatePluginCmd()
 

@@ -133,8 +133,8 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 
 	llmBackend := g.llmBackendMaker(
 		effectiveAPIKey,
-		effectiveModel,
 		effectiveBaseURL,
+		effectiveModel,
 	)
 
 	renderer := novelmaker.NewRenderer(

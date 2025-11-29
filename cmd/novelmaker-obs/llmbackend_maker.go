@@ -2,13 +2,13 @@ package main
 
 import "github.com/voilelab/gonovelmaker/internal/llmbackend"
 
-type LLMBackendMaker func(apiKey, model, baseURL string) llmbackend.LLMBackend
+type LLMBackendMaker func(apiKey, baseURL, model string) llmbackend.LLMBackend
 
-func openAIBackendMaker(apiKey, model, baseURL string) llmbackend.LLMBackend {
+func openAIBackendMaker(apiKey, baseURL, model string) llmbackend.LLMBackend {
 	return llmbackend.NewOpenAIBackend(
 		apiKey,
-		model,
 		baseURL,
+		model,
 	)
 }
 

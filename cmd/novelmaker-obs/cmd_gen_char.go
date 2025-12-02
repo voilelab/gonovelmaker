@@ -145,6 +145,7 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 	ch := novelmaker.Character{
 		Name:    g.name,
 		Main:    false,
+		Prompt:  g.prompt,
 		Profile: profile,
 	}
 

@@ -32,8 +32,9 @@ type ChapterFrontmatter struct {
 
 // CharacterFrontmatter represents the YAML frontmatter for characters
 type CharacterFrontmatter struct {
-	Name string `yaml:"name"`
-	Main bool   `yaml:"main"`
+	Name   string `yaml:"name"`
+	Main   bool   `yaml:"main"`
+	Prompt string `yaml:"prompt"`
 }
 
 // ProjectFrontmatter represents the YAML frontmatter for project config
@@ -185,8 +186,9 @@ func (v *Vault) AddCharacter(c *novelmaker.Character) (string, error) {
 	}
 
 	characterMeta := &CharacterFrontmatter{
-		Name: c.Name,
-		Main: c.Main,
+		Name:   c.Name,
+		Main:   c.Main,
+		Prompt: c.Prompt,
 	}
 
 	bs, err := yaml.Marshal(characterMeta)
@@ -354,6 +356,7 @@ func (v *Vault) loadCharacterFromRoot(path string) (*novelmaker.Character, error
 	return &novelmaker.Character{
 		Name:      fm.Name,
 		Main:      fm.Main,
+		Prompt:    fm.Prompt,
 		Profile:   body,
 		UpdatedAt: updatedAt,
 	}, nil

@@ -20,6 +20,7 @@ type Worldbook struct {
 type Character struct {
 	Name      string    `json:"name"`
 	Main      bool      `json:"main"`
+	Prompt    string    `json:"prompt"`
 	Profile   string    `json:"profile"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

@@ -123,6 +123,63 @@ class NovelMakerPlugin extends Plugin {
 			}
 		});
 
+		// Register gen-curr command
+		this.addCommand({
+			id: 'gen-curr-chapter',
+			name: '重新生成當前章節',
+			checkCallback: (checking) => {
+				const activeFile = this.app.workspace.getActiveFile();
+				if (activeFile && activeFile.path.startsWith('Story/') && activeFile.extension === 'md') {
+					if (!checking) {
+						new GenCurrModal(this.app, activeFile, async (filepath, prevCount) => {
+							const loadingModal = new LoadingModal(this.app, '正在重新生成章節...請稍候');
+							loadingModal.open();
+
+							try {
+								// Get vault path
+								const vaultPath = this.app.vault.adapter.basePath;
+								
+								// Build the command using configured CLI path
+								let cmd = `${this.settings.cliPath} gen-curr --filepath "${filepath}"`;
+								if (prevCount !== null && prevCount !== undefined) {
+									cmd += ` --prev-chapters ${prevCount}`;
+								}
+								if (this.settings.baseUrl && this.settings.baseUrl.trim()) {
+									cmd += ` --base-url "${this.settings.baseUrl}"`;
+								}
+								if (this.settings.apiKey && this.settings.apiKey.trim()) {
+									cmd += ` --api-key "${this.settings.apiKey}"`;
+								}
+								if (this.settings.model && this.settings.model.trim()) {
+									cmd += ` --model "${this.settings.model}"`;
+								}
+								if (this.settings.timeout && !isNaN(this.settings.timeout)) {
+									cmd += ` --timeout ${this.settings.timeout}`;
+								}
+								
+								// Call CLI with the input, setting cwd to vault path
+								const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
+								
+								// Show success notification
+								new Notice('✅ 章節重新生成成功！');
+								
+								// Optionally show output in console
+								if (stdout) console.log(stdout);
+								if (stderr) console.error(stderr);
+							} catch (error) {
+								new Notice(`❌ 錯誤: ${error.message}`);
+								console.error(error);
+							} finally {
+								loadingModal.forceCloseNow();
+							}
+						}).open();
+					}
+					return true;
+				}
+				return false;
+			}
+		});
+
 		// Register export command
 		this.addCommand({
 			id: 'export-novel',
@@ -310,6 +367,76 @@ class GenCharModal extends Modal {
 						}
 						this.close();
 						this.onSubmit(this.name, this.prompt);
+					})
+			);
+	}
+
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
+	}
+}
+
+class GenCurrModal extends Modal {
+	constructor(app, activeFile, onSubmit) {
+		super(app);
+		this.activeFile = activeFile;
+		this.prevCount = 3; // Default value
+		this.onSubmit = onSubmit;
+		this.prevSetting = null;
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		
+		contentEl.createEl('h2', { text: '重新生成章節' });
+
+		// Show current file info
+		new Setting(contentEl)
+			.setName('目標檔案')
+			.setDesc('將重新生成此檔案的內容')
+			.addText((text) => {
+				text.setValue(this.activeFile.path);
+				text.inputEl.disabled = true;
+				text.inputEl.style.width = '100%';
+			});
+
+		contentEl.createEl('p', { 
+			text: '⚠️ 此操作將使用檔案中的 prompt 欄位重新生成章節內容，並覆蓋現有內容。',
+			cls: 'mod-warning'
+		});
+
+		this.prevSetting = new Setting(contentEl)
+			.setName('前幾章數量 (前3章)')
+			.setDesc('要包含多少前面的章節作為上下文（預設：3，最大：10）')
+			.addSlider((slider) =>
+				slider
+					.setValue(3)
+					.setLimits(0, 10, 1)
+					.onChange((num) => {
+						if (isNaN(num)) {
+							return;
+						}
+						this.prevCount = num;
+						this.prevSetting.setName(`前幾章數量 (前${num}章)`);
+					})
+			);
+
+		new Setting(contentEl)
+			.addButton((btn) =>
+				btn
+					.setButtonText('取消')
+					.onClick(() => {
+						this.close();
+					})
+			)
+			.addButton((btn) =>
+				btn
+					.setButtonText('重新生成')
+					.setCta()
+					.onClick(() => {
+						this.close();
+						this.onSubmit(this.activeFile.path, this.prevCount);
 					})
 			);
 	}

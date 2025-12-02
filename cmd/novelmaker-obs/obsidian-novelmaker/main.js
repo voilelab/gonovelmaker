@@ -620,133 +620,6 @@ class GenCurrModal extends Modal {
 	}
 }
 
-class NovelMakerSettingTab extends PluginSettingTab {
-	constructor(app, plugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-
-		this.timeoutSetting = null;
-		this.openAfterGenMsSetting = null;
-	}
-
-	display() {
-		const { containerEl } = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', { text: 'Novel Maker 設定' });
-
-		new Setting(containerEl)
-			.setName('CLI 指令路徑')
-			.setDesc('設定 novelmaker-obs 指令的路徑。可使用相對路徑（如 ./novelmaker-obs）、絕對路徑（如 /usr/local/bin/novelmaker-obs）或指令名稱（如 novelmaker-obs，需在 PATH 中）')
-			.addText((text) =>
-				text
-					.setPlaceholder('./novelmaker-obs')
-					.setValue(this.plugin.settings.cliPath)
-					.onChange(async (value) => {
-						this.plugin.settings.cliPath = value || './novelmaker-obs';
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
-			.setName('API Base URL')
-			.setDesc('LLM API 的基礎 URL（選填，例如：https://api.openai.com/v1）')
-			.addText((text) =>
-				text
-					.setPlaceholder('https://api.openai.com/v1')
-					.setValue(this.plugin.settings.baseUrl)
-					.onChange(async (value) => {
-						this.plugin.settings.baseUrl = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
-			.setName('API Key')
-			.setDesc('LLM API 的金鑰（選填）')
-			.addText((text) =>
-				text
-					.setPlaceholder('sk-...')
-					.setValue(this.plugin.settings.apiKey)
-					.onChange(async (value) => {
-						this.plugin.settings.apiKey = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		// Warning message for API Key storage
-		const warningEl = containerEl.createDiv({ cls: 'novelmaker-api-warning' });
-		warningEl.createEl('span', { text: '⚠ 提示： ', cls: 'novelmaker-warning-icon' });
-		warningEl.createEl('span', { 
-			text: '此設定會被寫入 .obsidian/plugins/obsidian-novelmaker/data.json。' +
-				'若你的 vault 使用 git / Sync，請避免把這個檔案推上遠端。' +
-				'建議使用 ~/.novelmaker/config.toml 來設定 API Key，避免敏感資訊被同步。',
-			cls: 'novelmaker-warning-text'
-		});
-
-		new Setting(containerEl)
-			.setName('Model')
-			.setDesc('使用的 LLM 模型名稱（選填，例如：gpt-4、claude-3-opus-20240229）')
-			.addText((text) =>
-				text
-					.setPlaceholder('gpt-4')
-					.setValue(this.plugin.settings.model)
-					.onChange(async (value) => {
-						this.plugin.settings.model = value;
-						await this.plugin.saveSettings();
-					})
-			);
-		
-		this.timeoutSetting = new Setting(containerEl)
-			.setName(`API 請求超時 (秒) (${this.plugin.settings.timeout} 秒)`)
-			.setDesc('設定與 LLM API 通訊的超時時間（秒）（預設：60 秒）')
-			.addSlider((slider) =>
-				slider
-					.setLimits(10, 300, 10)
-					.setValue(this.plugin.settings.timeout)
-					.onChange(async (value) => {
-						if (isNaN(value)) {
-							return;
-						}
-						this.plugin.settings.timeout = value;
-						this.timeoutSetting.setName(`API 請求超時 (秒) (${value} 秒)`);
-						await this.plugin.saveSettings();
-					})
-			);
-		
-		new Setting(containerEl)
-			.setName('生成後自動打開檔案')
-			.setDesc('生成章節或角色後，自動在 Obsidian 中打開生成的檔案')
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.openAfterGen)
-					.onChange(async (value) => {
-						this.plugin.settings.openAfterGen = value;
-						await this.plugin.saveSettings();
-					})
-			);
-		
-		this.openAfterGenMsSetting = new Setting(containerEl)
-			.setName(`生成後打開檔案延遲時間 (${this.plugin.settings.openAfterGenMs} 毫秒)`)
-			.setDesc('生成章節或角色後，自動打開檔案前的延遲時間（毫秒）（預設：500 毫秒）')
-			.addSlider((slider) =>
-				slider
-					.setLimits(0, 10000, 500)
-					.setValue(this.plugin.settings.openAfterGenMs)
-					.onChange(async (value) => {
-						if (isNaN(value)) {
-							return;
-						}
-						this.plugin.settings.openAfterGenMs = value;
-						this.openAfterGenMsSetting.setName(`生成後打開檔案延遲時間 (${value} 毫秒)`);
-						await this.plugin.saveSettings();
-					})
-			);
-		
-	}
-}
-
 class ExportModal extends Modal {
 	constructor(app, onSubmit) {
 		super(app);
@@ -871,6 +744,133 @@ class LoadingModal extends Modal {
 	forceCloseNow() {
 		this.forceClose = true;
 		this.close();
+	}
+}
+
+class NovelMakerSettingTab extends PluginSettingTab {
+	constructor(app, plugin) {
+		super(app, plugin);
+		this.plugin = plugin;
+
+		this.timeoutSetting = null;
+		this.openAfterGenMsSetting = null;
+	}
+
+	display() {
+		const { containerEl } = this;
+
+		containerEl.empty();
+
+		containerEl.createEl('h2', { text: 'Novel Maker 設定' });
+
+		new Setting(containerEl)
+			.setName('CLI 指令路徑')
+			.setDesc('設定 novelmaker-obs 指令的路徑。可使用相對路徑（如 ./novelmaker-obs）、絕對路徑（如 /usr/local/bin/novelmaker-obs）或指令名稱（如 novelmaker-obs，需在 PATH 中）')
+			.addText((text) =>
+				text
+					.setPlaceholder('./novelmaker-obs')
+					.setValue(this.plugin.settings.cliPath)
+					.onChange(async (value) => {
+						this.plugin.settings.cliPath = value || './novelmaker-obs';
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('API Base URL')
+			.setDesc('LLM API 的基礎 URL（選填，例如：https://api.openai.com/v1）')
+			.addText((text) =>
+				text
+					.setPlaceholder('https://api.openai.com/v1')
+					.setValue(this.plugin.settings.baseUrl)
+					.onChange(async (value) => {
+						this.plugin.settings.baseUrl = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('API Key')
+			.setDesc('LLM API 的金鑰（選填）')
+			.addText((text) =>
+				text
+					.setPlaceholder('sk-...')
+					.setValue(this.plugin.settings.apiKey)
+					.onChange(async (value) => {
+						this.plugin.settings.apiKey = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		// Warning message for API Key storage
+		const warningEl = containerEl.createDiv({ cls: 'novelmaker-api-warning' });
+		warningEl.createEl('span', { text: '⚠ 提示： ', cls: 'novelmaker-warning-icon' });
+		warningEl.createEl('span', { 
+			text: '此設定會被寫入 .obsidian/plugins/obsidian-novelmaker/data.json。' +
+				'若你的 vault 使用 git / Sync，請避免把這個檔案推上遠端。' +
+				'建議使用 ~/.novelmaker/config.toml 來設定 API Key，避免敏感資訊被同步。',
+			cls: 'novelmaker-warning-text'
+		});
+
+		new Setting(containerEl)
+			.setName('Model')
+			.setDesc('使用的 LLM 模型名稱（選填，例如：gpt-4、claude-3-opus-20240229）')
+			.addText((text) =>
+				text
+					.setPlaceholder('gpt-4')
+					.setValue(this.plugin.settings.model)
+					.onChange(async (value) => {
+						this.plugin.settings.model = value;
+						await this.plugin.saveSettings();
+					})
+			);
+		
+		this.timeoutSetting = new Setting(containerEl)
+			.setName(`API 請求超時 (秒) (${this.plugin.settings.timeout} 秒)`)
+			.setDesc('設定與 LLM API 通訊的超時時間（秒）（預設：60 秒）')
+			.addSlider((slider) =>
+				slider
+					.setLimits(10, 300, 10)
+					.setValue(this.plugin.settings.timeout)
+					.onChange(async (value) => {
+						if (isNaN(value)) {
+							return;
+						}
+						this.plugin.settings.timeout = value;
+						this.timeoutSetting.setName(`API 請求超時 (秒) (${value} 秒)`);
+						await this.plugin.saveSettings();
+					})
+			);
+		
+		new Setting(containerEl)
+			.setName('生成後自動打開檔案')
+			.setDesc('生成章節或角色後，自動在 Obsidian 中打開生成的檔案')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.openAfterGen)
+					.onChange(async (value) => {
+						this.plugin.settings.openAfterGen = value;
+						await this.plugin.saveSettings();
+					})
+			);
+		
+		this.openAfterGenMsSetting = new Setting(containerEl)
+			.setName(`生成後打開檔案延遲時間 (${this.plugin.settings.openAfterGenMs} 毫秒)`)
+			.setDesc('生成章節或角色後，自動打開檔案前的延遲時間（毫秒）（預設：500 毫秒）')
+			.addSlider((slider) =>
+				slider
+					.setLimits(0, 10000, 500)
+					.setValue(this.plugin.settings.openAfterGenMs)
+					.onChange(async (value) => {
+						if (isNaN(value)) {
+							return;
+						}
+						this.plugin.settings.openAfterGenMs = value;
+						this.openAfterGenMsSetting.setName(`生成後打開檔案延遲時間 (${value} 毫秒)`);
+						await this.plugin.saveSettings();
+					})
+			);
+		
 	}
 }
 

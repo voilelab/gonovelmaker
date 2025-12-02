@@ -358,3 +358,31 @@ func (v *Vault) loadCharacterFromRoot(path string) (*novelmaker.Character, error
 		UpdatedAt: updatedAt,
 	}, nil
 }
+
+// LoadChapterByPath loads a chapter from a specific file path (relative to vault root)
+func (v *Vault) LoadChapterByPath(path string) (*novelmaker.Chapter, error) {
+	return v.loadChapterFromRoot(path)
+}
+
+// UpdateChapter updates an existing chapter file with new content
+func (v *Vault) UpdateChapter(path string, c *novelmaker.Chapter) error {
+	chapterMeta := &ChapterFrontmatter{
+		Index:  c.Index,
+		Title:  c.Title,
+		Prompt: c.Prompt,
+	}
+
+	bs, err := yaml.Marshal(chapterMeta)
+	if err != nil {
+		return fmt.Errorf("failed to marshal chapter frontmatter: %w", err)
+	}
+
+	// Prepare frontmatter
+	frontmatter := fmt.Sprintf("---\n%s\n---\n%s\n", string(bs), c.Content)
+
+	if err := v.root.WriteFile(path, []byte(frontmatter), 0644); err != nil {
+		return fmt.Errorf("failed to write chapter file %s: %w", path, err)
+	}
+
+	return nil
+}

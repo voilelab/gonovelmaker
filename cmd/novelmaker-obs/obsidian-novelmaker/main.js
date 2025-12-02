@@ -98,6 +98,67 @@ class NovelMakerPlugin extends Plugin {
 			}
 		});
 
+		// Register gen-next-empty command
+		this.addCommand({
+			id: 'gen-next-empty-chapter',
+			name: '生成空白下一章',
+			callback: () => {
+				new GenNextEmptyModal(this.app, async (title, prompt) => {
+					const loadingModal = new LoadingModal(this.app, '正在建立空白章節...請稍候');
+					loadingModal.open();
+
+					try {
+						// Get vault path
+						const vaultPath = this.app.vault.adapter.basePath;
+						
+						// Build the command using configured CLI path
+						let cmd = `${this.settings.cliPath} gen-next-empty --json --title "${title}"`;
+						if (prompt && prompt.trim()) {
+							cmd += ` --prompt "${prompt}"`;
+						}
+						
+						// Call CLI with the input, setting cwd to vault path
+						const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
+
+						if (this.settings.openAfterGen) {
+							// Parse JSON output to get filepath
+							let output;
+							try {
+								output = JSON.parse(stdout);
+							} catch (jsonError) {
+								throw new Error('無法解析生成結果的 JSON 輸出');
+							}
+
+							if (output && output.filepath) {
+								setTimeout(() => {
+									const file = this.app.vault.getAbstractFileByPath(output.filepath);
+									if (file) {
+										this.app.workspace.getLeaf().openFile(file);
+									} else {
+										new Notice(`⚠ 無法在 Vault 中找到生成的檔案: ${output.filepath}`);
+									}
+								}, this.settings.openAfterGenMs);
+							} else {
+								new Notice('⚠ 生成結果中缺少 filepath 資訊');
+							}
+						}
+						
+						// Show success notification
+						new Notice('✅ 空白章節建立成功！');
+						
+						// Optionally show output in console
+						if (stdout) console.log(stdout);
+						if (stderr) console.error(stderr);
+					} catch (error) {
+						new Notice(`❌ 錯誤: ${error.message}`);
+						console.error(error);
+					} finally {
+						loadingModal.forceCloseNow();
+					}
+				}).open();
+			}
+		});
+
 		// Register gen-char command
 		this.addCommand({
 			id: 'gen-character',
@@ -351,6 +412,70 @@ class GenNextModal extends Modal {
 						}
 						this.close();
 						this.onSubmit(this.title, this.prompt, this.prevCount);
+					})
+			);
+	}
+
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
+	}
+}
+
+class GenNextEmptyModal extends Modal {
+	constructor(app, onSubmit) {
+		super(app);
+		this.title = '';
+		this.prompt = '';
+		this.onSubmit = onSubmit;
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		
+		contentEl.createEl('h2', { text: '生成空白下一章' });
+
+		new Setting(contentEl)
+			.setName('章節標題')
+			.setDesc('下一章的標題（必填）')
+			.addText((text) =>
+				text
+					.setPlaceholder('e.g., 第3章')
+					.onChange((value) => {
+						this.title = value;
+					})
+			);
+
+		new Setting(contentEl)
+			.setName('提示詞')
+			.setDesc('章節的備註或提示（選填）')
+			.addTextArea((text) =>
+				text
+					.setPlaceholder('例如：計劃寫一個戰鬥場景...')
+					.onChange((value) => {
+						this.prompt = value;
+					})
+			);
+
+		new Setting(contentEl)
+			.addButton((btn) =>
+				btn
+					.setButtonText('取消')
+					.onClick(() => {
+						this.close();
+					})
+			)
+			.addButton((btn) =>
+				btn
+					.setButtonText('建立')
+					.setCta()
+					.onClick(() => {
+						if (!this.title || !this.title.trim()) {
+							new Notice('❌ 請輸入章節標題');
+							return;
+						}
+						this.close();
+						this.onSubmit(this.title, this.prompt);
 					})
 			);
 	}

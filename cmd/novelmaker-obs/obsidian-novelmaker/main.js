@@ -11,6 +11,8 @@ const DEFAULT_SETTINGS = {
 	apiKey: '',
 	model: '',
 	timeout: 60, // default timeout in seconds
+	openAfterGen: false,
+	openAfterGenMs: 500,
 };
 
 class NovelMakerPlugin extends Plugin {
@@ -34,7 +36,7 @@ class NovelMakerPlugin extends Plugin {
 						const vaultPath = this.app.vault.adapter.basePath;
 						
 						// Build the command using configured CLI path
-						let cmd = `${this.settings.cliPath} gen-next --title "${title}"`;
+						let cmd = `${this.settings.cliPath} gen-next --json --title "${title}"`;
 						if (prompt && prompt.trim()) {
 							cmd += ` --prompt "${prompt}"`;
 						}
@@ -56,6 +58,29 @@ class NovelMakerPlugin extends Plugin {
 						
 						// Call CLI with the input, setting cwd to vault path
 						const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
+
+						if (this.settings.openAfterGen) {
+							// Parse JSON output to get filepath
+							let output;
+							try {
+								output = JSON.parse(stdout);
+							} catch (jsonError) {
+								throw new Error('無法解析生成結果的 JSON 輸出');
+							}
+
+							if (output && output.filepath) {
+								setTimeout(() => {
+									const file = this.app.vault.getAbstractFileByPath(output.filepath);
+									if (file) {
+										this.app.workspace.getLeaf().openFile(file);
+									} else {
+										new Notice(`⚠ 無法在 Vault 中找到生成的檔案: ${output.filepath}`);
+									}
+								}, this.settings.openAfterGenMs);
+							} else {
+								new Notice('⚠ 生成結果中缺少 filepath 資訊');
+							}
+						}
 						
 						// Show success notification
 						new Notice('✅ 章節生成成功！');
@@ -87,7 +112,7 @@ class NovelMakerPlugin extends Plugin {
 						const vaultPath = this.app.vault.adapter.basePath;
 						
 						// Build the command using configured CLI path
-						let cmd = `${this.settings.cliPath} gen-char --name "${name}"`;
+						let cmd = `${this.settings.cliPath} gen-char --json --name "${name}"`;
 						if (prompt && prompt.trim()) {
 							cmd += ` --prompt "${prompt}"`;
 						}
@@ -106,6 +131,29 @@ class NovelMakerPlugin extends Plugin {
 						
 						// Call CLI with the input, setting cwd to vault path
 						const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
+
+						if (this.settings.openAfterGen) {
+							// Parse JSON output to get filepath
+							let output;
+							try {
+								output = JSON.parse(stdout);
+							} catch (jsonError) {
+								throw new Error('無法解析生成結果的 JSON 輸出');
+							}
+
+							if (output && output.filepath) {
+								setTimeout(() => {
+									const file = this.app.vault.getAbstractFileByPath(output.filepath);
+									if (file) {
+										this.app.workspace.getLeaf().openFile(file);
+									} else {
+										new Notice(`⚠ 無法在 Vault 中找到生成的檔案: ${output.filepath}`);
+									}
+								}, this.settings.openAfterGenMs);
+							} else {
+								new Notice('⚠ 生成結果中缺少 filepath 資訊');
+							}
+						}
 
 						// Show success notification
 						new Notice('✅ 角色生成成功！');
@@ -453,6 +501,7 @@ class NovelMakerSettingTab extends PluginSettingTab {
 		this.plugin = plugin;
 
 		this.timeoutSetting = null;
+		this.openAfterGenMsSetting = null;
 	}
 
 	display() {
@@ -540,6 +589,36 @@ class NovelMakerSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+		
+		new Setting(containerEl)
+			.setName('生成後自動打開檔案')
+			.setDesc('生成章節或角色後，自動在 Obsidian 中打開生成的檔案')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.openAfterGen)
+					.onChange(async (value) => {
+						this.plugin.settings.openAfterGen = value;
+						await this.plugin.saveSettings();
+					})
+			);
+		
+		this.openAfterGenMsSetting = new Setting(containerEl)
+			.setName(`生成後打開檔案延遲時間 (${this.plugin.settings.openAfterGenMs} 毫秒)`)
+			.setDesc('生成章節或角色後，自動打開檔案前的延遲時間（毫秒）（預設：500 毫秒）')
+			.addSlider((slider) =>
+				slider
+					.setLimits(0, 10000, 500)
+					.setValue(this.plugin.settings.openAfterGenMs)
+					.onChange(async (value) => {
+						if (isNaN(value)) {
+							return;
+						}
+						this.plugin.settings.openAfterGenMs = value;
+						this.openAfterGenMsSetting.setName(`生成後打開檔案延遲時間 (${value} 毫秒)`);
+						await this.plugin.saveSettings();
+					})
+			);
+		
 	}
 }
 

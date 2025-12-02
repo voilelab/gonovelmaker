@@ -289,6 +289,60 @@ class NovelMakerPlugin extends Plugin {
 			}
 		});
 
+		// Register gen-char-curr command
+		this.addCommand({
+			id: 'gen-char-curr',
+			name: '重新生成當前角色',
+			checkCallback: (checking) => {
+				const activeFile = this.app.workspace.getActiveFile();
+				if (activeFile && activeFile.path.startsWith('Character/') && activeFile.extension === 'md') {
+					if (!checking) {
+						new GenCharCurrModal(this.app, activeFile, async (filepath) => {
+							const loadingModal = new LoadingModal(this.app, '正在重新生成角色...請稍候');
+							loadingModal.open();
+
+							try {
+								// Get vault path
+								const vaultPath = this.app.vault.adapter.basePath;
+								
+								// Build the command using configured CLI path
+								let cmd = `${this.settings.cliPath} gen-char-curr --filepath "${filepath}"`;
+								if (this.settings.baseUrl && this.settings.baseUrl.trim()) {
+									cmd += ` --base-url "${this.settings.baseUrl}"`;
+								}
+								if (this.settings.apiKey && this.settings.apiKey.trim()) {
+									cmd += ` --api-key "${this.settings.apiKey}"`;
+								}
+								if (this.settings.model && this.settings.model.trim()) {
+									cmd += ` --model "${this.settings.model}"`;
+								}
+								if (this.settings.timeout && !isNaN(this.settings.timeout)) {
+									cmd += ` --timeout ${this.settings.timeout}`;
+								}
+								
+								// Call CLI with the input, setting cwd to vault path
+								const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
+								
+								// Show success notification
+								new Notice('✅ 角色重新生成成功！');
+								
+								// Optionally show output in console
+								if (stdout) console.log(stdout);
+								if (stderr) console.error(stderr);
+							} catch (error) {
+								new Notice(`❌ 錯誤: ${error.message}`);
+								console.error(error);
+							} finally {
+								loadingModal.forceCloseNow();
+							}
+						}).open();
+					}
+					return true;
+				}
+				return false;
+			}
+		});
+
 		// Register export command
 		this.addCommand({
 			id: 'export-novel',
@@ -610,6 +664,58 @@ class GenCurrModal extends Modal {
 					.onClick(() => {
 						this.close();
 						this.onSubmit(this.activeFile.path, this.prevCount);
+					})
+			);
+	}
+
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
+	}
+}
+
+class GenCharCurrModal extends Modal {
+	constructor(app, activeFile, onSubmit) {
+		super(app);
+		this.activeFile = activeFile;
+		this.onSubmit = onSubmit;
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		
+		contentEl.createEl('h2', { text: '重新生成角色' });
+
+		// Show current file info
+		new Setting(contentEl)
+			.setName('目標檔案')
+			.setDesc('將重新生成此檔案的內容')
+			.addText((text) => {
+				text.setValue(this.activeFile.path);
+				text.inputEl.disabled = true;
+				text.inputEl.style.width = '100%';
+			});
+
+		contentEl.createEl('p', { 
+			text: '⚠️ 此操作將使用檔案中的 prompt 欄位重新生成角色資料，並覆蓋現有內容。',
+			cls: 'mod-warning'
+		});
+
+		new Setting(contentEl)
+			.addButton((btn) =>
+				btn
+					.setButtonText('取消')
+					.onClick(() => {
+						this.close();
+					})
+			)
+			.addButton((btn) =>
+				btn
+					.setButtonText('重新生成')
+					.setCta()
+					.onClick(() => {
+						this.close();
+						this.onSubmit(this.activeFile.path);
 					})
 			);
 	}

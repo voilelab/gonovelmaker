@@ -389,3 +389,31 @@ func (v *Vault) UpdateChapter(path string, c *novelmaker.Chapter) error {
 
 	return nil
 }
+
+// LoadCharacterByPath loads a character from a specific file path (relative to vault root)
+func (v *Vault) LoadCharacterByPath(path string) (*novelmaker.Character, error) {
+	return v.loadCharacterFromRoot(path)
+}
+
+// UpdateCharacter updates an existing character file with new profile
+func (v *Vault) UpdateCharacter(path string, c *novelmaker.Character) error {
+	characterMeta := &CharacterFrontmatter{
+		Name:   c.Name,
+		Main:   c.Main,
+		Prompt: c.Prompt,
+	}
+
+	bs, err := yaml.Marshal(characterMeta)
+	if err != nil {
+		return fmt.Errorf("failed to marshal character frontmatter: %w", err)
+	}
+
+	// Prepare frontmatter
+	frontmatter := fmt.Sprintf("---\n%s\n---\n%s\n", string(bs), c.Profile)
+
+	if err := v.root.WriteFile(path, []byte(frontmatter), 0644); err != nil {
+		return fmt.Errorf("failed to write character file %s: %w", path, err)
+	}
+
+	return nil
+}

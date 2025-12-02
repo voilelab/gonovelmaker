@@ -118,6 +118,18 @@ novelmaker-obs gen-char --prompt "路人甲" --name "路人甲"
 - `-p, --prompt` - 角色描述/生成提示（必需）
 - `-n, --name` - 角色名稱（選用，未提供時會從 AI 回應中提取）
 
+### 重新生成現有角色
+
+```bash
+novelmaker-obs gen-char-curr --filepath "Character/alice.md"
+```
+
+基於角色檔案中儲存的提示詞（`prompt` frontmatter 欄位）重新生成角色描述。
+
+參數說明：
+- `-f, --filepath` - 角色檔案路徑（相對於 vault 根目錄，必需）
+- `-j, --json` - 以 JSON 格式輸出結果（選用）
+
 ### 自訂提示詞模板
 
 工具載入時會自動在 `~/.novelmaker/templates/` 建立預設提示詞模板：

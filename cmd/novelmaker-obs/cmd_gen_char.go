@@ -135,7 +135,7 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 	)
 
 	// Call OpenAI API
-	profile, err := renderer.RenderCharacter(
+	profile, usage, err := renderer.RenderCharacter(
 		project, worldbooks, characters, g.prompt, g.name)
 	if err != nil {
 		return fmt.Errorf("failed to generate character: %w", err)
@@ -158,9 +158,16 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 		fmt.Printf("\n✓ Successfully generated character!\n")
 		fmt.Printf("  File: %s\n", filePath)
 		fmt.Printf("  Name: %s\n", g.name)
+		fmt.Printf("\nToken Usage:\n")
+		fmt.Printf("  Input tokens:  %d\n", usage.InputTokens)
+		fmt.Printf("  Output tokens: %d\n", usage.OutputTokens)
+		fmt.Printf("  Total tokens:  %d\n", usage.TotalTokens)
 	} else {
 		output := map[string]any{
-			"filepath": filePath,
+			"filepath":      filePath,
+			"input_tokens":  usage.InputTokens,
+			"output_tokens": usage.OutputTokens,
+			"total_tokens":  usage.TotalTokens,
 		}
 		encoder := json.NewEncoder(os.Stdout)
 		encoder.SetIndent("", "  ")

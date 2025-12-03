@@ -153,7 +153,7 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 	prevChapters := chapters[len(chapters)-prevK:]
 
 	// Call OpenAI API
-	content, err := renderer.RenderPrompt(
+	content, usage, err := renderer.RenderPrompt(
 		project, worldbooks, characters, prevChapters, g.title, g.prompt)
 	if err != nil {
 		return fmt.Errorf("failed to generate chapter: %w", err)
@@ -188,9 +188,16 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		fmt.Printf("  File: %s\n", filePath)
 		fmt.Printf("  Index: %d\n", nextIndex)
 		fmt.Printf("  Title: %s\n", g.title)
+		fmt.Printf("\nToken Usage:\n")
+		fmt.Printf("  Input tokens:  %d\n", usage.InputTokens)
+		fmt.Printf("  Output tokens: %d\n", usage.OutputTokens)
+		fmt.Printf("  Total tokens:  %d\n", usage.TotalTokens)
 	} else {
 		output := map[string]any{
-			"filepath": filePath,
+			"filepath":      filePath,
+			"input_tokens":  usage.InputTokens,
+			"output_tokens": usage.OutputTokens,
+			"total_tokens":  usage.TotalTokens,
 		}
 		encoder := json.NewEncoder(os.Stdout)
 		encoder.SetIndent("", "  ")

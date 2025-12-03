@@ -162,7 +162,7 @@ func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Call OpenAI API to regenerate content
-	content, err := renderer.RenderPrompt(
+	content, usage, err := renderer.RenderPrompt(
 		project, worldbooks, characters, prevChapters, targetChapter.Title, targetChapter.Prompt)
 	if err != nil {
 		return fmt.Errorf("failed to generate chapter: %w", err)
@@ -181,11 +181,18 @@ func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
 		fmt.Printf("  File: %s\n", g.filepath)
 		fmt.Printf("  Index: %d\n", targetChapter.Index)
 		fmt.Printf("  Title: %s\n", targetChapter.Title)
+		fmt.Printf("\nToken Usage:\n")
+		fmt.Printf("  Input tokens:  %d\n", usage.InputTokens)
+		fmt.Printf("  Output tokens: %d\n", usage.OutputTokens)
+		fmt.Printf("  Total tokens:  %d\n", usage.TotalTokens)
 	} else {
 		output := map[string]any{
-			"filepath": g.filepath,
-			"index":    targetChapter.Index,
-			"title":    targetChapter.Title,
+			"filepath":      g.filepath,
+			"index":         targetChapter.Index,
+			"title":         targetChapter.Title,
+			"input_tokens":  usage.InputTokens,
+			"output_tokens": usage.OutputTokens,
+			"total_tokens":  usage.TotalTokens,
 		}
 		encoder := json.NewEncoder(os.Stdout)
 		encoder.SetIndent("", "  ")

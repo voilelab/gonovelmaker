@@ -40,7 +40,7 @@ type ChapterPromptData struct {
 
 // RenderPrompt generates a new chapter using the specified OpenAI model
 func (r *Renderer) RenderPrompt(
-	project *Project, worldbook []Worldbook, characters []Character, preChapters []Chapter, target string, prompt string) (string, error) {
+	project *Project, worldbook []Worldbook, characters []Character, preChapters []Chapter, target string, prompt string) (string, llmbackend.UsageInfo, error) {
 
 	data := ChapterPromptData{
 		ProjectName: project.Name,
@@ -54,7 +54,7 @@ func (r *Renderer) RenderPrompt(
 
 	var buf bytes.Buffer
 	if err := r.ChapterTemplate.Execute(&buf, data); err != nil {
-		return "", fmt.Errorf("failed to execute chapter template: %w", err)
+		return "", llmbackend.UsageInfo{}, fmt.Errorf("failed to execute chapter template: %w", err)
 	}
 	promptContent := buf.String()
 
@@ -75,13 +75,13 @@ func (r *Renderer) RenderPrompt(
 		defer cancel()
 	}
 
-	chatCompletion, err := r.llmBackend.ChatCompletion(msgs, ctx)
+	chatCompletion, usage, err := r.llmBackend.ChatCompletion(msgs, ctx)
 
 	if err != nil {
-		return "", err
+		return "", llmbackend.UsageInfo{}, err
 	}
 
-	return chatCompletion, nil
+	return chatCompletion, usage, nil
 }
 
 // CharacterPromptData holds the data for rendering character prompts
@@ -96,7 +96,7 @@ type CharacterPromptData struct {
 
 // RenderCharacter generates a new character profile using the specified OpenAI model
 func (r *Renderer) RenderCharacter(
-	project *Project, worldbook []Worldbook, characters []Character, prompt string, name string) (string, error) {
+	project *Project, worldbook []Worldbook, characters []Character, prompt string, name string) (string, llmbackend.UsageInfo, error) {
 
 	data := CharacterPromptData{
 		ProjectName: project.Name,
@@ -109,7 +109,7 @@ func (r *Renderer) RenderCharacter(
 
 	var buf bytes.Buffer
 	if err := r.CharacterTemplate.Execute(&buf, data); err != nil {
-		return "", fmt.Errorf("failed to execute character template: %w", err)
+		return "", llmbackend.UsageInfo{}, fmt.Errorf("failed to execute character template: %w", err)
 	}
 	promptContent := buf.String()
 
@@ -130,11 +130,11 @@ func (r *Renderer) RenderCharacter(
 		defer cancel()
 	}
 
-	chatCompletion, err := r.llmBackend.ChatCompletion(msgs, ctx)
+	chatCompletion, usage, err := r.llmBackend.ChatCompletion(msgs, ctx)
 
 	if err != nil {
-		return "", err
+		return "", llmbackend.UsageInfo{}, err
 	}
 
-	return chatCompletion, nil
+	return chatCompletion, usage, nil
 }

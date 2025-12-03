@@ -24,7 +24,7 @@ func NewOpenAIBackend(apiKey, baseURL, model string) *OpenAIBackend {
 	}
 }
 
-func (o *OpenAIBackend) ChatCompletion(messages []Message, ctx context.Context) (string, error) {
+func (o *OpenAIBackend) ChatCompletion(messages []Message, ctx context.Context) (string, UsageInfo, error) {
 	msgs := []openai.ChatCompletionMessageParamUnion{}
 	for _, m := range messages {
 		switch m.Role {
@@ -35,7 +35,7 @@ func (o *OpenAIBackend) ChatCompletion(messages []Message, ctx context.Context) 
 		case RoleAssistant:
 			msgs = append(msgs, openai.AssistantMessage(m.Content))
 		default:
-			return "", fmt.Errorf("unknown message role: %s", m.Role)
+			return "", UsageInfo{}, fmt.Errorf("unknown message role: %s", m.Role)
 		}
 	}
 
@@ -52,10 +52,16 @@ func (o *OpenAIBackend) ChatCompletion(messages []Message, ctx context.Context) 
 		})
 
 	if err != nil {
-		return "", err
+		return "", UsageInfo{}, err
 	}
 
-	return chatCompletion.Choices[0].Message.Content, nil
+	usage := UsageInfo{
+		InputTokens:  chatCompletion.Usage.PromptTokens,
+		OutputTokens: chatCompletion.Usage.CompletionTokens,
+		TotalTokens:  chatCompletion.Usage.TotalTokens,
+	}
+
+	return chatCompletion.Choices[0].Message.Content, usage, nil
 }
 
 func (o *OpenAIBackend) GenerateImage(prompt string, ctx context.Context) (string, error) {

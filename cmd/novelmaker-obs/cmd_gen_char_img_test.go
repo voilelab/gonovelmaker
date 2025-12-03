@@ -47,8 +47,8 @@ type testBackend struct {
 	imageURL string
 }
 
-func (t *testBackend) ChatCompletion(messages []llmbackend.Message, ctx context.Context) (string, error) {
-	return "Test response", nil
+func (t *testBackend) ChatCompletion(messages []llmbackend.Message, ctx context.Context) (string, llmbackend.UsageInfo, error) {
+	return "Test response", llmbackend.UsageInfo{}, nil
 }
 
 func (t *testBackend) GenerateImage(prompt string, ctx context.Context) (string, error) {

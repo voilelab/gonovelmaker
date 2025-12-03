@@ -13,3 +13,7 @@ func NewDummyBackend() *DummyBackend {
 func (d *DummyBackend) ChatCompletion(messages []Message, ctx context.Context) (string, error) {
 	return "This is a dummy response from DummyBackend.", nil
 }
+
+func (d *DummyBackend) GenerateImage(prompt string, ctx context.Context) (string, error) {
+	return "https://example.com/dummy-image.png", nil
+}

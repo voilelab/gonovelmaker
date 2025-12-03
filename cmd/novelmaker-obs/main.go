@@ -32,6 +32,7 @@ Configuration:
 	genCurrCmd := NewGenCurrCmd(openAIBackendMaker)
 	genCharCmd := NewGenCharCmd(openAIBackendMaker)
 	genCharCurrCmd := NewGenCharCurrCmd(openAIBackendMaker)
+	genCharImgCmd := NewGenCharImgCmd(openAIBackendMaker)
 	exportCmd := NewExportCmd()
 	updatePluginCmd := NewUpdatePluginCmd()
 
@@ -42,6 +43,7 @@ Configuration:
 	rootCmd.AddCommand(genCurrCmd.cmd)
 	rootCmd.AddCommand(genCharCmd.cmd)
 	rootCmd.AddCommand(genCharCurrCmd.cmd)
+	rootCmd.AddCommand(genCharImgCmd.cmd)
 	rootCmd.AddCommand(exportCmd.cmd)
 	rootCmd.AddCommand(updatePluginCmd.cmd)
 

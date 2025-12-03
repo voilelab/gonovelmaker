@@ -17,4 +17,5 @@ type Message struct {
 
 type LLMBackend interface {
 	ChatCompletion(messages []Message, ctx context.Context) (string, error)
+	GenerateImage(prompt string, ctx context.Context) (imageURL string, err error)
 }

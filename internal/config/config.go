@@ -14,10 +14,11 @@ var exampleConfig string
 
 // Config represents the user's configuration settings
 type Config struct {
-	OpenAIKey string `toml:"openai_api_key"`
-	Model     string `toml:"model"`
-	BaseURL   string `toml:"base_url"`
-	Timeout   int    `toml:"timeout"`
+	OpenAIKey  string `toml:"openai_api_key"`
+	Model      string `toml:"model"`
+	ImageModel string `toml:"image_model"`
+	BaseURL    string `toml:"base_url"`
+	Timeout    int    `toml:"timeout"`
 }
 
 // Load reads the configuration from ~/.novelmaker/config.toml
@@ -72,6 +73,10 @@ func Load() (*Config, error) {
 		cfg.Model = os.Getenv("OPENAI_MODEL")
 	}
 
+	if cfg.ImageModel == "" {
+		cfg.ImageModel = os.Getenv("OPENAI_IMAGE_MODEL")
+	}
+
 	return cfg, nil
 }
 
@@ -81,4 +86,12 @@ func (c *Config) GetModelOrDefault() string {
 		return "gpt-4o"
 	}
 	return c.Model
+}
+
+// GetImageModelOrDefault returns the configured image model or the default "dall-e-3"
+func (c *Config) GetImageModelOrDefault() string {
+	if c.ImageModel == "" {
+		return "dall-e-3"
+	}
+	return c.ImageModel
 }

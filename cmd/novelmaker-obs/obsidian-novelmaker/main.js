@@ -59,15 +59,15 @@ class NovelMakerPlugin extends Plugin {
 						// Call CLI with the input, setting cwd to vault path
 						const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
 
-						if (this.settings.openAfterGen) {
-							// Parse JSON output to get filepath
-							let output;
-							try {
-								output = JSON.parse(stdout);
-							} catch (jsonError) {
-								throw new Error('無法解析生成結果的 JSON 輸出');
-							}
+						// Parse JSON output
+						let output;
+						try {
+							output = JSON.parse(stdout);
+						} catch (jsonError) {
+							throw new Error('無法解析生成結果的 JSON 輸出');
+						}
 
+						if (this.settings.openAfterGen) {
 							if (output && output.filepath) {
 								setTimeout(() => {
 									const file = this.app.vault.getAbstractFileByPath(output.filepath);
@@ -82,8 +82,8 @@ class NovelMakerPlugin extends Plugin {
 							}
 						}
 						
-						// Show success notification
-						new Notice('✅ 章節生成成功！');
+						// Show result modal with token usage
+						new ResultModal(this.app, '章節生成完成', output).open();
 						
 						// Optionally show output in console
 						if (stdout) console.log(stdout);
@@ -193,15 +193,15 @@ class NovelMakerPlugin extends Plugin {
 						// Call CLI with the input, setting cwd to vault path
 						const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
 
-						if (this.settings.openAfterGen) {
-							// Parse JSON output to get filepath
-							let output;
-							try {
-								output = JSON.parse(stdout);
-							} catch (jsonError) {
-								throw new Error('無法解析生成結果的 JSON 輸出');
-							}
+						// Parse JSON output
+						let output;
+						try {
+							output = JSON.parse(stdout);
+						} catch (jsonError) {
+							throw new Error('無法解析生成結果的 JSON 輸出');
+						}
 
+						if (this.settings.openAfterGen) {
 							if (output && output.filepath) {
 								setTimeout(() => {
 									const file = this.app.vault.getAbstractFileByPath(output.filepath);
@@ -216,8 +216,8 @@ class NovelMakerPlugin extends Plugin {
 							}
 						}
 
-						// Show success notification
-						new Notice('✅ 角色生成成功！');
+						// Show result modal with token usage
+						new ResultModal(this.app, '角色生成完成', output).open();
 						
 						// Optionally show output in console
 						if (stdout) console.log(stdout);
@@ -249,7 +249,7 @@ class NovelMakerPlugin extends Plugin {
 								const vaultPath = this.app.vault.adapter.basePath;
 								
 								// Build the command using configured CLI path
-								let cmd = `${this.settings.cliPath} gen-curr --filepath "${filepath}"`;
+								let cmd = `${this.settings.cliPath} gen-curr --json --filepath "${filepath}"`;
 								if (prevCount !== null && prevCount !== undefined) {
 									cmd += ` --prev-chapters ${prevCount}`;
 								}
@@ -269,8 +269,14 @@ class NovelMakerPlugin extends Plugin {
 								// Call CLI with the input, setting cwd to vault path
 								const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
 								
-								// Show success notification
-								new Notice('✅ 章節重新生成成功！');
+								// Parse JSON output and show result modal
+								try {
+									const output = JSON.parse(stdout);
+									new ResultModal(this.app, '章節重新生成完成', output).open();
+								} catch (jsonError) {
+									// Fallback to simple notice if JSON parsing fails
+									new Notice('✅ 章節重新生成成功！');
+								}
 								
 								// Optionally show output in console
 								if (stdout) console.log(stdout);
@@ -306,7 +312,7 @@ class NovelMakerPlugin extends Plugin {
 								const vaultPath = this.app.vault.adapter.basePath;
 								
 								// Build the command using configured CLI path
-								let cmd = `${this.settings.cliPath} gen-char-curr --filepath "${filepath}"`;
+								let cmd = `${this.settings.cliPath} gen-char-curr --json --filepath "${filepath}"`;
 								if (this.settings.baseUrl && this.settings.baseUrl.trim()) {
 									cmd += ` --base-url "${this.settings.baseUrl}"`;
 								}
@@ -323,8 +329,14 @@ class NovelMakerPlugin extends Plugin {
 								// Call CLI with the input, setting cwd to vault path
 								const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
 								
-								// Show success notification
-								new Notice('✅ 角色重新生成成功！');
+								// Parse JSON output and show result modal
+								try {
+									const output = JSON.parse(stdout);
+									new ResultModal(this.app, '角色重新生成完成', output).open();
+								} catch (jsonError) {
+									// Fallback to simple notice if JSON parsing fails
+									new Notice('✅ 角色重新生成成功！');
+								}
 								
 								// Optionally show output in console
 								if (stdout) console.log(stdout);
@@ -1009,6 +1021,74 @@ class LoadingModal extends Modal {
 	forceCloseNow() {
 		this.forceClose = true;
 		this.close();
+	}
+}
+
+class ResultModal extends Modal {
+	constructor(app, title, output) {
+		super(app);
+		this.modalTitle = title;
+		this.output = output;
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		
+		contentEl.createEl('h2', { text: this.modalTitle });
+
+		// Success message
+		const successDiv = contentEl.createDiv({ cls: 'novelmaker-result-success' });
+		successDiv.createEl('span', { text: '✅ ', cls: 'novelmaker-success-icon' });
+		successDiv.createEl('span', { text: '生成成功！' });
+
+		// File path if available
+		if (this.output.filepath) {
+			const fileDiv = contentEl.createDiv({ cls: 'novelmaker-result-info' });
+			fileDiv.createEl('strong', { text: '檔案：' });
+			fileDiv.createEl('span', { text: this.output.filepath });
+		}
+
+		// Token usage section
+		if (this.output.input_tokens !== undefined || this.output.output_tokens !== undefined) {
+			const usageDiv = contentEl.createDiv({ cls: 'novelmaker-token-usage' });
+			usageDiv.createEl('h3', { text: '🔢 Token 使用量' });
+			
+			const usageGrid = usageDiv.createDiv({ cls: 'novelmaker-token-grid' });
+			
+			if (this.output.input_tokens !== undefined) {
+				const inputRow = usageGrid.createDiv({ cls: 'novelmaker-token-row' });
+				inputRow.createEl('span', { text: 'Input tokens:', cls: 'novelmaker-token-label' });
+				inputRow.createEl('span', { text: this.output.input_tokens.toLocaleString(), cls: 'novelmaker-token-value' });
+			}
+			
+			if (this.output.output_tokens !== undefined) {
+				const outputRow = usageGrid.createDiv({ cls: 'novelmaker-token-row' });
+				outputRow.createEl('span', { text: 'Output tokens:', cls: 'novelmaker-token-label' });
+				outputRow.createEl('span', { text: this.output.output_tokens.toLocaleString(), cls: 'novelmaker-token-value' });
+			}
+			
+			if (this.output.total_tokens !== undefined) {
+				const totalRow = usageGrid.createDiv({ cls: 'novelmaker-token-row novelmaker-token-total' });
+				totalRow.createEl('span', { text: 'Total tokens:', cls: 'novelmaker-token-label' });
+				totalRow.createEl('span', { text: this.output.total_tokens.toLocaleString(), cls: 'novelmaker-token-value' });
+			}
+		}
+
+		// Close button
+		new Setting(contentEl)
+			.addButton((btn) =>
+				btn
+					.setButtonText('確定')
+					.setCta()
+					.onClick(() => {
+						this.close();
+					})
+			);
+	}
+
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
 	}
 }
 

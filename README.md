@@ -231,19 +231,7 @@ novelmaker-obs update-plugin
 ```
 gonovelmaker/
 ├── cmd/novelmaker-obs/          # CLI 主程式
-│   ├── main.go                  # 命令列介面實作
-│   └── init_template/           # 專案初始化範本
-│       ├── Config/
-│       │   └── project.md
-│       ├── World/
-│       │   └── 001_world_sample.md
-│       ├── Character/
-│       │   └── character_sample.md
-│       ├── Story/
-│       │   └── 001_prologue.md
-│       ├── .obsidian/
-│       │   └── app.json
-│       └── README.md
+│       └── main.go              # 命令列介面實作
 ├── internal/
 │   ├── config/                  # 設定管理
 │   │   ├── config.go            # 設定載入器
@@ -253,11 +241,24 @@ gonovelmaker/
 │   │       ├── chapter_prompt.tmpl
 │   │       └── character_prompt.tmpl
 │   └── obsidian/                # Obsidian vault 處理
+│       ├── init_template/       # 專案初始化範本
+│       │   ├── Config/
+│       │   │   └── project.md
+│       │   ├── World/
+│       │   │   └── 001_world_sample.md
+│       │   ├── Character/
+│       │   │   └── character_sample.md
+│       │   ├── Story/
+│       │   │   └── 001_prologue.md
+│       │   ├── .obsidian/
+│       │   │   └── app.json
+│       │   └── README.md
 │       ├── loader.go            # vault 載入器
 │       ├── vault.go             # 專案資料結構
 │       └── frontmatter.go       # YAML frontmatter 解析器
 ├── novelmaker/                  # 核心生成邏輯
-│   └── app.go                   # OpenAI API 整合與生成器
+│   ├── render.go                # OpenAI API 整合與生成器
+│   └── struct.go
 ├── go.mod
 └── README.md
 ```

@@ -125,7 +125,18 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		fmt.Printf("  Context: %d worldbook entries, %d characters, %d previous chapters\n", len(worldbooks), len(characters), len(chapters))
 	}
 
-	// Load prompt templates
+	// Load chapter prompt template from vault
+	chapterPromptContent, err := vault.LoadChapterPrompt()
+	if err != nil {
+		return fmt.Errorf("failed to load chapter prompt from vault: %w", err)
+	}
+
+	chapterTemplate, err := parseChapterTemplate(chapterPromptContent)
+	if err != nil {
+		return fmt.Errorf("failed to parse chapter template: %w", err)
+	}
+
+	// Load prompt templates (character template only now)
 	promptTemplates, err := config.LoadPromptTemplates()
 	if err != nil {
 		return fmt.Errorf("failed to load prompt templates: %w", err)
@@ -139,7 +150,7 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 
 	renderer := novelmaker.NewRenderer(
 		llmBackend,
-		promptTemplates.ChapterTemplate,
+		chapterTemplate,
 		promptTemplates.CharacterTemplate,
 		effectiveTimeout,
 	)

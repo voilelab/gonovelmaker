@@ -45,6 +45,14 @@ system_prompt_char: You are a character development AI assistant.
 This is a fantasy world with magic and dragons.`
 	writeTestFile(t, tmpDir, "Config/project.md", projectContent)
 
+	// Create chapter prompt template
+	chapterPromptContent := `---
+system: |
+    You are a professional novel writing assistant.
+---
+`
+	writeTestFile(t, tmpDir, "Config/chapter_prompt.md", chapterPromptContent)
+
 	// Create worldbook entries
 	wb1 := `---
 tags:

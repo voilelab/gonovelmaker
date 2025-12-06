@@ -417,3 +417,13 @@ func (v *Vault) UpdateCharacter(path string, c *novelmaker.Character) error {
 
 	return nil
 }
+
+// LoadChapterPrompt loads the chapter prompt template from Config/chapter_prompt.md
+func (v *Vault) LoadChapterPrompt() (string, error) {
+	promptPath := filepath.Join(configDirName, "chapter_prompt.md")
+	content, err := v.root.ReadFile(promptPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read chapter prompt file %s: %w", promptPath, err)
+	}
+	return string(content), nil
+}

@@ -81,6 +81,14 @@ system_prompt: You are a writer.
 A new world.`
 		writeTestFile(t, tmpDir, "Config/project.md", projectContent)
 
+		// Create chapter prompt template
+		chapterPromptContent := `---
+system: |
+    You are a professional novel writing assistant.
+---
+`
+		writeTestFile(t, tmpDir, "Config/chapter_prompt.md", chapterPromptContent)
+
 		// Create empty directories
 		os.MkdirAll(filepath.Join(tmpDir, "World"), 0755)
 		os.MkdirAll(filepath.Join(tmpDir, "Character"), 0755)

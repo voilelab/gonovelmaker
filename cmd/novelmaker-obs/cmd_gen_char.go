@@ -129,7 +129,7 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 
 	renderer := novelmaker.NewRenderer(
 		llmBackend,
-		promptTemplates.ChapterTemplate,
+		nil, // ChapterTemplate not used for character generation
 		promptTemplates.CharacterTemplate,
 		effectiveTimeout,
 	)

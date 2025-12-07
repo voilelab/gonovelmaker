@@ -53,6 +53,13 @@ system: |
 `
 	writeTestFile(t, tmpDir, "Config/chapter_prompt.md", chapterPromptContent)
 
+	// Create character prompt template
+	characterPromptContent := `---
+system: You are a character development AI assistant.
+---
+Create a detailed character profile.`
+	writeTestFile(t, tmpDir, "Config/character_prompt.md", characterPromptContent)
+
 	// Create worldbook entries
 	wb1 := `---
 tags:

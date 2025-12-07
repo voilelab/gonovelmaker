@@ -136,10 +136,15 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to parse chapter template: %w", err)
 	}
 
-	// Load prompt templates (character template only now)
-	promptTemplates, err := config.LoadPromptTemplates()
+	// Load character prompt template from vault
+	characterPromptContent, err := vault.LoadCharacterPrompt()
 	if err != nil {
-		return fmt.Errorf("failed to load prompt templates: %w", err)
+		return fmt.Errorf("failed to load character prompt: %w", err)
+	}
+
+	characterTemplate, err := parseCharacterTemplate(characterPromptContent)
+	if err != nil {
+		return fmt.Errorf("failed to parse character template: %w", err)
 	}
 
 	llmBackend := g.llmBackendMaker(
@@ -151,7 +156,7 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 	renderer := novelmaker.NewRenderer(
 		llmBackend,
 		chapterTemplate,
-		promptTemplates.CharacterTemplate,
+		characterTemplate,
 		effectiveTimeout,
 	)
 

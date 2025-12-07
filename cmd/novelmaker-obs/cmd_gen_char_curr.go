@@ -120,10 +120,15 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 		fmt.Printf("  Context: %d worldbook entries, %d existing characters\n", len(worldbooks), len(characters))
 	}
 
-	// Load prompt templates
-	promptTemplates, err := config.LoadPromptTemplates()
+	// Load character prompt template from vault
+	characterPromptContent, err := vault.LoadCharacterPrompt()
 	if err != nil {
-		return fmt.Errorf("failed to load prompt templates: %w", err)
+		return fmt.Errorf("failed to load character prompt: %w", err)
+	}
+
+	characterTemplate, err := parseCharacterTemplate(characterPromptContent)
+	if err != nil {
+		return fmt.Errorf("failed to parse character template: %w", err)
 	}
 
 	llmBackend := g.llmBackendMaker(
@@ -135,7 +140,7 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 	renderer := novelmaker.NewRenderer(
 		llmBackend,
 		nil, // ChapterTemplate not used for character generation
-		promptTemplates.CharacterTemplate,
+		characterTemplate,
 		effectiveTimeout,
 	)
 

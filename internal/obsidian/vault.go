@@ -427,3 +427,13 @@ func (v *Vault) LoadChapterPrompt() (string, error) {
 	}
 	return string(content), nil
 }
+
+// LoadCharacterPrompt loads the character prompt template from Config/character_prompt.md
+func (v *Vault) LoadCharacterPrompt() (string, error) {
+	promptPath := filepath.Join(configDirName, "character_prompt.md")
+	content, err := v.root.ReadFile(promptPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read character prompt file %s: %w", promptPath, err)
+	}
+	return string(content), nil
+}

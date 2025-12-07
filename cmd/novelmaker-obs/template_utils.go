@@ -13,6 +13,11 @@ type ChapterPromptFrontmatter struct {
 	System string `yaml:"system"`
 }
 
+// CharacterPromptFrontmatter represents the YAML frontmatter for character prompts
+type CharacterPromptFrontmatter struct {
+	System string `yaml:"system"`
+}
+
 // templateFuncMap provides custom functions for templates
 var templateFuncMap = template.FuncMap{
 	"join": strings.Join,
@@ -29,6 +34,26 @@ func parseChapterTemplate(content string) (*template.Template, error) {
 	tmpl, err := template.New("chapter").Funcs(templateFuncMap).Parse(body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse chapter template: %w", err)
+	}
+
+	// Note: The system prompt from frontmatter can be accessed via fm.System if needed
+	// For now, we're using the project's system prompt from project.md
+	_ = fm
+
+	return tmpl, nil
+}
+
+// parseCharacterTemplate parses the character_prompt.md content (with frontmatter) into a template
+func parseCharacterTemplate(content string) (*template.Template, error) {
+	fm, body, err := nmutil.ParseFrontmatter[CharacterPromptFrontmatter]([]byte(content))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse character prompt frontmatter: %w", err)
+	}
+
+	// The body contains the actual template content
+	tmpl, err := template.New("character").Funcs(templateFuncMap).Parse(body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse character template: %w", err)
 	}
 
 	// Note: The system prompt from frontmatter can be accessed via fm.System if needed

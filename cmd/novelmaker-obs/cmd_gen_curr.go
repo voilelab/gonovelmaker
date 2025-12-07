@@ -160,7 +160,7 @@ func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Call OpenAI API to regenerate content
-	content, usage, err := renderer.RenderPrompt(
+	content, usage, err := renderer.RenderChapter(
 		project, chapterPrompt, worldbooks, characters, prevChapters, targetChapter.Title, targetChapter.Prompt)
 	if err != nil {
 		return fmt.Errorf("failed to generate chapter: %w", err)

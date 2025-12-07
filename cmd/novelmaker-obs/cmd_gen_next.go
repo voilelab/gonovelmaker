@@ -151,7 +151,7 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 	prevChapters := chapters[len(chapters)-prevK:]
 
 	// Call OpenAI API
-	content, usage, err := renderer.RenderPrompt(
+	content, usage, err := renderer.RenderChapter(
 		project, chapterPrompt, worldbooks, characters, prevChapters, g.title, g.prompt)
 	if err != nil {
 		return fmt.Errorf("failed to generate chapter: %w", err)

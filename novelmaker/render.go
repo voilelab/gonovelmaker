@@ -33,8 +33,8 @@ type ChapterPromptData struct {
 	Prompt      string
 }
 
-// RenderPrompt generates a new chapter using the specified OpenAI model
-func (r *Renderer) RenderPrompt(
+// RenderChapter generates a new chapter using the specified OpenAI model
+func (r *Renderer) RenderChapter(
 	project *Project, chapterPrompt *ChapterPrompt, worldbook []Worldbook, characters []Character, preChapters []Chapter, target string, prompt string) (string, llmbackend.UsageInfo, error) {
 
 	data := ChapterPromptData{

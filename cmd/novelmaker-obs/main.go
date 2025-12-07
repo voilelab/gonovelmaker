@@ -35,6 +35,7 @@ Configuration:
 	genCharImgCmd := NewGenCharImgCmd(openAIBackendMaker)
 	exportCmd := NewExportCmd()
 	updatePluginCmd := NewUpdatePluginCmd()
+	configTestCmd := NewConfigCheckCmd()
 
 	rootCmd.AddCommand(initCmd.cmd)
 	rootCmd.AddCommand(scanCmd.cmd)
@@ -46,6 +47,7 @@ Configuration:
 	rootCmd.AddCommand(genCharImgCmd.cmd)
 	rootCmd.AddCommand(exportCmd.cmd)
 	rootCmd.AddCommand(updatePluginCmd.cmd)
+	rootCmd.AddCommand(configTestCmd.cmd)
 
 	// Initialize config (creates empty config file if it doesn't exist)
 	config.Load()

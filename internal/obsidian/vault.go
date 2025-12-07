@@ -45,12 +45,22 @@ type ProjectFrontmatter struct {
 	SystemPromptChar string `yaml:"system_prompt_char"`
 }
 
+// ChapterPromptFrontmatter represents the YAML frontmatter for chapter prompt
+type ChapterPromptFrontmatter struct {
+	System string `yaml:"system"`
+}
+
 const (
 	configDirName = "Config"
 	worldDirName  = "World"
 	charDirName   = "Character"
 	storyDirName  = "Story"
 )
+
+type ChapterPrompt struct {
+	System            string
+	AssistantTemplate *template.Template
+}
 
 type Vault struct {
 	root *os.Root
@@ -417,16 +427,6 @@ func (v *Vault) UpdateCharacter(path string, c *novelmaker.Character) error {
 	}
 
 	return nil
-}
-
-type ChapterPrompt struct {
-	System            string
-	AssistantTemplate *template.Template
-}
-
-// ChapterPromptFrontmatter represents the YAML frontmatter for chapter prompt
-type ChapterPromptFrontmatter struct {
-	System string `yaml:"system"`
 }
 
 // LoadChapterPrompt loads the chapter prompt template from Config/chapter_prompt.md

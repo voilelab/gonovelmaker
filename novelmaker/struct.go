@@ -1,14 +1,25 @@
 package novelmaker
 
-import "time"
+import (
+	"text/template"
+	"time"
+)
+
+type ChapterPrompt struct {
+	System            string
+	AssistantTemplate *template.Template
+}
+
+type CharacterPrompt struct {
+	System            string
+	AssistantTemplate *template.Template
+}
 
 type Project struct {
-	Name             string    `json:"name"`
-	World            string    `json:"world"`
-	SystemPrompt     string    `json:"system_prompt"`
-	SystemPromptChar string    `json:"system_prompt_char"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	Name      string    `json:"name"`
+	World     string    `json:"world"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Worldbook struct {

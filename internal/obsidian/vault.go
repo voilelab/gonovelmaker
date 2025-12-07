@@ -62,16 +62,6 @@ const (
 	storyDirName  = "Story"
 )
 
-type ChapterPrompt struct {
-	System            string
-	AssistantTemplate *template.Template
-}
-
-type CharacterPrompt struct {
-	System            string
-	AssistantTemplate *template.Template
-}
-
 type Vault struct {
 	root *os.Root
 }
@@ -129,12 +119,10 @@ func (v *Vault) LoadProject() (*novelmaker.Project, error) {
 
 	now := time.Now()
 	return &novelmaker.Project{
-		Name:             fm.Name,
-		World:            body,
-		SystemPrompt:     fm.SystemPrompt,
-		SystemPromptChar: fm.SystemPromptChar,
-		CreatedAt:        now,
-		UpdatedAt:        now,
+		Name:      fm.Name,
+		World:     body,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}, nil
 }
 
@@ -440,7 +428,7 @@ func (v *Vault) UpdateCharacter(path string, c *novelmaker.Character) error {
 }
 
 // LoadChapterPrompt loads the chapter prompt template from Config/chapter_prompt.md
-func (v *Vault) LoadChapterPrompt() (*ChapterPrompt, error) {
+func (v *Vault) LoadChapterPrompt() (*novelmaker.ChapterPrompt, error) {
 	promptPath := filepath.Join(configDirName, "chapter_prompt.md")
 	content, err := v.root.ReadFile(promptPath)
 	if err != nil {
@@ -460,14 +448,14 @@ func (v *Vault) LoadChapterPrompt() (*ChapterPrompt, error) {
 		return nil, fmt.Errorf("failed to parse chapter assistant template: %w", err)
 	}
 
-	return &ChapterPrompt{
+	return &novelmaker.ChapterPrompt{
 		System:            fm.System,
 		AssistantTemplate: tmpl,
 	}, nil
 }
 
 // LoadCharacterPrompt loads the character prompt template from Config/character_prompt.md
-func (v *Vault) LoadCharacterPrompt() (*CharacterPrompt, error) {
+func (v *Vault) LoadCharacterPrompt() (*novelmaker.CharacterPrompt, error) {
 	promptPath := filepath.Join(configDirName, "character_prompt.md")
 	content, err := v.root.ReadFile(promptPath)
 	if err != nil {
@@ -487,7 +475,7 @@ func (v *Vault) LoadCharacterPrompt() (*CharacterPrompt, error) {
 		return nil, fmt.Errorf("failed to parse character assistant template: %w", err)
 	}
 
-	return &CharacterPrompt{
+	return &novelmaker.CharacterPrompt{
 		System:            fm.System,
 		AssistantTemplate: tmpl,
 	}, nil

@@ -55,8 +55,6 @@ func TestVault_LoadProject(t *testing.T) {
 		tmpDir := createTestVault(t)
 		projectContent := `---
 name: Test Project
-system_prompt: Test system prompt
-system_prompt_char: Test character prompt
 ---
 This is the world description.`
 
@@ -78,12 +76,6 @@ This is the world description.`
 		}
 		if project.World != "This is the world description." {
 			t.Errorf("project.World = %s, want 'This is the world description.'", project.World)
-		}
-		if project.SystemPrompt != "Test system prompt" {
-			t.Errorf("project.SystemPrompt = %s, want 'Test system prompt'", project.SystemPrompt)
-		}
-		if project.SystemPromptChar != "Test character prompt" {
-			t.Errorf("project.SystemPromptChar = %s, want 'Test character prompt'", project.SystemPromptChar)
 		}
 	})
 

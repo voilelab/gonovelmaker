@@ -133,14 +133,6 @@ func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to load chapter prompt from vault: %w", err)
 	}
-	chapterTemplate := chapterPrompt.AssistantTemplate
-
-	// Load character prompt template from vault
-	characterPrompt, err := vault.LoadCharacterPrompt()
-	if err != nil {
-		return fmt.Errorf("failed to load character prompt: %w", err)
-	}
-	characterTemplate := characterPrompt.AssistantTemplate
 
 	llmBackend := g.llmBackendMaker(
 		effectiveAPIKey,
@@ -150,8 +142,6 @@ func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
 
 	renderer := novelmaker.NewRenderer(
 		llmBackend,
-		chapterTemplate,
-		characterTemplate,
 		effectiveTimeout,
 	)
 
@@ -171,7 +161,7 @@ func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
 
 	// Call OpenAI API to regenerate content
 	content, usage, err := renderer.RenderPrompt(
-		project, worldbooks, characters, prevChapters, targetChapter.Title, targetChapter.Prompt)
+		project, chapterPrompt, worldbooks, characters, prevChapters, targetChapter.Title, targetChapter.Prompt)
 	if err != nil {
 		return fmt.Errorf("failed to generate chapter: %w", err)
 	}

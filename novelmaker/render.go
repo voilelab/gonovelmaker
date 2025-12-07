@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"text/template"
 	"time"
 
 	"github.com/voilelab/gonovelmaker/internal/llmbackend"
@@ -13,17 +12,13 @@ import (
 type Renderer struct {
 	llmBackend llmbackend.LLMBackend
 
-	ChapterTemplate   *template.Template
-	CharacterTemplate *template.Template
-	timeout           time.Duration
+	timeout time.Duration
 }
 
-func NewRenderer(llmBackend llmbackend.LLMBackend, chapterTempl, characterTempl *template.Template, timeout time.Duration) *Renderer {
+func NewRenderer(llmBackend llmbackend.LLMBackend, timeout time.Duration) *Renderer {
 	return &Renderer{
-		llmBackend:        llmBackend,
-		ChapterTemplate:   chapterTempl,
-		CharacterTemplate: characterTempl,
-		timeout:           timeout,
+		llmBackend: llmBackend,
+		timeout:    timeout,
 	}
 }
 
@@ -40,7 +35,7 @@ type ChapterPromptData struct {
 
 // RenderPrompt generates a new chapter using the specified OpenAI model
 func (r *Renderer) RenderPrompt(
-	project *Project, worldbook []Worldbook, characters []Character, preChapters []Chapter, target string, prompt string) (string, llmbackend.UsageInfo, error) {
+	project *Project, chapterPrompt *ChapterPrompt, worldbook []Worldbook, characters []Character, preChapters []Chapter, target string, prompt string) (string, llmbackend.UsageInfo, error) {
 
 	data := ChapterPromptData{
 		ProjectName: project.Name,
@@ -53,12 +48,12 @@ func (r *Renderer) RenderPrompt(
 	}
 
 	var buf bytes.Buffer
-	if err := r.ChapterTemplate.Execute(&buf, data); err != nil {
+	if err := chapterPrompt.AssistantTemplate.Execute(&buf, data); err != nil {
 		return "", llmbackend.UsageInfo{}, fmt.Errorf("failed to execute chapter template: %w", err)
 	}
 	promptContent := buf.String()
 
-	systemPrompt := project.SystemPrompt
+	systemPrompt := chapterPrompt.System
 	if systemPrompt == "" {
 		systemPrompt = "You are a helpful assistant that writes novels."
 	}
@@ -96,7 +91,7 @@ type CharacterPromptData struct {
 
 // RenderCharacter generates a new character profile using the specified OpenAI model
 func (r *Renderer) RenderCharacter(
-	project *Project, worldbook []Worldbook, characters []Character, prompt string, name string) (string, llmbackend.UsageInfo, error) {
+	project *Project, characterPrompt *CharacterPrompt, worldbook []Worldbook, characters []Character, prompt string, name string) (string, llmbackend.UsageInfo, error) {
 
 	data := CharacterPromptData{
 		ProjectName: project.Name,
@@ -108,12 +103,12 @@ func (r *Renderer) RenderCharacter(
 	}
 
 	var buf bytes.Buffer
-	if err := r.CharacterTemplate.Execute(&buf, data); err != nil {
+	if err := characterPrompt.AssistantTemplate.Execute(&buf, data); err != nil {
 		return "", llmbackend.UsageInfo{}, fmt.Errorf("failed to execute character template: %w", err)
 	}
 	promptContent := buf.String()
 
-	systemPrompt := project.SystemPromptChar
+	systemPrompt := characterPrompt.System
 	if systemPrompt == "" {
 		systemPrompt = "You are a helpful assistant that creates detailed character profiles for novels."
 	}

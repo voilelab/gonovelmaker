@@ -125,7 +125,6 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to load character prompt: %w", err)
 	}
-	characterTemplate := characterPrompt.AssistantTemplate
 
 	llmBackend := g.llmBackendMaker(
 		effectiveAPIKey,
@@ -135,14 +134,12 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 
 	renderer := novelmaker.NewRenderer(
 		llmBackend,
-		nil, // ChapterTemplate not used for character generation
-		characterTemplate,
 		effectiveTimeout,
 	)
 
 	// Call OpenAI API to regenerate character profile
 	profile, usage, err := renderer.RenderCharacter(
-		project, worldbooks, characters, targetCharacter.Prompt, targetCharacter.Name)
+		project, characterPrompt, worldbooks, characters, targetCharacter.Prompt, targetCharacter.Name)
 	if err != nil {
 		return fmt.Errorf("failed to generate character: %w", err)
 	}

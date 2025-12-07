@@ -50,6 +50,11 @@ type ChapterPromptFrontmatter struct {
 	System string `yaml:"system"`
 }
 
+// CharacterPromptFrontmatter represents the YAML frontmatter for character prompt
+type CharacterPromptFrontmatter struct {
+	System string `yaml:"system"`
+}
+
 const (
 	configDirName = "Config"
 	worldDirName  = "World"
@@ -58,6 +63,11 @@ const (
 )
 
 type ChapterPrompt struct {
+	System            string
+	AssistantTemplate *template.Template
+}
+
+type CharacterPrompt struct {
 	System            string
 	AssistantTemplate *template.Template
 }
@@ -457,11 +467,28 @@ func (v *Vault) LoadChapterPrompt() (*ChapterPrompt, error) {
 }
 
 // LoadCharacterPrompt loads the character prompt template from Config/character_prompt.md
-func (v *Vault) LoadCharacterPrompt() (string, error) {
+func (v *Vault) LoadCharacterPrompt() (*CharacterPrompt, error) {
 	promptPath := filepath.Join(configDirName, "character_prompt.md")
 	content, err := v.root.ReadFile(promptPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to read character prompt file %s: %w", promptPath, err)
+		return nil, fmt.Errorf("failed to read character prompt file %s: %w", promptPath, err)
 	}
-	return string(content), nil
+
+	fm, body, err := nmutil.ParseFrontmatter[CharacterPromptFrontmatter](content)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse character prompt frontmatter: %w", err)
+	}
+
+	// Parse the assistant template
+	tmpl, err := template.New("character_assistant").Funcs(template.FuncMap{
+		"join": strings.Join,
+	}).Parse(body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse character assistant template: %w", err)
+	}
+
+	return &CharacterPrompt{
+		System:            fm.System,
+		AssistantTemplate: tmpl,
+	}, nil
 }

@@ -121,15 +121,11 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Load character prompt template from vault
-	characterPromptContent, err := vault.LoadCharacterPrompt()
+	characterPrompt, err := vault.LoadCharacterPrompt()
 	if err != nil {
 		return fmt.Errorf("failed to load character prompt: %w", err)
 	}
-
-	characterTemplate, err := parseCharacterTemplate(characterPromptContent)
-	if err != nil {
-		return fmt.Errorf("failed to parse character template: %w", err)
-	}
+	characterTemplate := characterPrompt.AssistantTemplate
 
 	llmBackend := g.llmBackendMaker(
 		effectiveAPIKey,

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/voilelab/gonovelmaker/internal/nmutil"
@@ -418,14 +419,41 @@ func (v *Vault) UpdateCharacter(path string, c *novelmaker.Character) error {
 	return nil
 }
 
+type ChapterPrompt struct {
+	System            string
+	AssistantTemplate *template.Template
+}
+
+// ChapterPromptFrontmatter represents the YAML frontmatter for chapter prompt
+type ChapterPromptFrontmatter struct {
+	System string `yaml:"system"`
+}
+
 // LoadChapterPrompt loads the chapter prompt template from Config/chapter_prompt.md
-func (v *Vault) LoadChapterPrompt() (string, error) {
+func (v *Vault) LoadChapterPrompt() (*ChapterPrompt, error) {
 	promptPath := filepath.Join(configDirName, "chapter_prompt.md")
 	content, err := v.root.ReadFile(promptPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to read chapter prompt file %s: %w", promptPath, err)
+		return nil, fmt.Errorf("failed to read chapter prompt file %s: %w", promptPath, err)
 	}
-	return string(content), nil
+
+	fm, body, err := nmutil.ParseFrontmatter[ChapterPromptFrontmatter](content)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse chapter prompt frontmatter: %w", err)
+	}
+
+	// Parse the assistant template
+	tmpl, err := template.New("chapter_assistant").Funcs(template.FuncMap{
+		"join": strings.Join,
+	}).Parse(body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse chapter assistant template: %w", err)
+	}
+
+	return &ChapterPrompt{
+		System:            fm.System,
+		AssistantTemplate: tmpl,
+	}, nil
 }
 
 // LoadCharacterPrompt loads the character prompt template from Config/character_prompt.md

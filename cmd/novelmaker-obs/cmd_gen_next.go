@@ -126,15 +126,11 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Load chapter prompt template from vault
-	chapterPromptContent, err := vault.LoadChapterPrompt()
+	chapterPrompt, err := vault.LoadChapterPrompt()
 	if err != nil {
 		return fmt.Errorf("failed to load chapter prompt from vault: %w", err)
 	}
-
-	chapterTemplate, err := parseChapterTemplate(chapterPromptContent)
-	if err != nil {
-		return fmt.Errorf("failed to parse chapter template: %w", err)
-	}
+	chapterTemplate := chapterPrompt.AssistantTemplate
 
 	// Load character prompt template from vault
 	characterPromptContent, err := vault.LoadCharacterPrompt()

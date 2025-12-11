@@ -1,6 +1,39 @@
 # NovelMaker Configuration
 # 
-# base_url = ""
-# openai_api_key = ""
+# Legacy configuration (still supported for backward compatibility):
+# openai_api_key = "sk-xxx"
 # model = "gpt-4o"
 # image_model = "dall-e-3"
+# base_url = "https://api.openai.com/v1"
+# timeout = 120
+
+# New multi-backend configuration:
+# Specify which backend to use by default (e.g., "openai", "openrouter", "anthropic")
+# user_llm_backend = "openai"
+
+# Define multiple named backends
+[llm_backend]
+
+# OpenAI backend configuration
+[llm_backend.openai]
+# type = "openai"
+# api_key = "sk-xxx"
+# base_url = "https://api.openai.com/v1"
+# model = "gpt-4o"
+# image_model = "dall-e-3"
+
+# OpenRouter backend configuration
+[llm_backend.openrouter]
+# type = "openai"
+# api_key = "sk-or-xxx"
+# base_url = "https://openrouter.ai/api/v1"
+# model = "anthropic/claude-3.5-sonnet"
+# image_model = "openai/dall-e-3"
+
+# Custom backend example
+[llm_backend.custom]
+# type = "openai"
+# api_key = "your-api-key"
+# base_url = "https://your-custom-endpoint.com/v1"
+# model = "your-model-name"
+# image_model = "your-image-model"

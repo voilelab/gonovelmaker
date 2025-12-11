@@ -45,7 +45,9 @@ go install github.com/voilelab/gonovelmaker/cmd/novelmaker-obs@latest
 
 ## 設定
 
-在 `~/.novelmaker/config.toml` 建立設定檔：
+在 `~/.novelmaker/config.toml` 建立設定檔。
+
+### 方式一：傳統單一後端設定（向下相容）
 
 ```toml
 openai_api_key = "sk-xxx"
@@ -55,16 +57,56 @@ base_url = ""  # 可選：自訂 OpenAI API 端點
 timeout = 0   # 可選：API 請求超時時間（秒），0 表示無限制
 ```
 
-**設定選項：**
+### 方式二：多後端設定（新功能）
+
+```toml
+# 指定預設使用的後端
+user_llm_backend = "openai"
+
+# 定義多個命名後端
+[llm_backend.openai]
+type = "openai"
+api_key = "sk-xxx"
+base_url = "https://api.openai.com/v1"
+model = "gpt-4o"
+image_model = "dall-e-3"
+
+[llm_backend.openrouter]
+type = "openai"
+api_key = "sk-or-xxx"
+base_url = "https://openrouter.ai/api/v1"
+model = "anthropic/claude-3.5-sonnet"
+image_model = "openai/dall-e-3"
+
+[llm_backend.custom]
+type = "openai"
+api_key = "your-api-key"
+base_url = "https://your-custom-endpoint.com/v1"
+model = "your-model-name"
+image_model = "your-image-model"
+```
+
+**設定選項說明：**
+
+**傳統設定：**
 - `openai_api_key` - 您的 OpenAI API 金鑰（生成命令必需）
 - `model` - 要使用的 OpenAI 文字生成模型（可選，預設為 `gpt-4o`）
 - `image_model` - 要使用的 OpenAI 圖片生成模型（可選，預設為 `dall-e-3`）
 - `base_url` - 自訂 OpenAI API 端點（可選，可用於相容 OpenAI API 的第三方服務）
 - `timeout` - API 請求超時時間（秒，可選，預設為 0 表示無限制）
 
+**多後端設定：**
+- `user_llm_backend` - 預設使用的後端名稱（例如："openai", "openrouter"）
+- `llm_backend.[名稱]` - 定義一個命名後端，可定義多個
+  - `type` - 後端類型（目前支援 "openai"）
+  - `api_key` - 該後端的 API 金鑰
+  - `base_url` - API 端點 URL
+  - `model` - 使用的文字生成模型
+  - `image_model` - 使用的圖片生成模型
+
 首次執行工具時，如果設定檔不存在，會自動在 `~/.novelmaker/` 建立範例設定檔。
 
-您也可以透過環境變數設定：
+您也可以透過環境變數設定（僅適用於傳統單一後端模式）：
 ```bash
 export OPENAI_API_KEY=sk-xxx
 export OPENAI_MODEL=gpt-4o  # 選用

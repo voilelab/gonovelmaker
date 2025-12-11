@@ -1,0 +1,82 @@
+site_name: gonovelmaker Documentation
+site_description: 一個用於管理 Obsidian vault 中小說專案的命令列工具
+site_author: voilelab
+repo_url: https://github.com/voilelab/gonovelmaker
+repo_name: voilelab/gonovelmaker
+
+theme:
+  name: material
+  language: zh-TW
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 切換至深色模式
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 切換至淺色模式
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search:
+      lang: 
+        - zh
+        - en
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - 首頁: index.md
+  - 安裝指南: install.md
+  - CLI 命令列工具:
+    - 概覽: cli/overview.md
+    - 命令參考: cli/commands.md
+    - 使用範例: cli/examples.md
+  - Obsidian 外掛:
+    - 使用說明: plugin/obsidian.md
+  - 世界書結構:
+    - 檔案結構: worldbook/schema.md
+    - 範例: worldbook/examples.md
+  - 架構設計: architecture.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/voilelab/gonovelmaker

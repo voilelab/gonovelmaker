@@ -2,6 +2,7 @@ package config
 
 import (
 	_ "embed"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -118,4 +119,65 @@ func (c *Config) GetImageModelOrDefaultForBackend(backendName string) string {
 		return "dall-e-3"
 	}
 	return backend.ImageModel
+}
+
+// Save writes the configuration back to ~/.novelmaker/config.toml
+func (c *Config) Save() error {
+	// Get home directory
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+
+	// Construct config file path
+	configDir := filepath.Join(homeDir, ".novelmaker")
+	configPath := filepath.Join(configDir, "config.toml")
+
+	// Create config directory if it doesn't exist
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		return err
+	}
+
+	// Marshal config to TOML
+	data, err := toml.Marshal(c)
+	if err != nil {
+		return err
+	}
+
+	// Write to file
+	return os.WriteFile(configPath, data, 0644)
+}
+
+// AddOrUpdateBackend adds a new backend or updates an existing one
+func (c *Config) AddOrUpdateBackend(name string, backend LLMBackendConfig) {
+	if c.LLMBackend == nil {
+		c.LLMBackend = make(map[string]LLMBackendConfig)
+	}
+	c.LLMBackend[name] = backend
+}
+
+// RemoveBackend removes a backend by name
+func (c *Config) RemoveBackend(name string) bool {
+	if c.LLMBackend == nil {
+		return false
+	}
+	_, exists := c.LLMBackend[name]
+	if exists {
+		delete(c.LLMBackend, name)
+		// If we removed the default backend, clear the default
+		if c.UserLLMBackend == name {
+			c.UserLLMBackend = ""
+		}
+	}
+	return exists
+}
+
+// SetDefaultBackend sets the default backend to use
+func (c *Config) SetDefaultBackend(name string) error {
+	// Check if backend exists
+	if _, ok := c.LLMBackend[name]; !ok {
+		return fmt.Errorf("backend '%s' does not exist", name)
+	}
+	c.UserLLMBackend = name
+	return nil
 }

@@ -37,6 +37,22 @@ Configuration:
 	updatePluginCmd := NewUpdatePluginCmd()
 	configTestCmd := NewConfigCheckCmd()
 
+	// Backend management commands
+	backendCmd := &cobra.Command{
+		Use:   "backend",
+		Short: "Manage LLM backend configurations",
+		Long:  `Add, remove, list, and configure LLM backends for novel generation.`,
+	}
+	backendAddCmd := NewBackendAddCmd()
+	backendRemoveCmd := NewBackendRemoveCmd()
+	backendUseCmd := NewBackendUseCmd()
+	backendListCmd := NewBackendListCmd()
+
+	backendCmd.AddCommand(backendAddCmd.cmd)
+	backendCmd.AddCommand(backendRemoveCmd.cmd)
+	backendCmd.AddCommand(backendUseCmd.cmd)
+	backendCmd.AddCommand(backendListCmd.cmd)
+
 	rootCmd.AddCommand(initCmd.cmd)
 	rootCmd.AddCommand(scanCmd.cmd)
 	rootCmd.AddCommand(genNextCmd.cmd)
@@ -48,6 +64,7 @@ Configuration:
 	rootCmd.AddCommand(exportCmd.cmd)
 	rootCmd.AddCommand(updatePluginCmd.cmd)
 	rootCmd.AddCommand(configTestCmd.cmd)
+	rootCmd.AddCommand(backendCmd)
 
 	// Initialize config (creates empty config file if it doesn't exist)
 	config.Load()

@@ -19,6 +19,7 @@ type LLMBackendConfig struct {
 	BaseURL    string `toml:"base_url"`
 	Model      string `toml:"model"`
 	ImageModel string `toml:"image_model"`
+	Timeout    int    `toml:"timeout"`
 }
 
 // Config represents the user's configuration settings
@@ -139,6 +140,7 @@ func (c *Config) GetBackend(name string) *LLMBackendConfig {
 		BaseURL:    c.BaseURL,
 		Model:      c.GetModelOrDefault(),
 		ImageModel: c.GetImageModelOrDefault(),
+		Timeout:    c.Timeout,
 	}
 }
 

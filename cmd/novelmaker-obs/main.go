@@ -47,11 +47,13 @@ Configuration:
 	backendRemoveCmd := NewBackendRemoveCmd()
 	backendUseCmd := NewBackendUseCmd()
 	backendListCmd := NewBackendListCmd()
+	backendCheckCmd := NewBackendCheckCmd()
 
 	backendCmd.AddCommand(backendAddCmd.cmd)
 	backendCmd.AddCommand(backendRemoveCmd.cmd)
 	backendCmd.AddCommand(backendUseCmd.cmd)
 	backendCmd.AddCommand(backendListCmd.cmd)
+	backendCmd.AddCommand(backendCheckCmd.cmd)
 
 	rootCmd.AddCommand(initCmd.cmd)
 	rootCmd.AddCommand(scanCmd.cmd)

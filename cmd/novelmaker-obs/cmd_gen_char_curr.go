@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/voilelab/gonovelmaker/internal/config"
+	"github.com/voilelab/gonovelmaker/internal/nmutil"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
@@ -100,22 +101,10 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Determine effective API settings (flags override config)
-	effectiveAPIKey := backend.APIKey
-	if g.apiKey != "" {
-		effectiveAPIKey = g.apiKey
-	}
-	effectiveModel := backend.Model
-	if g.model != "" {
-		effectiveModel = g.model
-	}
-	effectiveBaseURL := backend.BaseURL
-	if g.baseURL != "" {
-		effectiveBaseURL = g.baseURL
-	}
-	effectiveTimeout := time.Duration(backend.Timeout) * time.Second
-	if g.timeout > 0 {
-		effectiveTimeout = time.Duration(g.timeout) * time.Second
-	}
+	effectiveAPIKey := nmutil.FirstNonEmptyString(g.apiKey, backend.APIKey)
+	effectiveModel := nmutil.FirstNonEmptyString(g.model, backend.Model)
+	effectiveBaseURL := nmutil.FirstNonEmptyString(g.baseURL, backend.BaseURL)
+	effectiveTimeout := time.Duration(nmutil.FirstNonZero(g.timeout, backend.Timeout)) * time.Second
 
 	if !g.json {
 		fmt.Println("Regenerating character with OpenAI...")

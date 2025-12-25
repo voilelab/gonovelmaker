@@ -67,24 +67,6 @@ func Load() (*Config, error) {
 	return cfg, nil
 }
 
-// GetModelOrDefault returns the configured model for the default backend or the default "gpt-4o"
-func (c *Config) GetModelOrDefault() string {
-	backend := c.GetBackend("")
-	if backend == nil || backend.Model == "" {
-		return "gpt-4o"
-	}
-	return backend.Model
-}
-
-// GetImageModelOrDefault returns the configured image model for the default backend or the default "dall-e-3"
-func (c *Config) GetImageModelOrDefault() string {
-	backend := c.GetBackend("")
-	if backend == nil || backend.ImageModel == "" {
-		return "dall-e-3"
-	}
-	return backend.ImageModel
-}
-
 // GetBackend returns the configuration for a specific named backend
 // If name is empty, it returns the default backend specified by user_llm_backend
 // Returns nil if no backend is found

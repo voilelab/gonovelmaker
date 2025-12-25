@@ -108,7 +108,7 @@ func (g *GenCharImgCmd) run(cmd *cobra.Command, args []string) error {
 	if g.apiKey != "" {
 		effectiveAPIKey = g.apiKey
 	}
-	effectiveImageModel := cfg.GetImageModelOrDefault()
+	effectiveImageModel := backend.ImageModel
 	if g.imageModel != "" {
 		effectiveImageModel = g.imageModel
 	}

@@ -104,7 +104,7 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 	if g.apiKey != "" {
 		effectiveAPIKey = g.apiKey
 	}
-	effectiveModel := cfg.GetModelOrDefault()
+	effectiveModel := backend.Model
 	if g.model != "" {
 		effectiveModel = g.model
 	}

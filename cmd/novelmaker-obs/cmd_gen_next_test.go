@@ -73,6 +73,29 @@ func TestGenNextCmd_Run_Success(t *testing.T) {
 	t.Run("generate first chapter in empty vault", func(t *testing.T) {
 		tmpDir := createTestVault(t)
 
+		// Create a .novelmaker config directory and config.toml file
+		configDir := filepath.Join(tmpDir, ".novelmaker")
+		if err := os.MkdirAll(configDir, 0755); err != nil {
+			t.Fatalf("failed to create config directory: %v", err)
+		}
+		configContent := `user_llm_backend = "test"
+
+[llm_backend.test]
+type = "openai"
+api_key = "test-key"
+model = "gpt-4o"
+image_model = "dall-e-3"
+`
+		configPath := filepath.Join(configDir, "config.toml")
+		if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
+			t.Fatalf("failed to write config file: %v", err)
+		}
+
+		// Set HOME environment variable to tmpDir so config.Load() finds our test config
+		oldHome := os.Getenv("HOME")
+		os.Setenv("HOME", tmpDir)
+		defer os.Setenv("HOME", oldHome)
+
 		// Create minimal project
 		projectContent := `---
 name: New Project

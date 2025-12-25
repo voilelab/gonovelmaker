@@ -24,14 +24,7 @@ type LLMBackendConfig struct {
 
 // Config represents the user's configuration settings
 type Config struct {
-	// Legacy fields for backward compatibility
-	OpenAIKey  string `toml:"openai_api_key"`
-	Model      string `toml:"model"`
-	ImageModel string `toml:"image_model"`
-	BaseURL    string `toml:"base_url"`
-	Timeout    int    `toml:"timeout"`
-
-	// New multi-backend support
+	// Multi-backend support
 	UserLLMBackend string                      `toml:"user_llm_backend"` // Default backend to use
 	LLMBackend     map[string]LLMBackendConfig `toml:"llm_backend"`      // Named backends
 }
@@ -58,10 +51,6 @@ func Load() (*Config, error) {
 		if err := os.MkdirAll(configDir, 0755); err == nil {
 			os.WriteFile(configPath, []byte(exampleConfig), 0644)
 		}
-
-		cfg.OpenAIKey = os.Getenv("OPENAI_API_KEY")
-		cfg.BaseURL = os.Getenv("OPENAI_BASE_URL")
-		cfg.Model = os.Getenv("OPENAI_MODEL")
 		return cfg, nil
 	}
 
@@ -75,45 +64,30 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
-	// Fallback to environment variables if values are empty
-	if cfg.OpenAIKey == "" {
-		cfg.OpenAIKey = os.Getenv("OPENAI_API_KEY")
-	}
-
-	if cfg.BaseURL == "" {
-		cfg.BaseURL = os.Getenv("OPENAI_BASE_URL")
-	}
-
-	if cfg.Model == "" {
-		cfg.Model = os.Getenv("OPENAI_MODEL")
-	}
-
-	if cfg.ImageModel == "" {
-		cfg.ImageModel = os.Getenv("OPENAI_IMAGE_MODEL")
-	}
-
 	return cfg, nil
 }
 
-// GetModelOrDefault returns the configured model or the default "gpt-4o"
+// GetModelOrDefault returns the configured model for the default backend or the default "gpt-4o"
 func (c *Config) GetModelOrDefault() string {
-	if c.Model == "" {
+	backend := c.GetBackend("")
+	if backend == nil || backend.Model == "" {
 		return "gpt-4o"
 	}
-	return c.Model
+	return backend.Model
 }
 
-// GetImageModelOrDefault returns the configured image model or the default "dall-e-3"
+// GetImageModelOrDefault returns the configured image model for the default backend or the default "dall-e-3"
 func (c *Config) GetImageModelOrDefault() string {
-	if c.ImageModel == "" {
+	backend := c.GetBackend("")
+	if backend == nil || backend.ImageModel == "" {
 		return "dall-e-3"
 	}
-	return c.ImageModel
+	return backend.ImageModel
 }
 
 // GetBackend returns the configuration for a specific named backend
 // If name is empty, it returns the default backend specified by user_llm_backend
-// Falls back to legacy configuration if no named backends are configured
+// Returns nil if no backend is found
 func (c *Config) GetBackend(name string) *LLMBackendConfig {
 	// If no name provided, use the default
 	if name == "" {
@@ -133,15 +107,8 @@ func (c *Config) GetBackend(name string) *LLMBackendConfig {
 		}
 	}
 
-	// Fall back to legacy configuration
-	return &LLMBackendConfig{
-		Type:       "openai",
-		APIKey:     c.OpenAIKey,
-		BaseURL:    c.BaseURL,
-		Model:      c.GetModelOrDefault(),
-		ImageModel: c.GetImageModelOrDefault(),
-		Timeout:    c.Timeout,
-	}
+	// No backend found
+	return nil
 }
 
 // GetBackendNames returns a list of all configured backend names

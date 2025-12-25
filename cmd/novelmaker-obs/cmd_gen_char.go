@@ -89,8 +89,14 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load characters: %w", err)
 	}
 
+	// Get backend configuration
+	backend := cfg.GetBackend("")
+	if backend == nil {
+		return fmt.Errorf("no LLM backend configured. Please configure at least one backend in ~/.novelmaker/config.toml")
+	}
+
 	// Determine effective API settings (flags override config)
-	effectiveAPIKey := cfg.OpenAIKey
+	effectiveAPIKey := backend.APIKey
 	if g.apiKey != "" {
 		effectiveAPIKey = g.apiKey
 	}
@@ -98,11 +104,11 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 	if g.model != "" {
 		effectiveModel = g.model
 	}
-	effectiveBaseURL := cfg.BaseURL
+	effectiveBaseURL := backend.BaseURL
 	if g.baseURL != "" {
 		effectiveBaseURL = g.baseURL
 	}
-	effectiveTimeout := time.Duration(cfg.Timeout) * time.Second
+	effectiveTimeout := time.Duration(backend.Timeout) * time.Second
 	if g.timeout > 0 {
 		effectiveTimeout = time.Duration(g.timeout) * time.Second
 	}

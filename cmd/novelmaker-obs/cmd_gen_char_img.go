@@ -97,8 +97,14 @@ func (g *GenCharImgCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("character with name '%s' not found", g.name)
 	}
 
+	// Get backend configuration
+	backend := cfg.GetBackend("")
+	if backend == nil {
+		return fmt.Errorf("no LLM backend configured. Please configure at least one backend in ~/.novelmaker/config.toml")
+	}
+
 	// Determine effective API settings (flags override config)
-	effectiveAPIKey := cfg.OpenAIKey
+	effectiveAPIKey := backend.APIKey
 	if g.apiKey != "" {
 		effectiveAPIKey = g.apiKey
 	}
@@ -106,7 +112,7 @@ func (g *GenCharImgCmd) run(cmd *cobra.Command, args []string) error {
 	if g.imageModel != "" {
 		effectiveImageModel = g.imageModel
 	}
-	effectiveBaseURL := cfg.BaseURL
+	effectiveBaseURL := backend.BaseURL
 	if g.baseURL != "" {
 		effectiveBaseURL = g.baseURL
 	}

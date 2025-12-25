@@ -36,6 +36,32 @@ func setupCompleteVault(t *testing.T) string {
 	t.Helper()
 	tmpDir := createTestVault(t)
 
+	// Create a .novelmaker config directory and config.toml file
+	// This ensures the commands can find a backend configuration
+	configDir := filepath.Join(tmpDir, ".novelmaker")
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		t.Fatalf("failed to create config directory: %v", err)
+	}
+	configContent := `user_llm_backend = "test"
+
+[llm_backend.test]
+type = "openai"
+api_key = "test-key"
+model = "gpt-4o"
+image_model = "dall-e-3"
+`
+	configPath := filepath.Join(configDir, "config.toml")
+	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
+
+	// Set HOME environment variable to tmpDir so config.Load() finds our test config
+	oldHome := os.Getenv("HOME")
+	os.Setenv("HOME", tmpDir)
+	t.Cleanup(func() {
+		os.Setenv("HOME", oldHome)
+	})
+
 	// Create project file
 	projectContent := `---
 name: Test Novel Project

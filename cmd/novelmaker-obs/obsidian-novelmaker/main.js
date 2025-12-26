@@ -8,7 +8,6 @@ const execAsync = promisify(exec);
 const DEFAULT_SETTINGS = {
 	cliPath: './novelmaker-obs',
 	backend: '',
-	timeout: 60, // default timeout in seconds
 	openAfterGen: false,
 	openAfterGenMs: 500,
 };
@@ -43,9 +42,6 @@ class NovelMakerPlugin extends Plugin {
 						}
 						if (this.settings.backend && this.settings.backend.trim()) {
 							cmd += ` --backend "${this.settings.backend}"`;
-						}
-						if (this.settings.timeout && !isNaN(this.settings.timeout)) {
-							cmd += ` --timeout ${this.settings.timeout}`;
 						}
 						
 						// Call CLI with the input, setting cwd to vault path
@@ -172,9 +168,6 @@ class NovelMakerPlugin extends Plugin {
 						if (this.settings.backend && this.settings.backend.trim()) {
 							cmd += ` --backend "${this.settings.backend}"`;
 						}
-						if (this.settings.timeout && !isNaN(this.settings.timeout)) {
-							cmd += ` --timeout ${this.settings.timeout}`;
-						}
 						
 						// Call CLI with the input, setting cwd to vault path
 						const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
@@ -296,9 +289,6 @@ class NovelMakerPlugin extends Plugin {
 								if (this.settings.backend && this.settings.backend.trim()) {
 									cmd += ` --backend "${this.settings.backend}"`;
 								}
-								if (this.settings.timeout && !isNaN(this.settings.timeout)) {
-									cmd += ` --timeout ${this.settings.timeout}`;
-								}
 								
 								// Call CLI with the input, setting cwd to vault path
 								const { stdout, stderr } = await execAsync(cmd, { cwd: vaultPath });
@@ -352,9 +342,6 @@ class NovelMakerPlugin extends Plugin {
 								}
 								if (this.settings.backend && this.settings.backend.trim()) {
 									cmd += ` --backend "${this.settings.backend}"`;
-								}
-								if (this.settings.timeout && !isNaN(this.settings.timeout)) {
-									cmd += ` --timeout ${this.settings.timeout}`;
 								}
 								
 								// Call CLI with the input, setting cwd to vault path
@@ -1072,6 +1059,7 @@ class BackendModal extends Modal {
 		this.base_url = backend?.base_url || '';
 		this.api_key = backend?.api_key || '';
 		this.model = backend?.model || '';
+		this.timeout = backend?.timeout || 60;
 		this.onSubmit = onSubmit;
 		this.apiKeyModified = false; // Track if user actually modified the API key
 	}
@@ -1143,6 +1131,26 @@ class BackendModal extends Modal {
 			});
 
 		new Setting(contentEl)
+			.setName(`API 請求超時 (秒) (${this.timeout} 秒)`)
+			.setDesc('此 backend 的超時時間（秒）（預設：60 秒）')
+			.addSlider((slider) => {
+				slider
+					.setLimits(10, 300, 10)
+					.setValue(this.timeout)
+					.onChange((value) => {
+						if (isNaN(value)) {
+							return;
+						}
+						this.timeout = value;
+						// Update the setting name to show current value
+						const settingEl = contentEl.querySelector('.setting-item:last-of-type .setting-item-name');
+						if (settingEl) {
+							settingEl.textContent = `API 請求超時 (秒) (${value} 秒)`;
+						}
+					});
+			});
+
+		new Setting(contentEl)
 			.addButton((btn) =>
 				btn
 					.setButtonText('取消')
@@ -1174,6 +1182,7 @@ class BackendModal extends Modal {
 							base_url: this.base_url,
 							api_key: this.api_key,
 							model: this.model,
+							timeout: this.timeout,
 							apiKeyModified: this.apiKeyModified // Pass the flag
 						});
 					})
@@ -1191,7 +1200,6 @@ class NovelMakerSettingTab extends PluginSettingTab {
 		super(app, plugin);
 		this.plugin = plugin;
 
-		this.timeoutSetting = null;
 		this.openAfterGenMsSetting = null;
 	}
 
@@ -1256,6 +1264,9 @@ class NovelMakerSettingTab extends PluginSettingTab {
 								let cmd = `${this.plugin.settings.cliPath} backend add "${data.name}" --base_url "${data.base_url}" --api_key "${data.api_key}"`;
 								if (data.model && data.model.trim()) {
 									cmd += ` --model "${data.model}"`;
+								}
+								if (data.timeout) {
+									cmd += ` --timeout ${data.timeout}`;
 								}
 								await execAsync(cmd, { cwd: vaultPath });
 								new Notice(`\u2705 Backend "${data.name}" \u65b0\u589e\u6210\u529f\uff01`);
@@ -1339,6 +1350,9 @@ class NovelMakerSettingTab extends PluginSettingTab {
 							if (data.model && data.model.trim()) {
 								cmd += ` --model "${data.model}"`;
 							}
+							if (data.timeout) {
+								cmd += ` --timeout ${data.timeout}`;
+							}
 							await execAsync(cmd, { cwd: vaultPath });
 							new Notice(`\u2705 Backend "${data.name}" \u66f4\u65b0\u6210\u529f\uff01`);
 							this.display();
@@ -1415,27 +1429,10 @@ class NovelMakerSettingTab extends PluginSettingTab {
 		const infoEl = containerEl.createDiv({ cls: 'novelmaker-api-warning' });
 		infoEl.createEl('span', { text: 'ℹ️ 提示： ', cls: 'novelmaker-warning-icon' });
 		infoEl.createEl('span', { 
-			text: 'Backend 配置（包括 API Key）儲存在 ~/.novelmaker/config.toml 中，不會同步到 vault。每個 backend 可以設定自己的預設模型。',
+			text: 'Backend 配置（包括 API Key）儲存在 ~/.novelmaker/config.toml 中，不會同步到 vault。每個 backend 可以設定自己的預設模型和超時時間。',
 			cls: 'novelmaker-warning-text'
 		});
 
-		this.timeoutSetting = new Setting(containerEl)
-			.setName(`API 請求超時 (秒) (${this.plugin.settings.timeout} 秒)`)
-			.setDesc('設定與 LLM API 通訊的超時時間（秒）（預設：60 秒）')
-			.addSlider((slider) =>
-				slider
-					.setLimits(10, 300, 10)
-					.setValue(this.plugin.settings.timeout)
-					.onChange(async (value) => {
-						if (isNaN(value)) {
-							return;
-						}
-						this.plugin.settings.timeout = value;
-						this.timeoutSetting.setName(`API 請求超時 (秒) (${value} 秒)`);
-						await this.plugin.saveSettings();
-					})
-			);
-		
 		new Setting(containerEl)
 			.setName('生成後自動打開檔案')
 			.setDesc('生成章節或角色後，自動在 Obsidian 中打開生成的檔案')

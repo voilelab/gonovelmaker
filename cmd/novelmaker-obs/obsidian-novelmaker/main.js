@@ -7,8 +7,7 @@ const execAsync = promisify(exec);
 // Default settings
 const DEFAULT_SETTINGS = {
 	cliPath: './novelmaker-obs',
-	baseUrl: '',
-	apiKey: '',
+	backend: '',
 	model: '',
 	timeout: 60, // default timeout in seconds
 	openAfterGen: false,
@@ -43,11 +42,8 @@ class NovelMakerPlugin extends Plugin {
 						if (prevCount !== null && prevCount !== undefined) {
 							cmd += ` --prev-chapters ${prevCount}`;
 						}
-						if (this.settings.baseUrl && this.settings.baseUrl.trim()) {
-							cmd += ` --base-url "${this.settings.baseUrl}"`;
-						}
-						if (this.settings.apiKey && this.settings.apiKey.trim()) {
-							cmd += ` --api-key "${this.settings.apiKey}"`;
+						if (this.settings.backend && this.settings.backend.trim()) {
+							cmd += ` --backend "${this.settings.backend}"`;
 						}
 						if (this.settings.model && this.settings.model.trim()) {
 							cmd += ` --model "${this.settings.model}"`;
@@ -177,11 +173,8 @@ class NovelMakerPlugin extends Plugin {
 						if (prompt && prompt.trim()) {
 							cmd += ` --prompt "${prompt}"`;
 						}
-						if (this.settings.baseUrl && this.settings.baseUrl.trim()) {
-							cmd += ` --base-url "${this.settings.baseUrl}"`;
-						}
-						if (this.settings.apiKey && this.settings.apiKey.trim()) {
-							cmd += ` --api-key "${this.settings.apiKey}"`;
+						if (this.settings.backend && this.settings.backend.trim()) {
+							cmd += ` --backend "${this.settings.backend}"`;
 						}
 						if (this.settings.model && this.settings.model.trim()) {
 							cmd += ` --model "${this.settings.model}"`;
@@ -253,11 +246,8 @@ class NovelMakerPlugin extends Plugin {
 								if (prevCount !== null && prevCount !== undefined) {
 									cmd += ` --prev-chapters ${prevCount}`;
 								}
-								if (this.settings.baseUrl && this.settings.baseUrl.trim()) {
-									cmd += ` --base-url "${this.settings.baseUrl}"`;
-								}
-								if (this.settings.apiKey && this.settings.apiKey.trim()) {
-									cmd += ` --api-key "${this.settings.apiKey}"`;
+								if (this.settings.backend && this.settings.backend.trim()) {
+									cmd += ` --backend "${this.settings.backend}"`;
 								}
 								if (this.settings.model && this.settings.model.trim()) {
 									cmd += ` --model "${this.settings.model}"`;
@@ -313,11 +303,8 @@ class NovelMakerPlugin extends Plugin {
 								
 								// Build the command using configured CLI path
 								let cmd = `${this.settings.cliPath} gen-char-curr --json --filepath "${filepath}"`;
-								if (this.settings.baseUrl && this.settings.baseUrl.trim()) {
-									cmd += ` --base-url "${this.settings.baseUrl}"`;
-								}
-								if (this.settings.apiKey && this.settings.apiKey.trim()) {
-									cmd += ` --api-key "${this.settings.apiKey}"`;
+								if (this.settings.backend && this.settings.backend.trim()) {
+									cmd += ` --backend "${this.settings.backend}"`;
 								}
 								if (this.settings.model && this.settings.model.trim()) {
 									cmd += ` --model "${this.settings.model}"`;
@@ -376,11 +363,8 @@ class NovelMakerPlugin extends Plugin {
 								if (prompt && prompt.trim()) {
 									cmd += ` --prompt "${prompt}"`;
 								}
-								if (this.settings.baseUrl && this.settings.baseUrl.trim()) {
-									cmd += ` --base-url "${this.settings.baseUrl}"`;
-								}
-								if (this.settings.apiKey && this.settings.apiKey.trim()) {
-									cmd += ` --api-key "${this.settings.apiKey}"`;
+								if (this.settings.backend && this.settings.backend.trim()) {
+									cmd += ` --backend "${this.settings.backend}"`;
 								}
 								if (this.settings.timeout && !isNaN(this.settings.timeout)) {
 									cmd += ` --timeout ${this.settings.timeout}`;
@@ -1101,7 +1085,7 @@ class NovelMakerSettingTab extends PluginSettingTab {
 		this.openAfterGenMsSetting = null;
 	}
 
-	display() {
+	async display() {
 		const { containerEl } = this;
 
 		containerEl.empty();
@@ -1121,39 +1105,65 @@ class NovelMakerSettingTab extends PluginSettingTab {
 					})
 			);
 
-		new Setting(containerEl)
-			.setName('API Base URL')
-			.setDesc('LLM API 的基礎 URL（選填，例如：https://api.openai.com/v1）')
-			.addText((text) =>
-				text
-					.setPlaceholder('https://api.openai.com/v1')
-					.setValue(this.plugin.settings.baseUrl)
+		// Load available backends
+		let backends = [];
+		let defaultBackend = '';
+		try {
+			const vaultPath = this.app.vault.adapter.basePath;
+			const { stdout } = await execAsync(`${this.plugin.settings.cliPath} backend list --json`, { cwd: vaultPath });
+			const backendList = JSON.parse(stdout);
+			if (Array.isArray(backendList)) {
+				backends = backendList.map(b => b.name);
+				const defaultBackendObj = backendList.find(b => b.is_default);
+				if (defaultBackendObj) {
+					defaultBackend = defaultBackendObj.name;
+				}
+			}
+		} catch (error) {
+			console.error('Failed to load backends:', error);
+			new Notice('⚠ 無法載入 backend 列表，請確認 CLI 路徑是否正確');
+		}
+
+		const backendSetting = new Setting(containerEl)
+			.setName('Backend 名稱')
+			.setDesc(`LLM Backend 的名稱。留空則使用設定檔中的預設 backend${defaultBackend ? ` (${defaultBackend})` : ''}。`);
+
+		if (backends.length > 0) {
+			backendSetting.addDropdown((dropdown) => {
+				// Add empty option for using default
+				dropdown.addOption('', `使用預設${defaultBackend ? ` (${defaultBackend})` : ''}`);
+				
+				// Add all available backends
+				backends.forEach(name => {
+					dropdown.addOption(name, name);
+				});
+				
+				dropdown
+					.setValue(this.plugin.settings.backend || '')
 					.onChange(async (value) => {
-						this.plugin.settings.baseUrl = value;
+						this.plugin.settings.backend = value;
+						await this.plugin.saveSettings();
+					});
+			});
+		} else {
+			// Fallback to text input if we can't load backends
+			backendSetting.addText((text) =>
+				text
+					.setPlaceholder('openrouter')
+					.setValue(this.plugin.settings.backend)
+					.onChange(async (value) => {
+						this.plugin.settings.backend = value;
 						await this.plugin.saveSettings();
 					})
 			);
+		}
 
-		new Setting(containerEl)
-			.setName('API Key')
-			.setDesc('LLM API 的金鑰（選填）')
-			.addText((text) =>
-				text
-					.setPlaceholder('sk-...')
-					.setValue(this.plugin.settings.apiKey)
-					.onChange(async (value) => {
-						this.plugin.settings.apiKey = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		// Warning message for API Key storage
-		const warningEl = containerEl.createDiv({ cls: 'novelmaker-api-warning' });
-		warningEl.createEl('span', { text: '⚠ 提示： ', cls: 'novelmaker-warning-icon' });
-		warningEl.createEl('span', { 
-			text: '此設定會被寫入 .obsidian/plugins/obsidian-novelmaker/data.json。' +
-				'若你的 vault 使用 git / Sync，請避免把這個檔案推上遠端。' +
-				'建議使用 ~/.novelmaker/config.toml 來設定 API Key，避免敏感資訊被同步。',
+		// Info message for backend management
+		const infoEl = containerEl.createDiv({ cls: 'novelmaker-api-warning' });
+		infoEl.createEl('span', { text: 'ℹ️ 提示： ', cls: 'novelmaker-warning-icon' });
+		infoEl.createEl('span', { 
+			text: '使用 CLI 命令管理 backend：`novelmaker-obs backend add <name>`、`novelmaker-obs backend list`、`novelmaker-obs backend use <name>`。' +
+				'Backend 配置（包括 API Key）儲存在 ~/.novelmaker/config.toml 中，不會同步到 vault。',
 			cls: 'novelmaker-warning-text'
 		});
 

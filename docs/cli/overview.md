@@ -41,6 +41,18 @@ novelmaker-obs [command] --help
 | `scan` | 掃描專案 | 分析現有專案內容 |
 | `config-check` | 檢查設定 | 驗證設定檔是否正確 |
 
+### 後端管理
+
+管理 LLM 後端配置：
+
+| 命令 | 功能 | 用途 |
+|------|------|------|
+| `backend add` | 新增/編輯後端 | 配置 LLM API 後端 |
+| `backend list` | 列出後端 | 查看所有已配置的後端 |
+| `backend check` | 檢查後端 | 測試後端連線是否正常 |
+| `backend use` | 設定預設後端 | 切換使用的後端 |
+| `backend remove` | 移除後端 | 刪除後端配置 |
+
 ### 內容生成
 
 使用 AI 生成小說內容：
@@ -92,11 +104,12 @@ novelmaker-obs [command] --help
 
 ```mermaid
 graph LR
-    A[初始化專案] --> B[生成角色]
-    B --> C[生成章節]
-    C --> D{繼續創作?}
-    D -->|是| C
-    D -->|否| E[匯出小說]
+    A[初始化專案] --> B[配置後端]
+    B --> C[生成角色]
+    C --> D[生成章節]
+    D --> E{繼續創作?}
+    E -->|是| D
+    E -->|否| F[匯出小說]
 ```
 
 ### 命令使用順序
@@ -106,22 +119,37 @@ graph LR
    novelmaker-obs init
    ```
 
-2. **建立世界觀和角色**
+2. **配置 LLM 後端**
+   ```bash
+   # 新增後端
+   novelmaker-obs backend add openai \
+     --type openai \
+     --api_key "sk-xxx" \
+     --model "gpt-4o"
+   
+   # 設為預設
+   novelmaker-obs backend use openai
+   
+   # 檢查連線
+   novelmaker-obs backend check openai
+   ```
+
+3. **建立世界觀和角色**
    ```bash
    novelmaker-obs gen-char --prompt "主角設定"
    ```
 
-3. **生成章節**
+4. **生成章節**
    ```bash
    novelmaker-obs gen-next --title "第一章"
    ```
 
-4. **檢視專案狀態**
+5. **檢視專案狀態**
    ```bash
    novelmaker-obs scan
    ```
 
-5. **匯出成果**
+6. **匯出成果**
    ```bash
    novelmaker-obs export --output novel.txt --type txt
    ```

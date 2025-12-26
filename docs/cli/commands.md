@@ -124,6 +124,332 @@ novelmaker-obs config-check
 
 ---
 
+## 後端管理命令
+
+### backend add
+
+新增或編輯 LLM 後端配置。
+
+```bash
+novelmaker-obs backend add <name> [flags]
+```
+
+**必需參數：**
+
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `<name>` | string | 後端名稱（唯一識別符） |
+
+**可選參數：**
+
+| 參數 | 類型 | 預設值 | 說明 |
+|------|------|--------|------|
+| `--type` | string | openai | 後端類型（openai, openrouter 等） |
+| `--api_key` | string | - | API 金鑰 |
+| `--base_url` | string | - | API 端點 URL |
+| `--model` | string | - | 文字模型名稱 |
+| `--image_model` | string | - | 圖片模型名稱 |
+| `--timeout` | int | 0 | 請求超時（秒） |
+
+**功能：**
+
+- 新增新的 LLM 後端配置
+- 更新現有後端配置（僅修改指定的欄位）
+- 自動儲存到配置檔
+
+**範例：**
+
+```bash
+# 新增 OpenAI 後端
+novelmaker-obs backend add openai \
+  --type openai \
+  --api_key "sk-xxx" \
+  --model "gpt-4o"
+
+# 新增 OpenRouter 後端
+novelmaker-obs backend add openrouter \
+  --type openrouter \
+  --api_key "sk-or-xxx" \
+  --base_url "https://openrouter.ai/api/v1" \
+  --model "anthropic/claude-3.5-sonnet"
+
+# 新增自訂後端
+novelmaker-obs backend add custom \
+  --type openai \
+  --api_key "xxx" \
+  --base_url "https://api.example.com/v1" \
+  --model "my-model" \
+  --timeout 120
+
+# 更新現有後端（僅修改模型）
+novelmaker-obs backend add openai \
+  --model "gpt-4o-mini"
+```
+
+**輸出：**
+
+```
+✓ Backend 'openai' added successfully
+```
+
+或
+
+```
+✓ Backend 'openai' updated successfully
+```
+
+---
+
+### backend list
+
+列出所有已配置的 LLM 後端。
+
+```bash
+novelmaker-obs backend list [flags]
+```
+
+**可選參數：**
+
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `--json` | bool | 以 JSON 格式輸出 |
+
+**功能：**
+
+- 顯示所有後端配置
+- 標記預設後端
+- 隱藏 API 金鑰（僅顯示最後 4 碼）
+- 支援 JSON 格式輸出
+
+**範例：**
+
+```bash
+# 人類可讀格式
+novelmaker-obs backend list
+
+# JSON 格式
+novelmaker-obs backend list --json
+```
+
+**輸出範例（人類可讀）：**
+
+```
+Configured backends:
+
+• openai (default)
+  Type:        openai
+  API Key:     ...1234
+  Model:       gpt-4o
+  Image Model: dall-e-3
+
+• openrouter
+  Type:        openrouter
+  API Key:     ...abcd
+  Base URL:    https://openrouter.ai/api/v1
+  Model:       anthropic/claude-3.5-sonnet
+  Timeout:     120s
+```
+
+**輸出範例（JSON）：**
+
+```json
+[
+  {
+    "name": "openai",
+    "type": "openai",
+    "api_key": "...1234",
+    "base_url": "",
+    "model": "gpt-4o",
+    "image_model": "dall-e-3",
+    "timeout": 0,
+    "is_default": true
+  },
+  {
+    "name": "openrouter",
+    "type": "openrouter",
+    "api_key": "...abcd",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "anthropic/claude-3.5-sonnet",
+    "image_model": "",
+    "timeout": 120,
+    "is_default": false
+  }
+]
+```
+
+---
+
+### backend check
+
+檢查 LLM 後端連線是否正常。
+
+```bash
+novelmaker-obs backend check <name> [flags]
+```
+
+**必需參數：**
+
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `<name>` | string | 要檢查的後端名稱 |
+
+**可選參數：**
+
+| 參數 | 類型 | 預設值 | 說明 |
+|------|------|--------|------|
+| `--timeout` | int | 30 | 請求超時（秒） |
+| `--json` | bool | false | 以 JSON 格式輸出 |
+
+**功能：**
+
+- 向 LLM 後端發送測試請求
+- 驗證 API 金鑰和配置
+- 測量回應時間
+- 顯示 token 使用情況
+
+**範例：**
+
+```bash
+# 檢查後端連線
+novelmaker-obs backend check openai
+
+# 使用較長超時
+novelmaker-obs backend check openrouter --timeout 60
+
+# JSON 輸出
+novelmaker-obs backend check openai --json
+```
+
+**輸出範例（成功）：**
+
+```
+Checking backend 'openai'...
+  Type:     openai
+  Model:    gpt-4o
+
+Sending test request... ✅ SUCCESS
+
+Response time: 1.234s
+Response: OK
+
+Token usage:
+  Input tokens:  15
+  Output tokens: 2
+  Total tokens:  17
+```
+
+**輸出範例（失敗）：**
+
+```
+Checking backend 'openai'...
+  Type:     openai
+  Model:    gpt-4o
+
+Sending test request... ❌ FAILED
+Error: check failed: API key is invalid
+```
+
+**JSON 輸出範例（成功）：**
+
+```json
+{
+  "success": true,
+  "backend": "openai",
+  "backend_type": "openai",
+  "model": "gpt-4o",
+  "base_url": "",
+  "response_time": 1234,
+  "response": "OK",
+  "token_usage": {
+    "input_tokens": 15,
+    "output_tokens": 2,
+    "total_tokens": 17
+  }
+}
+```
+
+---
+
+### backend use
+
+設定預設使用的 LLM 後端。
+
+```bash
+novelmaker-obs backend use <name>
+```
+
+**必需參數：**
+
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `<name>` | string | 要設為預設的後端名稱 |
+
+**功能：**
+
+- 將指定後端設為預設
+- 所有生成命令將使用此後端
+- 自動儲存配置
+
+**範例：**
+
+```bash
+# 設定 OpenAI 為預設
+novelmaker-obs backend use openai
+
+# 切換到 OpenRouter
+novelmaker-obs backend use openrouter
+```
+
+**輸出：**
+
+```
+✓ Default backend set to 'openai'
+```
+
+---
+
+### backend remove
+
+移除 LLM 後端配置。
+
+```bash
+novelmaker-obs backend remove <name>
+```
+
+**必需參數：**
+
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `<name>` | string | 要移除的後端名稱 |
+
+**功能：**
+
+- 刪除指定的後端配置
+- 如果移除的是預設後端，會提示設定新的預設
+- 自動儲存配置
+
+**範例：**
+
+```bash
+# 移除後端
+novelmaker-obs backend remove custom
+```
+
+**輸出：**
+
+```
+✓ Backend 'custom' removed successfully
+```
+
+如果移除的是預設後端：
+
+```
+✓ Backend 'openai' removed successfully
+Note: No default backend set. Use 'backend use <name>' to set one.
+```
+
+---
+
 ## 章節生成命令
 
 ### gen-next

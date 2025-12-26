@@ -111,6 +111,43 @@ novelmaker-obs --help
     image_model = "your-image-model"
     ```
 
+=== "方式三：使用 CLI 命令（推薦）"
+
+    使用命令列工具管理後端配置，無需手動編輯設定檔：
+
+    ```bash
+    # 新增 OpenAI 後端
+    novelmaker-obs backend add openai \
+      --type openai \
+      --api_key "sk-xxx" \
+      --model "gpt-4o" \
+      --image_model "dall-e-3"
+
+    # 新增 OpenRouter 後端
+    novelmaker-obs backend add openrouter \
+      --type openrouter \
+      --api_key "sk-or-xxx" \
+      --base_url "https://openrouter.ai/api/v1" \
+      --model "anthropic/claude-3.5-sonnet"
+
+    # 設定預設後端
+    novelmaker-obs backend use openai
+
+    # 檢查後端連線
+    novelmaker-obs backend check openai
+
+    # 查看所有後端
+    novelmaker-obs backend list
+    ```
+
+    !!! tip "推薦使用 CLI 命令"
+        使用 CLI 命令管理後端更安全、更方便：
+        
+        - ✅ 自動驗證設定格式
+        - ✅ 支援測試連線
+        - ✅ 避免手動編輯錯誤
+        - ✅ 便於腳本自動化
+
 ### 設定選項說明
 
 #### 傳統設定
@@ -133,6 +170,20 @@ novelmaker-obs --help
 | `llm_backend.[名稱].base_url` | API 端點 | ✅ |
 | `llm_backend.[名稱].model` | 文字模型 | ✅ |
 | `llm_backend.[名稱].image_model` | 圖片模型 | ✅ |
+
+### 後端管理命令
+
+使用 CLI 命令管理後端配置：
+
+| 命令 | 功能 |
+|------|------|
+| `backend add <name>` | 新增或更新後端配置 |
+| `backend list` | 列出所有後端 |
+| `backend check <name>` | 測試後端連線 |
+| `backend use <name>` | 設定預設後端 |
+| `backend remove <name>` | 移除後端配置 |
+
+詳細使用方式請參考 [CLI 命令參考](cli/commands.md#後端管理命令)。
 
 ### 使用環境變數（僅傳統模式）
 

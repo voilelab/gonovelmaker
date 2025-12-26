@@ -2,6 +2,224 @@
 
 本頁面提供實際的使用案例，展示如何在不同情境下使用 gonovelmaker。
 
+## 後端管理案例
+
+### 案例 1：設定多個 LLM 後端
+
+配置不同的後端以便快速切換：
+
+```bash
+# 新增 OpenAI 後端（主要用於文字生成）
+novelmaker-obs backend add openai \
+  --type openai \
+  --api_key "sk-xxx" \
+  --model "gpt-4o" \
+  --image_model "dall-e-3"
+
+# 新增 OpenRouter 後端（用於測試 Claude）
+novelmaker-obs backend add claude \
+  --type openrouter \
+  --api_key "sk-or-xxx" \
+  --base_url "https://openrouter.ai/api/v1" \
+  --model "anthropic/claude-3.5-sonnet"
+
+# 新增本地後端（用於測試）
+novelmaker-obs backend add local \
+  --type openai \
+  --api_key "test" \
+  --base_url "http://localhost:1234/v1" \
+  --model "llama-3.1-8b"
+
+# 查看所有後端
+novelmaker-obs backend list
+```
+
+**輸出：**
+
+```
+Configured backends:
+
+• openai (default)
+  Type:        openai
+  API Key:     ...xxx
+  Model:       gpt-4o
+  Image Model: dall-e-3
+
+• claude
+  Type:        openrouter
+  API Key:     ...xxx
+  Base URL:    https://openrouter.ai/api/v1
+  Model:       anthropic/claude-3.5-sonnet
+
+• local
+  Type:        openai
+  API Key:     ...test
+  Base URL:    http://localhost:1234/v1
+  Model:       llama-3.1-8b
+```
+
+---
+
+### 案例 2：切換後端生成內容
+
+為不同類型的內容使用不同的後端：
+
+```bash
+# 使用 GPT-4o 生成日常對話章節
+novelmaker-obs backend use openai
+novelmaker-obs gen-next --title "第三章：日常訓練"
+
+# 切換到 Claude 生成需要深度思考的章節
+novelmaker-obs backend use claude
+novelmaker-obs gen-next --title "第四章：哲學辯論"
+
+# 切換回 OpenAI 生成動作場景
+novelmaker-obs backend use openai
+novelmaker-obs gen-next --title "第五章：決戰時刻"
+```
+
+---
+
+### 案例 3：測試後端連線
+
+在開始生成前確認後端配置正確：
+
+```bash
+# 檢查 OpenAI 後端
+novelmaker-obs backend check openai
+
+# 檢查 Claude 後端
+novelmaker-obs backend check claude
+
+# 使用 JSON 格式檢查（便於腳本處理）
+novelmaker-obs backend check openai --json
+```
+
+**成功輸出：**
+
+```
+Checking backend 'openai'...
+  Type:     openai
+  Model:    gpt-4o
+
+Sending test request... ✅ SUCCESS
+
+Response time: 892ms
+Response: OK
+
+Token usage:
+  Input tokens:  15
+  Output tokens: 2
+  Total tokens:  17
+```
+
+---
+
+### 案例 4：更新後端配置
+
+修改現有後端的設定：
+
+```bash
+# 升級模型版本
+novelmaker-obs backend add openai \
+  --model "gpt-4o-mini"
+
+# 調整超時時間
+novelmaker-obs backend add claude \
+  --timeout 180
+
+# 更換 API 金鑰
+novelmaker-obs backend add openai \
+  --api_key "sk-new-key"
+
+# 查看更新後的配置
+novelmaker-obs backend list
+```
+
+---
+
+### 案例 5：管理後端生命週期
+
+```bash
+# 新增測試後端
+novelmaker-obs backend add test \
+  --type openai \
+  --api_key "test" \
+  --model "test-model"
+
+# 檢查是否正常
+novelmaker-obs backend check test
+
+# 測試完成後移除
+novelmaker-obs backend remove test
+
+# 確認已移除
+novelmaker-obs backend list
+```
+
+---
+
+### 案例 6：使用環境變數與後端配置結合
+
+配合 CI/CD 或腳本使用：
+
+```bash
+#!/bin/bash
+
+# 從環境變數新增後端
+novelmaker-obs backend add production \
+  --type openai \
+  --api_key "$OPENAI_API_KEY" \
+  --model "gpt-4o"
+
+# 設為預設
+novelmaker-obs backend use production
+
+# 生成內容
+novelmaker-obs gen-next --title "自動生成章節"
+
+# 檢查結果
+if [ $? -eq 0 ]; then
+  echo "生成成功"
+else
+  echo "生成失敗"
+  exit 1
+fi
+```
+
+---
+
+### 案例 7：成本優化策略
+
+使用不同後端節省成本：
+
+```bash
+# 配置便宜的模型用於草稿
+novelmaker-obs backend add draft \
+  --type openai \
+  --api_key "$OPENAI_KEY" \
+  --model "gpt-4o-mini"
+
+# 配置高品質模型用於最終版本
+novelmaker-obs backend add final \
+  --type openai \
+  --api_key "$OPENAI_KEY" \
+  --model "gpt-4o"
+
+# 先用草稿模型生成
+novelmaker-obs backend use draft
+for i in {1..10}; do
+  novelmaker-obs gen-next --title "第${i}章（草稿）"
+done
+
+# 滿意後用高品質模型重新生成重要章節
+novelmaker-obs backend use final
+novelmaker-obs gen-curr --filepath "Story/001_ch1.md"
+novelmaker-obs gen-curr --filepath "Story/010_ch10.md"
+```
+
+---
+
 ## 快速開始：建立第一部小說
 
 ### 步驟 1：初始化專案

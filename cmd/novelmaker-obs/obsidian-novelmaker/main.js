@@ -8,7 +8,6 @@ const execAsync = promisify(exec);
 const DEFAULT_SETTINGS = {
 	cliPath: './novelmaker-obs',
 	backend: '',
-	model: '',
 	timeout: 60, // default timeout in seconds
 	openAfterGen: false,
 	openAfterGenMs: 500,
@@ -44,9 +43,6 @@ class NovelMakerPlugin extends Plugin {
 						}
 						if (this.settings.backend && this.settings.backend.trim()) {
 							cmd += ` --backend "${this.settings.backend}"`;
-						}
-						if (this.settings.model && this.settings.model.trim()) {
-							cmd += ` --model "${this.settings.model}"`;
 						}
 						if (this.settings.timeout && !isNaN(this.settings.timeout)) {
 							cmd += ` --timeout ${this.settings.timeout}`;
@@ -176,9 +172,6 @@ class NovelMakerPlugin extends Plugin {
 						if (this.settings.backend && this.settings.backend.trim()) {
 							cmd += ` --backend "${this.settings.backend}"`;
 						}
-						if (this.settings.model && this.settings.model.trim()) {
-							cmd += ` --model "${this.settings.model}"`;
-						}
 						if (this.settings.timeout && !isNaN(this.settings.timeout)) {
 							cmd += ` --timeout ${this.settings.timeout}`;
 						}
@@ -249,9 +242,6 @@ class NovelMakerPlugin extends Plugin {
 								if (this.settings.backend && this.settings.backend.trim()) {
 									cmd += ` --backend "${this.settings.backend}"`;
 								}
-								if (this.settings.model && this.settings.model.trim()) {
-									cmd += ` --model "${this.settings.model}"`;
-								}
 								if (this.settings.timeout && !isNaN(this.settings.timeout)) {
 									cmd += ` --timeout ${this.settings.timeout}`;
 								}
@@ -305,9 +295,6 @@ class NovelMakerPlugin extends Plugin {
 								let cmd = `${this.settings.cliPath} gen-char-curr --json --filepath "${filepath}"`;
 								if (this.settings.backend && this.settings.backend.trim()) {
 									cmd += ` --backend "${this.settings.backend}"`;
-								}
-								if (this.settings.model && this.settings.model.trim()) {
-									cmd += ` --model "${this.settings.model}"`;
 								}
 								if (this.settings.timeout && !isNaN(this.settings.timeout)) {
 									cmd += ` --timeout ${this.settings.timeout}`;
@@ -1428,23 +1415,10 @@ class NovelMakerSettingTab extends PluginSettingTab {
 		const infoEl = containerEl.createDiv({ cls: 'novelmaker-api-warning' });
 		infoEl.createEl('span', { text: 'ℹ️ 提示： ', cls: 'novelmaker-warning-icon' });
 		infoEl.createEl('span', { 
-			text: 'Backend 配置（包括 API Key）儲存在 ~/.novelmaker/config.toml 中，不會同步到 vault。',
+			text: 'Backend 配置（包括 API Key）儲存在 ~/.novelmaker/config.toml 中，不會同步到 vault。每個 backend 可以設定自己的預設模型。',
 			cls: 'novelmaker-warning-text'
 		});
 
-		new Setting(containerEl)
-			.setName('Model')
-			.setDesc('使用的 LLM 模型名稱（選填，例如：gpt-4、claude-3-opus-20240229）')
-			.addText((text) =>
-				text
-					.setPlaceholder('gpt-4')
-					.setValue(this.plugin.settings.model)
-					.onChange(async (value) => {
-						this.plugin.settings.model = value;
-						await this.plugin.saveSettings();
-					})
-			);
-		
 		this.timeoutSetting = new Setting(containerEl)
 			.setName(`API 請求超時 (秒) (${this.plugin.settings.timeout} 秒)`)
 			.setDesc('設定與 LLM API 通訊的超時時間（秒）（預設：60 秒）')

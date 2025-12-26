@@ -1076,6 +1076,129 @@ class ResultModal extends Modal {
 	}
 }
 
+class BackendModal extends Modal {
+	constructor(app, plugin, backend = null, onSubmit) {
+		super(app);
+		this.plugin = plugin;
+		this.backend = backend; // null for add, object for edit
+		this.name = backend?.name || '';
+		this.base_url = backend?.base_url || '';
+		this.api_key = backend?.api_key || '';
+		this.model = backend?.model || '';
+		this.onSubmit = onSubmit;
+		this.apiKeyModified = false; // Track if user actually modified the API key
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		
+		contentEl.createEl('h2', { text: this.backend ? '編輯 Backend' : '新增 Backend' });
+
+		new Setting(contentEl)
+			.setName('Backend 名稱')
+			.setDesc('Backend 的識別名稱（必填）')
+			.addText((text) => {
+				text
+					.setPlaceholder('例如：openrouter, openai')
+					.setValue(this.name)
+					.onChange((value) => {
+						this.name = value;
+					});
+				text.inputEl.style.width = '100%';
+				// Disable name editing when editing existing backend
+				if (this.backend) {
+					text.inputEl.disabled = true;
+				}
+			});
+
+		new Setting(contentEl)
+			.setName('Base URL')
+			.setDesc('API 的基礎 URL（必填）')
+			.addText((text) => {
+				text
+					.setPlaceholder('例如：https://openrouter.ai/api/v1')
+					.setValue(this.base_url)
+					.onChange((value) => {
+						this.base_url = value;
+					});
+				text.inputEl.style.width = '100%';
+			});
+
+		new Setting(contentEl)
+			.setName('API Key')
+			.setDesc(this.backend ? 'API 金鑰（留空表示不修改）' : 'API 金鑰（必填）')
+			.addText((text) => {
+				text
+					.setPlaceholder(this.backend ? '留空表示保持原值...' : 'sk-...')
+					.setValue(this.backend ? '' : this.api_key) // In edit mode, show empty by default
+					.onChange((value) => {
+						this.api_key = value;
+						// Mark as modified if user enters any value
+						if (this.backend && value.trim()) {
+							this.apiKeyModified = true;
+						}
+					});
+				text.inputEl.style.width = '100%';
+				text.inputEl.type = 'password';
+			});
+
+		new Setting(contentEl)
+			.setName('預設模型')
+			.setDesc('此 backend 的預設模型名稱（選填）')
+			.addText((text) => {
+				text
+					.setPlaceholder('例如：gpt-4, claude-3-opus-20240229')
+					.setValue(this.model)
+					.onChange((value) => {
+						this.model = value;
+					});
+				text.inputEl.style.width = '100%';
+			});
+
+		new Setting(contentEl)
+			.addButton((btn) =>
+				btn
+					.setButtonText('取消')
+					.onClick(() => {
+						this.close();
+					})
+			)
+			.addButton((btn) =>
+				btn
+					.setButtonText(this.backend ? '更新' : '新增')
+					.setCta()
+					.onClick(() => {
+						if (!this.name || !this.name.trim()) {
+							new Notice('❌ 請輸入 Backend 名稱');
+							return;
+						}
+						if (!this.base_url || !this.base_url.trim()) {
+							new Notice('❌ 請輸入 Base URL');
+							return;
+						}
+						// Only require API key for new backends
+						if (!this.backend && (!this.api_key || !this.api_key.trim())) {
+							new Notice('❌ 請輸入 API Key');
+							return;
+						}
+						this.close();
+						this.onSubmit({
+							name: this.name,
+							base_url: this.base_url,
+							api_key: this.api_key,
+							model: this.model,
+							apiKeyModified: this.apiKeyModified // Pass the flag
+						});
+					})
+			);
+	}
+
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
+	}
+}
+
 class NovelMakerSettingTab extends PluginSettingTab {
 	constructor(app, plugin) {
 		super(app, plugin);
@@ -1105,13 +1228,17 @@ class NovelMakerSettingTab extends PluginSettingTab {
 					})
 			);
 
+		// Backend Management Section
+		containerEl.createEl('h3', { text: 'Backend 管理' });
+
 		// Load available backends
 		let backends = [];
+		let backendList = [];
 		let defaultBackend = '';
 		try {
 			const vaultPath = this.app.vault.adapter.basePath;
 			const { stdout } = await execAsync(`${this.plugin.settings.cliPath} backend list --json`, { cwd: vaultPath });
-			const backendList = JSON.parse(stdout);
+			backendList = JSON.parse(stdout);
 			if (Array.isArray(backendList)) {
 				backends = backendList.map(b => b.name);
 				const defaultBackendObj = backendList.find(b => b.is_default);
@@ -1123,6 +1250,145 @@ class NovelMakerSettingTab extends PluginSettingTab {
 			console.error('Failed to load backends:', error);
 			new Notice('⚠ 無法載入 backend 列表，請確認 CLI 路徑是否正確');
 		}
+
+		// Add Backend button
+		new Setting(containerEl)
+			.setName('管理 Backends')
+			.setDesc('新增、編輯或刪除 AI backend 配置')
+			.addButton((btn) =>
+				btn
+					.setButtonText('新增 Backend')
+					.setCta()
+					.onClick(() => {
+						new BackendModal(this.app, this.plugin, null, async (data) => {
+							const loadingModal = new LoadingModal(this.app, '正在新增 Backend...');
+							loadingModal.open();
+
+							try {
+								const vaultPath = this.app.vault.adapter.basePath;
+								let cmd = `${this.plugin.settings.cliPath} backend add "${data.name}" --base_url "${data.base_url}" --api_key "${data.api_key}"`;
+								if (data.model && data.model.trim()) {
+									cmd += ` --model "${data.model}"`;
+								}
+								await execAsync(cmd, { cwd: vaultPath });
+								new Notice(`\u2705 Backend "${data.name}" \u65b0\u589e\u6210\u529f\uff01`);
+								// Refresh the settings page
+								this.display();
+							} catch (error) {
+								new Notice(`\u274c \u65b0\u589e Backend \u5931\u6557: ${error.message}`);
+								console.error(error);
+							} finally {
+								loadingModal.forceCloseNow();
+							}
+						}).open();
+					})
+			);
+
+		// Display existing backends
+		if (backendList.length > 0) {
+			containerEl.createEl('h4', { text: '已設定的 Backends' });
+			
+			for (const backend of backendList) {
+				const backendDiv = containerEl.createDiv({ cls: 'novelmaker-backend-item' });
+				
+				const backendInfo = backendDiv.createDiv({ cls: 'novelmaker-backend-info' });
+				const nameEl = backendInfo.createEl('strong', { text: backend.name });
+				if (backend.is_default) {
+					nameEl.createEl('span', { text: ' (預設)', cls: 'novelmaker-backend-default' });
+				}
+				backendInfo.createEl('br');
+				backendInfo.createEl('small', { text: backend.base_url });
+				
+				const backendActions = backendDiv.createDiv({ cls: 'novelmaker-backend-actions' });
+				
+				// Set as default button
+				if (!backend.is_default) {
+					const useBtn = backendActions.createEl('button', { text: '設為預設' });
+					useBtn.onclick = async () => {
+						try {
+							const vaultPath = this.app.vault.adapter.basePath;
+							await execAsync(`${this.plugin.settings.cliPath} backend use "${backend.name}"`, { cwd: vaultPath });
+							new Notice(`✅ 已將 "${backend.name}" 設為預設 backend`);
+							this.display();
+						} catch (error) {
+							new Notice(`❌ 設定預設 backend 失敗: ${error.message}`);
+							console.error(error);
+						}
+					};
+				}
+				
+				// Check button
+				const checkBtn = backendActions.createEl('button', { text: '檢查' });
+				checkBtn.onclick = async () => {
+					const loadingModal = new LoadingModal(this.app, '正在檢查 Backend...');
+					loadingModal.open();
+					try {
+						const vaultPath = this.app.vault.adapter.basePath;
+						await execAsync(`${this.plugin.settings.cliPath} backend check "${backend.name}"`, { cwd: vaultPath });
+						new Notice(`✅ Backend "${backend.name}" 連線正常！`);
+					} catch (error) {
+						new Notice(`❌ Backend "${backend.name}" 連線失敗: ${error.message}`);
+						console.error(error);
+					} finally {
+						loadingModal.forceCloseNow();
+					}
+				};
+				
+				// Edit button
+				const editBtn = backendActions.createEl('button', { text: '編輯' });
+				editBtn.onclick = () => {
+					new BackendModal(this.app, this.plugin, backend, async (data) => {
+						const loadingModal = new LoadingModal(this.app, '正在更新 Backend...');
+						loadingModal.open();
+
+						try {
+							const vaultPath = this.app.vault.adapter.basePath;
+							// Update backend using add command (it handles both add and update)
+							let cmd = `${this.plugin.settings.cliPath} backend add "${data.name}" --base_url "${data.base_url}"`;
+							// Only include api_key if user actually modified it
+							if (data.apiKeyModified && data.api_key && data.api_key.trim()) {
+								cmd += ` --api_key "${data.api_key}"`;
+							}
+							if (data.model && data.model.trim()) {
+								cmd += ` --model "${data.model}"`;
+							}
+							await execAsync(cmd, { cwd: vaultPath });
+							new Notice(`\u2705 Backend "${data.name}" \u66f4\u65b0\u6210\u529f\uff01`);
+							this.display();
+						} catch (error) {
+							new Notice(`\u274c \u66f4\u65b0 Backend \u5931\u6557: ${error.message}`);
+							console.error(error);
+						} finally {
+							loadingModal.forceCloseNow();
+						}
+					}).open();
+				};
+				
+				// Delete button
+				const deleteBtn = backendActions.createEl('button', { text: '刪除', cls: 'mod-warning' });
+				deleteBtn.onclick = async () => {
+					if (!confirm(`確定要刪除 backend "${backend.name}" 嗎？`)) {
+						return;
+					}
+					try {
+						const vaultPath = this.app.vault.adapter.basePath;
+						await execAsync(`${this.plugin.settings.cliPath} backend remove "${backend.name}"`, { cwd: vaultPath });
+						new Notice(`✅ Backend "${backend.name}" 已刪除`);
+						this.display();
+					} catch (error) {
+						new Notice(`❌ 刪除 Backend 失敗: ${error.message}`);
+						console.error(error);
+					}
+				};
+			}
+		} else {
+			containerEl.createEl('p', { 
+				text: '尚未設定任何 backend，請點擊上方按鈕新增。',
+				cls: 'mod-info'
+			});
+		}
+
+		containerEl.createEl('h3', { text: '生成設定' });
 
 		const backendSetting = new Setting(containerEl)
 			.setName('Backend 名稱')
@@ -1162,8 +1428,7 @@ class NovelMakerSettingTab extends PluginSettingTab {
 		const infoEl = containerEl.createDiv({ cls: 'novelmaker-api-warning' });
 		infoEl.createEl('span', { text: 'ℹ️ 提示： ', cls: 'novelmaker-warning-icon' });
 		infoEl.createEl('span', { 
-			text: '使用 CLI 命令管理 backend：`novelmaker-obs backend add <name>`、`novelmaker-obs backend list`、`novelmaker-obs backend use <name>`。' +
-				'Backend 配置（包括 API Key）儲存在 ~/.novelmaker/config.toml 中，不會同步到 vault。',
+			text: 'Backend 配置（包括 API Key）儲存在 ~/.novelmaker/config.toml 中，不會同步到 vault。',
 			cls: 'novelmaker-warning-text'
 		});
 

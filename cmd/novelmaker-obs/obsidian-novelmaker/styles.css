@@ -122,3 +122,73 @@
 	font-weight: 700;
 	color: var(--text-accent-hover);
 }
+
+/* Backend Management Styles */
+.novelmaker-backend-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.8em;
+	margin-bottom: 0.5em;
+	background-color: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+}
+
+.novelmaker-backend-item:hover {
+	background-color: var(--background-secondary-alt);
+}
+
+.novelmaker-backend-info {
+	flex: 1;
+	min-width: 0;
+}
+
+.novelmaker-backend-info strong {
+	font-size: 1em;
+	color: var(--text-normal);
+}
+
+.novelmaker-backend-info small {
+	color: var(--text-muted);
+	font-size: 0.85em;
+	word-break: break-all;
+}
+
+.novelmaker-backend-default {
+	color: var(--text-accent);
+	font-weight: normal;
+	font-size: 0.85em;
+	margin-left: 0.3em;
+}
+
+.novelmaker-backend-actions {
+	display: flex;
+	gap: 0.4em;
+	flex-shrink: 0;
+	margin-left: 1em;
+}
+
+.novelmaker-backend-actions button {
+	padding: 0.3em 0.6em;
+	font-size: 0.85em;
+	border-radius: 4px;
+	cursor: pointer;
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--interactive-normal);
+	color: var(--text-normal);
+	transition: background-color 0.2s;
+}
+
+.novelmaker-backend-actions button:hover {
+	background-color: var(--interactive-hover);
+}
+
+.novelmaker-backend-actions button.mod-warning {
+	color: var(--text-error);
+	border-color: var(--text-error);
+}
+
+.novelmaker-backend-actions button.mod-warning:hover {
+	background-color: var(--background-modifier-error);
+}

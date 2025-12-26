@@ -20,6 +20,7 @@ type GenNextCmd struct {
 	title        string
 	prompt       string
 	prevChapters int
+	backend      string
 	apiKey       string
 	baseURL      string
 	model        string
@@ -50,6 +51,7 @@ and previous chapters using OpenAI API.`,
 	g.cmd.MarkFlagRequired("title")
 
 	// Allow overriding config values per-command
+	g.cmd.Flags().StringVar(&g.backend, "backend", "", "LLM backend to use (optional, uses default if not specified)")
 	g.cmd.Flags().StringVar(&g.apiKey, "api-key", "", "OpenAI API key to override config (optional)")
 	g.cmd.Flags().StringVar(&g.baseURL, "base-url", "", "OpenAI base URL to override config (optional)")
 	g.cmd.Flags().StringVar(&g.model, "model", "", "Model to use, overrides config (optional)")
@@ -101,8 +103,11 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get backend configuration
-	backend := cfg.GetBackend("")
+	backend := cfg.GetBackend(g.backend)
 	if backend == nil {
+		if g.backend != "" {
+			return fmt.Errorf("backend '%s' not found in config", g.backend)
+		}
 		return fmt.Errorf("no LLM backend configured. Please configure at least one backend in ~/.novelmaker/config.toml")
 	}
 

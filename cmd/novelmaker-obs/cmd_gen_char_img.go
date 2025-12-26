@@ -20,6 +20,7 @@ type GenCharImgCmd struct {
 	json       bool
 	prompt     string
 	name       string
+	backend    string
 	apiKey     string
 	baseURL    string
 	imageModel string
@@ -50,6 +51,7 @@ The image will be downloaded and saved to the Character directory.`,
 	g.cmd.MarkFlagRequired("name")
 
 	// Allow overriding config values per-command
+	g.cmd.Flags().StringVar(&g.backend, "backend", "", "LLM backend to use (optional, uses default if not specified)")
 	g.cmd.Flags().StringVar(&g.apiKey, "api-key", "", "OpenAI API key to override config (optional)")
 	g.cmd.Flags().StringVar(&g.baseURL, "base-url", "", "OpenAI base URL to override config (optional)")
 	g.cmd.Flags().StringVar(&g.imageModel, "image-model", "", "Image model to use (e.g., dall-e-3, dall-e-2), overrides config (optional)")
@@ -98,8 +100,11 @@ func (g *GenCharImgCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get backend configuration
-	backend := cfg.GetBackend("")
+	backend := cfg.GetBackend(g.backend)
 	if backend == nil {
+		if g.backend != "" {
+			return fmt.Errorf("backend '%s' not found in config", g.backend)
+		}
 		return fmt.Errorf("no LLM backend configured. Please configure at least one backend in ~/.novelmaker/config.toml")
 	}
 

@@ -66,19 +66,7 @@ novelmaker-obs --help
 
 有兩種設定方式可供選擇：
 
-=== "方式一：傳統單一後端（簡單）"
-
-    適合只使用 OpenAI API 的使用者：
-
-    ```toml
-    openai_api_key = "sk-xxx"
-    model = "gpt-4o"
-    image_model = "dall-e-3"
-    base_url = ""  # 可選：自訂 API 端點
-    timeout = 0    # 可選：超時時間（秒），0 表示無限制
-    ```
-
-=== "方式二：多後端（進階）"
+=== "方式一：多後端（進階）"
 
     適合需要切換不同 LLM 服務的使用者：
 
@@ -111,7 +99,7 @@ novelmaker-obs --help
     image_model = "your-image-model"
     ```
 
-=== "方式三：使用 CLI 命令（推薦）"
+=== "方式二：使用 CLI 命令（推薦）"
 
     使用命令列工具管理後端配置，無需手動編輯設定檔：
 
@@ -149,16 +137,6 @@ novelmaker-obs --help
         - ✅ 便於腳本自動化
 
 ### 設定選項說明
-
-#### 傳統設定
-
-| 選項 | 說明 | 必需 | 預設值 |
-|------|------|------|--------|
-| `openai_api_key` | OpenAI API 金鑰 | ✅ | - |
-| `model` | 文字生成模型 | ❌ | `gpt-4o` |
-| `image_model` | 圖片生成模型 | ❌ | `dall-e-3` |
-| `base_url` | API 端點 URL | ❌ | OpenAI 官方端點 |
-| `timeout` | 請求超時（秒） | ❌ | `0` (無限制) |
 
 #### 多後端設定
 
@@ -234,6 +212,7 @@ source ~/.zshrc  # 或 source ~/.bashrc
 ### API 金鑰錯誤
 
 檢查：
+
 1. API 金鑰格式正確（以 `sk-` 開頭）
 2. 金鑰尚未過期
 3. OpenAI 帳號有足夠的額度
@@ -241,6 +220,7 @@ source ~/.zshrc  # 或 source ~/.bashrc
 ### 相容性問題
 
 如果遇到相容性問題，確保：
+
 - Go 版本 ≥ 1.25.4
 - 使用最新版本的 gonovelmaker
 

@@ -14,15 +14,7 @@ func main() {
 		Short: "A CLI tool for generating novels in Obsidian vaults",
 		Long: `novelmaker-obs is a CLI tool that works with Obsidian vaults to manage 
 novel projects, worldbooks, and chapters. It uses OpenAI API to generate new chapters 
-based on your existing content.
-
-Configuration:
-  Config file: ~/.novelmaker/config.toml
-  Example:
-    openai_api_key = "sk-xxx"
-    model = "gpt-4o"
-
-  You can also set OPENAI_API_KEY as an environment variable.`,
+based on your existing content.`,
 	}
 
 	initCmd := NewInitCmd()

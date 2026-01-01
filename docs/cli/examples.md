@@ -159,37 +159,7 @@ novelmaker-obs backend list
 
 ---
 
-### 案例 6：使用環境變數與後端配置結合
-
-配合 CI/CD 或腳本使用：
-
-```bash
-#!/bin/bash
-
-# 從環境變數新增後端
-novelmaker-obs backend add production \
-  --type openai \
-  --api_key "$OPENAI_API_KEY" \
-  --model "gpt-4o"
-
-# 設為預設
-novelmaker-obs backend use production
-
-# 生成內容
-novelmaker-obs gen-next --title "自動生成章節"
-
-# 檢查結果
-if [ $? -eq 0 ]; then
-  echo "生成成功"
-else
-  echo "生成失敗"
-  exit 1
-fi
-```
-
----
-
-### 案例 7：成本優化策略
+### 案例 6：成本優化策略
 
 使用不同後端節省成本：
 

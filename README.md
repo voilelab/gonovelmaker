@@ -43,18 +43,6 @@ brew install voilelab/novelmaker/novelmaker-obs
 
 在 `~/.novelmaker/config.toml` 建立設定檔。
 
-### 方式一：傳統單一後端設定（向下相容）
-
-```toml
-openai_api_key = "sk-xxx"
-model = "gpt-4o"
-image_model = "dall-e-3"
-base_url = ""  # 可選：自訂 OpenAI API 端點
-timeout = 0   # 可選：API 請求超時時間（秒），0 表示無限制
-```
-
-### 方式二：多後端設定（新功能）
-
 ```toml
 # 指定預設使用的後端
 user_llm_backend = "openai"
@@ -101,14 +89,6 @@ image_model = "your-image-model"
   - `image_model` - 使用的圖片生成模型
 
 首次執行工具時，如果設定檔不存在，會自動在 `~/.novelmaker/` 建立範例設定檔。
-
-您也可以透過環境變數設定（僅適用於傳統單一後端模式）：
-```bash
-export OPENAI_API_KEY=sk-xxx
-export OPENAI_MODEL=gpt-4o  # 選用
-export OPENAI_IMAGE_MODEL=dall-e-3  # 選用
-export OPENAI_BASE_URL=https://api.example.com/v1  # 選用
-```
 
 ## 開發說明
 

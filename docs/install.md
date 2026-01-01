@@ -185,20 +185,6 @@ novelmaker-obs --help
 
 詳細使用方式請參考 [CLI 命令參考](cli/commands.md#後端管理命令)。
 
-### 使用環境變數（僅傳統模式）
-
-您也可以透過環境變數設定（不支援多後端模式）：
-
-```bash
-export OPENAI_API_KEY=sk-xxx
-export OPENAI_MODEL=gpt-4o              # 選用
-export OPENAI_IMAGE_MODEL=dall-e-3      # 選用
-export OPENAI_BASE_URL=https://api.example.com/v1  # 選用
-```
-
-!!! warning "優先順序"
-    設定檔的設定會優先於環境變數。
-
 ## 取得 OpenAI API 金鑰
 
 1. 前往 [OpenAI Platform](https://platform.openai.com/)

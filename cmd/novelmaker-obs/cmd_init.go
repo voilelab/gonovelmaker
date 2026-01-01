@@ -14,6 +14,7 @@ var obsidianNovelmaker embed.FS
 
 type InitCmd struct {
 	includePlugin bool
+	noGit         bool
 
 	cmd *cobra.Command
 }
@@ -29,6 +30,7 @@ along with sample files.`,
 	}
 
 	initCmd.cmd.Flags().BoolVar(&initCmd.includePlugin, "include-plugin", true, "Include Obsidian plugin files in the initialization")
+	initCmd.cmd.Flags().BoolVar(&initCmd.noGit, "no-git", false, "Skip git repository initialization")
 
 	return initCmd
 }
@@ -59,6 +61,13 @@ func (i *InitCmd) run(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("failed to copy Obsidian plugin files: %w", err)
 		}
 		fmt.Println("✓ Included Obsidian plugin files.")
+	}
+
+	if !i.noGit {
+		if err := vault.InitGit(); err != nil {
+			return fmt.Errorf("failed to initialize git repository: %w", err)
+		}
+		fmt.Println("✓ Initialized git repository.")
 	}
 
 	return nil

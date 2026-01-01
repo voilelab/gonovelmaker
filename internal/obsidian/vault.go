@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -479,4 +480,27 @@ func (v *Vault) LoadCharacterPrompt() (*novelmaker.CharacterPrompt, error) {
 		System:            fm.System,
 		AssistantTemplate: tmpl,
 	}, nil
+}
+
+// InitGit initializes a git repository in the vault directory
+func (v *Vault) InitGit() error {
+	// Get the root path from the os.Root
+	rootPath := v.root.Name()
+
+	// Check if .git already exists
+	gitPath := filepath.Join(rootPath, ".git")
+	if _, err := os.Stat(gitPath); err == nil {
+		// Git repo already exists, skip initialization
+		return nil
+	}
+
+	// Run git init
+	cmd := exec.Command("git", "init")
+	cmd.Dir = rootPath
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to run git init: %w (output: %s)", err, string(output))
+	}
+
+	return nil
 }

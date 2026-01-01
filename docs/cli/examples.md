@@ -775,4 +775,3 @@ iconv -f ISO-8859-1 -t UTF-8 Story/001.md > Story/001_utf8.md
 
 - 🏗️ [世界書結構](../worldbook/schema.md) - 了解檔案格式
 - 🔌 [Obsidian 外掛](../plugin/obsidian.md) - 學習外掛使用
-- 🏛️ [架構設計](../architecture.md) - 深入技術細節

@@ -538,4 +538,3 @@ SORT index ASC
 
 - 💡 [世界書範例](examples.md) - 查看完整專案範例
 - 🔧 [CLI 命令](../cli/commands.md) - 學習檔案操作命令
-- 🏛️ [架構設計](../architecture.md) - 了解系統如何處理這些檔案

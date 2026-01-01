@@ -461,4 +461,3 @@ Obsidian 的圖形視圖可以顯示：
 
 - 🏗️ [世界書結構](../worldbook/schema.md) - 了解檔案組織
 - 💡 [CLI 使用範例](../cli/examples.md) - 學習 CLI 整合
-- 🏛️ [架構設計](../architecture.md) - 理解外掛實作

@@ -697,6 +697,5 @@ cp ~/.novelmaker/templates/chapter_prompt.tmpl Config/
 
 ## 下一步
 
-- 🏛️ [架構設計](../architecture.md) - 了解系統如何處理這些檔案
 - 🔧 [CLI 命令](../cli/commands.md) - 學習檔案操作
 - 🔌 [Obsidian 外掛](../plugin/obsidian.md) - 在 Obsidian 中使用範例

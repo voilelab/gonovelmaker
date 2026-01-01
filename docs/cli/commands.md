@@ -950,4 +950,3 @@ chmod 600 ~/.novelmaker/config.toml
 
 - 💡 [使用範例](examples.md) - 查看實際使用案例
 - 🏗️ [世界書結構](../worldbook/schema.md) - 了解檔案格式
-- 🏛️ [架構設計](../architecture.md) - 深入了解實作細節

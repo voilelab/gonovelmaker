@@ -6,7 +6,7 @@ const execAsync = promisify(exec);
 
 // Default settings
 const DEFAULT_SETTINGS = {
-	cliPath: './novelmaker-obs',
+	cliPath: 'novelmaker-obs',
 	backend: '',
 	openAfterGen: false,
 	openAfterGenMs: 500,

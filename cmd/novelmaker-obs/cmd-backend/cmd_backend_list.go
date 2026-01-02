@@ -1,4 +1,4 @@
-package main
+package cmdbackend
 
 import (
 	"encoding/json"

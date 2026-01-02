@@ -1,4 +1,4 @@
-package main
+package cmdbackend
 
 import (
 	"context"
@@ -15,11 +15,16 @@ type BackendCheckCmd struct {
 	timeout    int
 	jsonOutput bool
 
+	llmbackendMaker llmbackend.LLMBackendMaker
+
 	cmd *cobra.Command
 }
 
-func NewBackendCheckCmd() *BackendCheckCmd {
-	checkCmd := &BackendCheckCmd{}
+func NewBackendCheckCmd(llmbackendMaker llmbackend.LLMBackendMaker) *BackendCheckCmd {
+	checkCmd := &BackendCheckCmd{
+		llmbackendMaker: llmbackendMaker,
+	}
+
 	checkCmd.cmd = &cobra.Command{
 		Use:   "check <name>",
 		Short: "Check an LLM backend connection",
@@ -63,7 +68,7 @@ func (b *BackendCheckCmd) run(cmd *cobra.Command, args []string) error {
 	var llmBackend llmbackend.LLMBackend
 	switch backend.Type {
 	case "openai", "openrouter":
-		llmBackend = openAIBackendMaker(backend.APIKey, backend.BaseURL, backend.Model)
+		llmBackend = b.llmbackendMaker(backend.APIKey, backend.BaseURL, backend.Model)
 	default:
 		return fmt.Errorf("unsupported backend type: %s", backend.Type)
 	}

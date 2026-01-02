@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	cmdbackend "github.com/voilelab/gonovelmaker/cmd/novelmaker-obs/cmd-backend"
 	"github.com/voilelab/gonovelmaker/internal/config"
 )
 
@@ -29,23 +31,7 @@ based on your existing content.`,
 	updatePluginCmd := NewUpdatePluginCmd()
 	configTestCmd := NewConfigCheckCmd()
 
-	// Backend management commands
-	backendCmd := &cobra.Command{
-		Use:   "backend",
-		Short: "Manage LLM backend configurations",
-		Long:  `Add, remove, list, and configure LLM backends for novel generation.`,
-	}
-	backendAddCmd := NewBackendAddCmd()
-	backendRemoveCmd := NewBackendRemoveCmd()
-	backendUseCmd := NewBackendUseCmd()
-	backendListCmd := NewBackendListCmd()
-	backendCheckCmd := NewBackendCheckCmd()
-
-	backendCmd.AddCommand(backendAddCmd.cmd)
-	backendCmd.AddCommand(backendRemoveCmd.cmd)
-	backendCmd.AddCommand(backendUseCmd.cmd)
-	backendCmd.AddCommand(backendListCmd.cmd)
-	backendCmd.AddCommand(backendCheckCmd.cmd)
+	backendCmd := cmdbackend.NewBackendCmd(openAIBackendMaker)
 
 	rootCmd.AddCommand(initCmd.cmd)
 	rootCmd.AddCommand(scanCmd.cmd)
@@ -58,7 +44,7 @@ based on your existing content.`,
 	rootCmd.AddCommand(exportCmd.cmd)
 	rootCmd.AddCommand(updatePluginCmd.cmd)
 	rootCmd.AddCommand(configTestCmd.cmd)
-	rootCmd.AddCommand(backendCmd)
+	rootCmd.AddCommand(backendCmd.Command())
 
 	// Initialize config (creates empty config file if it doesn't exist)
 	config.Load()

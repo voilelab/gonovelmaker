@@ -128,7 +128,7 @@ novelmaker-obs config-check
 
 ### backend add
 
-新增或編輯 LLM 後端配置。
+新增或編輯 LLM 後端設定。
 
 ```bash
 novelmaker-obs backend add <name> [flags]
@@ -153,9 +153,9 @@ novelmaker-obs backend add <name> [flags]
 
 **功能：**
 
-- 新增新的 LLM 後端配置
-- 更新現有後端配置（僅修改指定的欄位）
-- 自動儲存到配置檔
+- 新增新的 LLM 後端設定
+- 更新現有後端設定（僅修改指定的欄位）
+- 自動儲存到設定檔
 
 **範例：**
 
@@ -202,7 +202,7 @@ novelmaker-obs backend add openai \
 
 ### backend list
 
-列出所有已配置的 LLM 後端。
+列出所有已設定的 LLM 後端。
 
 ```bash
 novelmaker-obs backend list [flags]
@@ -216,7 +216,7 @@ novelmaker-obs backend list [flags]
 
 **功能：**
 
-- 顯示所有後端配置
+- 顯示所有後端設定
 - 標記預設後端
 - 隱藏 API 金鑰（僅顯示最後 4 碼）
 - 支援 JSON 格式輸出
@@ -303,7 +303,7 @@ novelmaker-obs backend check <name> [flags]
 **功能：**
 
 - 向 LLM 後端發送測試請求
-- 驗證 API 金鑰和配置
+- 驗證 API 金鑰和設定
 - 測量回應時間
 - 顯示 token 使用情況
 
@@ -388,7 +388,7 @@ novelmaker-obs backend use <name>
 
 - 將指定後端設為預設
 - 所有生成命令將使用此後端
-- 自動儲存配置
+- 自動儲存設定
 
 **範例：**
 
@@ -410,7 +410,7 @@ novelmaker-obs backend use openrouter
 
 ### backend remove
 
-移除 LLM 後端配置。
+移除 LLM 後端設定。
 
 ```bash
 novelmaker-obs backend remove <name>
@@ -424,9 +424,9 @@ novelmaker-obs backend remove <name>
 
 **功能：**
 
-- 刪除指定的後端配置
+- 刪除指定的後端設定
 - 如果移除的是預設後端，會提示設定新的預設
-- 自動儲存配置
+- 自動儲存設定
 
 **範例：**
 

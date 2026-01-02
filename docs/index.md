@@ -12,7 +12,7 @@
 - 👤 **角色創建**：基於專案背景生成詳細的角色檔案
 - 🎨 **圖片生成**：使用 DALL-E 為角色生成視覺圖像
 - 📤 **內容匯出**：將完整小說匯出為文字檔案
-- 🔧 **自訂範本**：支援自訂提示詞模板系統
+- 🔧 **自訂範本**：支援自訂提示詞範本系統
 - 🔌 **Obsidian 整合**：內建 Novel Maker 外掛
 
 ## 🚀 快速開始
@@ -44,7 +44,7 @@ novelmaker-obs gen-next --title "第一章：開始"
 
     ---
 
-    了解如何安裝和配置 gonovelmaker
+    了解如何安裝和設定 gonovelmaker
     
     [前往安裝指南](install.md)
 
@@ -89,7 +89,7 @@ novelmaker-obs gen-next --title "第一章：開始"
 
 - **Go 語言開發**：高效能、跨平台支援
 - **OpenAI 整合**：支援 GPT-4、DALL-E 等最新模型
-- **多後端支援**：可配置多個 LLM 後端（OpenAI、OpenRouter 等）
+- **多後端支援**：可設定多個 LLM 後端（OpenAI、OpenRouter 等）
 - **YAML Frontmatter**：結構化元數據管理
 - **範本系統**：靈活的提示詞自訂能力
 

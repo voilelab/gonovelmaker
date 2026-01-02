@@ -9,7 +9,7 @@ CLI 工具設計遵循以下原則：
 - 🎯 **直觀易用**：命令名稱清晰明瞭，參數設計合理
 - 🔄 **工作流導向**：支援完整的創作工作流程
 - 📊 **結構化輸出**：支援 JSON 格式，便於整合與自動化
-- 🔧 **靈活配置**：支援設定檔和命令列參數
+- 🔧 **靈活設定**：支援設定檔和命令列參數
 
 ## 基本用法
 
@@ -43,15 +43,15 @@ novelmaker-obs [command] --help
 
 ### 後端管理
 
-管理 LLM 後端配置：
+管理 LLM 後端設定：
 
 | 命令 | 功能 | 用途 |
 |------|------|------|
-| `backend add` | 新增/編輯後端 | 配置 LLM API 後端 |
-| `backend list` | 列出後端 | 查看所有已配置的後端 |
+| `backend add` | 新增/編輯後端 | 設定 LLM API 後端 |
+| `backend list` | 列出後端 | 查看所有已設定的後端 |
 | `backend check` | 檢查後端 | 測試後端連線是否正常 |
 | `backend use` | 設定預設後端 | 切換使用的後端 |
-| `backend remove` | 移除後端 | 刪除後端配置 |
+| `backend remove` | 移除後端 | 刪除後端設定 |
 
 ### 內容生成
 
@@ -104,7 +104,7 @@ novelmaker-obs [command] --help
 
 ```mermaid
 graph LR
-    A[初始化專案] --> B[配置後端]
+    A[初始化專案] --> B[設定後端]
     B --> C[生成角色]
     C --> D[生成章節]
     D --> E{繼續創作?}
@@ -119,7 +119,7 @@ graph LR
    novelmaker-obs init
    ```
 
-2. **配置 LLM 後端**
+2. **設定 LLM 後端**
    ```bash
    # 新增後端
    novelmaker-obs backend add openai \

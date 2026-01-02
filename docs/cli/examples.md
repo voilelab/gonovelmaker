@@ -6,7 +6,7 @@
 
 ### 案例 1：設定多個 LLM 後端
 
-配置不同的後端以便快速切換：
+設定不同的後端以便快速切換：
 
 ```bash
 # 新增 OpenAI 後端（主要用於文字生成）
@@ -75,7 +75,7 @@ novelmaker-obs gen-next --title "第五章：決戰時刻"
 
 ### 案例 3：測試後端連線
 
-在開始生成前確認後端配置正確：
+在開始生成前確認後端設定正確：
 
 ```bash
 # 檢查 OpenAI 後端
@@ -108,7 +108,7 @@ Token usage:
 
 ---
 
-### 案例 4：更新後端配置
+### 案例 4：更新後端設定
 
 修改現有後端的設定：
 
@@ -125,7 +125,7 @@ novelmaker-obs backend add claude \
 novelmaker-obs backend add openai \
   --api_key "sk-new-key"
 
-# 查看更新後的配置
+# 查看更新後的設定
 novelmaker-obs backend list
 ```
 
@@ -157,13 +157,13 @@ novelmaker-obs backend list
 使用不同後端節省成本：
 
 ```bash
-# 配置便宜的模型用於草稿
+# 設定便宜的模型用於草稿
 novelmaker-obs backend add draft \
   --type openai \
   --api_key "$OPENAI_KEY" \
   --model "gpt-4o-mini"
 
-# 配置高品質模型用於最終版本
+# 設定高品質模型用於最終版本
 novelmaker-obs backend add final \
   --type openai \
   --api_key "$OPENAI_KEY" \

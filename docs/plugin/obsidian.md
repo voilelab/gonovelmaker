@@ -190,7 +190,7 @@ Novel Maker 是專為 gonovelmaker 設計的 Obsidian 外掛，提供圖形化�
 
 1. 檢查 API 金鑰設定：
 
-   - Settings → Novel Maker → API Configuration
+   - Settings → Novel Maker → API Settings
    - 確認 API Key 正確
 
 2. 測試 CLI 工具：

@@ -1,6 +1,6 @@
 # 安裝指南
 
-本指南將協助您安裝和配置 gonovelmaker。
+本指南將協助您安裝和設定 gonovelmaker。
 
 ## 系統需求
 
@@ -96,7 +96,7 @@ novelmaker-obs --help
 
 === "方式二：使用 CLI 命令（推薦）"
 
-    使用命令列工具管理後端配置，無需手動編輯設定檔：
+    使用命令列工具管理後端設定，無需手動編輯設定檔：
 
     ```bash
     # 新增 OpenAI 後端
@@ -146,15 +146,15 @@ novelmaker-obs --help
 
 ### 後端管理命令
 
-使用 CLI 命令管理後端配置：
+使用 CLI 命令管理後端設定：
 
 | 命令 | 功能 |
 |------|------|
-| `backend add <name>` | 新增或更新後端配置 |
+| `backend add <name>` | 新增或更新後端設定 |
 | `backend list` | 列出所有後端 |
 | `backend check <name>` | 測試後端連線 |
 | `backend use <name>` | 設定預設後端 |
-| `backend remove <name>` | 移除後端配置 |
+| `backend remove <name>` | 移除後端設定 |
 
 詳細使用方式請參考 [CLI 命令參考](cli/commands.md#後端管理命令)。
 

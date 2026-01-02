@@ -55,6 +55,10 @@ func (t *testBackend) GenerateImage(prompt string, ctx context.Context) (string,
 	return t.imageURL, nil
 }
 
+func (t *testBackend) ListModels(ctx context.Context) ([]string, error) {
+	return []string{"test-model-1", "test-model-2"}, nil
+}
+
 func TestGenCharImgCmd_Run_Success(t *testing.T) {
 	t.Run("generate character image with test backend", func(t *testing.T) {
 		server := mockImageServer()

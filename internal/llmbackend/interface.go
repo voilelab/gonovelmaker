@@ -24,4 +24,5 @@ type UsageInfo struct {
 type LLMBackend interface {
 	ChatCompletion(messages []Message, ctx context.Context) (content string, usage UsageInfo, err error)
 	GenerateImage(prompt string, ctx context.Context) (imageURL string, err error)
+	ListModels(ctx context.Context) ([]string, error)
 }

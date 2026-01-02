@@ -93,3 +93,23 @@ func (o *OpenAIBackend) GenerateImage(prompt string, ctx context.Context) (strin
 
 	return resp.Data[0].URL, nil
 }
+
+func (o *OpenAIBackend) ListModels(ctx context.Context) ([]string, error) {
+	opts := []option.RequestOption{option.WithAPIKey(o.apiKey)}
+	if o.baseURL != "" {
+		opts = append(opts, option.WithBaseURL(o.baseURL))
+	}
+	client := openai.NewClient(opts...)
+
+	modelList, err := client.Models.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	models := make([]string, 0, len(modelList.Data))
+	for _, model := range modelList.Data {
+		models = append(models, model.ID)
+	}
+
+	return models, nil
+}

@@ -8,6 +8,7 @@ import (
 
 	cmdbackend "github.com/voilelab/gonovelmaker/cmd/novelmaker-obs/cmd-backend"
 	"github.com/voilelab/gonovelmaker/internal/config"
+	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 )
 
 func main() {
@@ -21,17 +22,17 @@ based on your existing content.`,
 
 	initCmd := NewInitCmd()
 	scanCmd := NewScanCmd()
-	genNextCmd := NewGenNextCmd(openAIBackendMaker)
+	genNextCmd := NewGenNextCmd(llmbackend.MakeOpenAI)
 	genNextEmptyCmd := NewGenNextEmptyCmd()
-	genCurrCmd := NewGenCurrCmd(openAIBackendMaker)
-	genCharCmd := NewGenCharCmd(openAIBackendMaker)
-	genCharCurrCmd := NewGenCharCurrCmd(openAIBackendMaker)
-	genCharImgCmd := NewGenCharImgCmd(openAIBackendMaker)
+	genCurrCmd := NewGenCurrCmd(llmbackend.MakeOpenAI)
+	genCharCmd := NewGenCharCmd(llmbackend.MakeOpenAI)
+	genCharCurrCmd := NewGenCharCurrCmd(llmbackend.MakeOpenAI)
+	genCharImgCmd := NewGenCharImgCmd(llmbackend.MakeOpenAI)
 	exportCmd := NewExportCmd()
 	updatePluginCmd := NewUpdatePluginCmd()
 	configTestCmd := NewConfigCheckCmd()
 
-	backendCmd := cmdbackend.NewBackendCmd(openAIBackendMaker)
+	backendCmd := cmdbackend.NewBackendCmd(llmbackend.MakeOpenAI)
 
 	rootCmd.AddCommand(initCmd.cmd)
 	rootCmd.AddCommand(scanCmd.cmd)

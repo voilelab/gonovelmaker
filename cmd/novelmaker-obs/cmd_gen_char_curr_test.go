@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 )
 
@@ -51,7 +52,7 @@ func TestGenCharCurrCmd_Run_Success(t *testing.T) {
 		vault.Close()
 
 		// Run gen-char-curr command
-		genCharCurrCmd := NewGenCharCurrCmd(dummyBackendMaker)
+		genCharCurrCmd := NewGenCharCurrCmd(llmbackend.MakeDummy)
 		genCharCurrCmd.filepath = aliceFilePath
 
 		err = genCharCurrCmd.run(genCharCurrCmd.cmd, []string{})
@@ -120,7 +121,7 @@ func TestGenCharCurrCmd_Run_JSONOutput(t *testing.T) {
 		// Use the first character
 		testFilePath := "Character/alice.md" // Assuming alice exists
 
-		genCharCurrCmd := NewGenCharCurrCmd(dummyBackendMaker)
+		genCharCurrCmd := NewGenCharCurrCmd(llmbackend.MakeDummy)
 		genCharCurrCmd.filepath = testFilePath
 		genCharCurrCmd.json = true
 
@@ -176,7 +177,7 @@ func TestGenCharCurrCmd_Run_ErrorCases(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCurrCmd := NewGenCharCurrCmd(dummyBackendMaker)
+		genCharCurrCmd := NewGenCharCurrCmd(llmbackend.MakeDummy)
 		genCharCurrCmd.filepath = "Character/nonexistent.md"
 
 		err := genCharCurrCmd.run(genCharCurrCmd.cmd, []string{})
@@ -195,7 +196,7 @@ func TestGenCharCurrCmd_Run_ErrorCases(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCurrCmd := NewGenCharCurrCmd(dummyBackendMaker)
+		genCharCurrCmd := NewGenCharCurrCmd(llmbackend.MakeDummy)
 		genCharCurrCmd.filepath = "Character/test.md"
 
 		err := genCharCurrCmd.run(genCharCurrCmd.cmd, []string{})
@@ -205,7 +206,7 @@ func TestGenCharCurrCmd_Run_ErrorCases(t *testing.T) {
 	})
 
 	t.Run("requires filepath flag", func(t *testing.T) {
-		cmd := NewGenCharCurrCmd(dummyBackendMaker)
+		cmd := NewGenCharCurrCmd(llmbackend.MakeDummy)
 		cmd.cmd.SetArgs([]string{})
 		err := cmd.cmd.Execute()
 		if err == nil {
@@ -214,7 +215,7 @@ func TestGenCharCurrCmd_Run_ErrorCases(t *testing.T) {
 	})
 
 	t.Run("accepts valid filepath", func(t *testing.T) {
-		cmd := NewGenCharCurrCmd(dummyBackendMaker)
+		cmd := NewGenCharCurrCmd(llmbackend.MakeDummy)
 		if err := cmd.cmd.ParseFlags([]string{"--filepath", "Character/alice.md"}); err != nil {
 			t.Fatalf("failed to parse valid flags: %v", err)
 		}

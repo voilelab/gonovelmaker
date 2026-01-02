@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/voilelab/gonovelmaker/internal/config"
+	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 	"github.com/voilelab/gonovelmaker/internal/nmutil"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 	"github.com/voilelab/gonovelmaker/novelmaker"
@@ -23,12 +24,12 @@ type GenCharCmd struct {
 	model   string
 	timeout int
 
-	llmBackendMaker LLMBackendMaker
+	llmBackendMaker llmbackend.LLMBackendMaker
 
 	cmd *cobra.Command
 }
 
-func NewGenCharCmd(llmBackendMaker LLMBackendMaker) *GenCharCmd {
+func NewGenCharCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenCharCmd {
 	g := &GenCharCmd{
 		llmBackendMaker: llmBackendMaker,
 	}

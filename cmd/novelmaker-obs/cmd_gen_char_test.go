@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
@@ -18,7 +19,7 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(dummyBackendMaker)
+		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "Charlie"
 		genCharCmd.prompt = "A wise old wizard with a mysterious past."
 
@@ -74,7 +75,7 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(dummyBackendMaker)
+		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "Diana"
 		genCharCmd.prompt = "" // Empty prompt
 
@@ -119,7 +120,7 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(dummyBackendMaker)
+		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "Emma"
 		genCharCmd.prompt = "A fierce warrior queen with unmatched battle skills."
 
@@ -165,7 +166,7 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(dummyBackendMaker)
+		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "Sir John O'Brien III"
 		genCharCmd.prompt = "A noble knight"
 
@@ -208,7 +209,7 @@ func TestGenCharCmd_Run_JSONOutput(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(dummyBackendMaker)
+		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "Frank"
 		genCharCmd.prompt = "A mysterious stranger"
 		genCharCmd.json = true
@@ -261,7 +262,7 @@ func TestGenCharCmd_Run_ErrorCases(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(dummyBackendMaker)
+		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "TestChar"
 
 		err := genCharCmd.run(genCharCmd.cmd, []string{})
@@ -282,7 +283,7 @@ func TestGenCharCmd_Run_ErrorCases(t *testing.T) {
 		// Change to a directory that doesn't have a config
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(dummyBackendMaker)
+		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "TestChar"
 
 		err := genCharCmd.run(genCharCmd.cmd, []string{})

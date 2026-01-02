@@ -36,7 +36,7 @@ func mockImageServer() *httptest.Server {
 }
 
 // testBackendMaker creates a backend that returns URLs from the test server
-func testBackendMaker(imageURL string) LLMBackendMaker {
+func testBackendMaker(imageURL string) llmbackend.LLMBackendMaker {
 	return func(_, _, _ string) llmbackend.LLMBackend {
 		return &testBackend{imageURL: imageURL}
 	}
@@ -251,7 +251,7 @@ func TestGenCharImgCmd_Run_ErrorCases(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharImgCmd := NewGenCharImgCmd(dummyBackendMaker)
+		genCharImgCmd := NewGenCharImgCmd(llmbackend.MakeDummy)
 		genCharImgCmd.name = "NonExistentCharacter"
 
 		err := genCharImgCmd.run(genCharImgCmd.cmd, []string{})

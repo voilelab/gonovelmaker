@@ -2,11 +2,13 @@ package main
 
 import (
 	"testing"
+
+	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 )
 
 func TestGenCurrCmd(t *testing.T) {
 	t.Run("requires filepath flag", func(t *testing.T) {
-		cmd := NewGenCurrCmd(dummyBackendMaker)
+		cmd := NewGenCurrCmd(llmbackend.MakeDummy)
 		cmd.cmd.SetArgs([]string{})
 		err := cmd.cmd.Execute()
 		if err == nil {
@@ -15,7 +17,7 @@ func TestGenCurrCmd(t *testing.T) {
 	})
 
 	t.Run("accepts valid filepath", func(t *testing.T) {
-		cmd := NewGenCurrCmd(dummyBackendMaker)
+		cmd := NewGenCurrCmd(llmbackend.MakeDummy)
 		// This will fail at runtime but should pass flag validation
 		cmd.cmd.SetArgs([]string{"--filepath", "Story/001_ch1.md"})
 		// We can't actually execute this without a proper vault setup

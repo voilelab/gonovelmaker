@@ -51,10 +51,10 @@ func (b *BackendListCmd) run(cmd *cobra.Command, args []string) error {
 
 	if b.jsonOutput {
 		// JSON output
-		output := make([]map[string]interface{}, 0, len(names))
+		output := make([]map[string]any, 0, len(names))
 		for _, name := range names {
 			backend := cfg.GetBackend(name)
-			output = append(output, map[string]interface{}{
+			output = append(output, map[string]any{
 				"name":        name,
 				"type":        backend.Type,
 				"api_key":     maskAPIKey(backend.APIKey),

@@ -95,7 +95,7 @@ func (b *BackendCheckCmd) run(cmd *cobra.Command, args []string) error {
 
 	if err != nil {
 		if b.jsonOutput {
-			jsonData, _ := json.MarshalIndent(map[string]interface{}{
+			jsonData, _ := json.MarshalIndent(map[string]any{
 				"success":       false,
 				"error":         err.Error(),
 				"backend":       name,
@@ -111,7 +111,7 @@ func (b *BackendCheckCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	if b.jsonOutput {
-		jsonData, err := json.MarshalIndent(map[string]interface{}{
+		jsonData, err := json.MarshalIndent(map[string]any{
 			"success":       true,
 			"backend":       name,
 			"backend_type":  backend.Type,
@@ -119,7 +119,7 @@ func (b *BackendCheckCmd) run(cmd *cobra.Command, args []string) error {
 			"base_url":      backend.BaseURL,
 			"response_time": elapsed.Milliseconds(),
 			"response":      response,
-			"token_usage": map[string]interface{}{
+			"token_usage": map[string]any{
 				"input_tokens":  usage.InputTokens,
 				"output_tokens": usage.OutputTokens,
 				"total_tokens":  usage.TotalTokens,

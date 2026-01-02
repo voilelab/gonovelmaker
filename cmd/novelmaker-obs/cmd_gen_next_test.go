@@ -276,7 +276,7 @@ func TestGenNextCmd_Run_JSONOutput(t *testing.T) {
 		buf, _ = io.ReadAll(r)
 		output := string(buf)
 
-		var data map[string]interface{}
+		var data map[string]any
 		if err := json.Unmarshal([]byte(output), &data); err != nil {
 			t.Fatalf("failed to parse JSON output: %v\nOutput: %s", err, output)
 		}

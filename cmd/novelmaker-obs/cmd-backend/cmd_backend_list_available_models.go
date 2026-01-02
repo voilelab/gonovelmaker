@@ -89,7 +89,7 @@ func (b *BackendListAvailableModelsCmd) run(cmd *cobra.Command, args []string) e
 	models, err := llmBackend.ListModels(ctx)
 	if err != nil {
 		if b.jsonOutput {
-			jsonData, _ := json.MarshalIndent(map[string]interface{}{
+			jsonData, _ := json.MarshalIndent(map[string]any{
 				"success": false,
 				"error":   err.Error(),
 				"backend": name,
@@ -105,7 +105,7 @@ func (b *BackendListAvailableModelsCmd) run(cmd *cobra.Command, args []string) e
 	sort.Strings(models)
 
 	if b.jsonOutput {
-		jsonData, err := json.MarshalIndent(map[string]interface{}{
+		jsonData, err := json.MarshalIndent(map[string]any{
 			"success": true,
 			"backend": name,
 			"count":   len(models),

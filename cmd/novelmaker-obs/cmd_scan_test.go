@@ -369,13 +369,13 @@ func TestScanCmd_Run_JSONOutput(t *testing.T) {
 		output := buf.Bytes()
 
 		// Parse JSON output
-		var data map[string]interface{}
+		var data map[string]any
 		if err := json.Unmarshal(output, &data); err != nil {
 			t.Fatalf("failed to parse JSON output: %v\nOutput: %s", err, string(output))
 		}
 
 		// Check project
-		project, ok := data["project"].(map[string]interface{})
+		project, ok := data["project"].(map[string]any)
 		if !ok {
 			t.Fatal("JSON should contain 'project' object")
 		}
@@ -387,7 +387,7 @@ func TestScanCmd_Run_JSONOutput(t *testing.T) {
 		}
 
 		// Check worldbooks
-		worldbooks, ok := data["worldbooks"].([]interface{})
+		worldbooks, ok := data["worldbooks"].([]any)
 		if !ok {
 			t.Fatal("JSON should contain 'worldbooks' array")
 		}
@@ -396,7 +396,7 @@ func TestScanCmd_Run_JSONOutput(t *testing.T) {
 		}
 
 		// Check characters
-		characters, ok := data["characters"].([]interface{})
+		characters, ok := data["characters"].([]any)
 		if !ok {
 			t.Fatal("JSON should contain 'characters' array")
 		}
@@ -405,7 +405,7 @@ func TestScanCmd_Run_JSONOutput(t *testing.T) {
 		}
 
 		// Check chapters
-		chapters, ok := data["chapters"].([]interface{})
+		chapters, ok := data["chapters"].([]any)
 		if !ok {
 			t.Fatal("JSON should contain 'chapters' array")
 		}
@@ -414,7 +414,7 @@ func TestScanCmd_Run_JSONOutput(t *testing.T) {
 		}
 
 		// Verify chapter data structure
-		chapter1 := chapters[0].(map[string]interface{})
+		chapter1 := chapters[0].(map[string]any)
 		if chapter1["title"] != "The Beginning" {
 			t.Errorf("first chapter title = %v, want 'The Beginning'", chapter1["title"])
 		}
@@ -465,25 +465,25 @@ Minimal world.`
 		output := buf.Bytes()
 
 		// Parse JSON output
-		var data map[string]interface{}
+		var data map[string]any
 		if err := json.Unmarshal(output, &data); err != nil {
 			t.Fatalf("failed to parse JSON output: %v\nOutput: %s", err, string(output))
 		}
 
 		// Check empty collections (they may be null or empty arrays)
-		if worldbooks, ok := data["worldbooks"].([]interface{}); ok {
+		if worldbooks, ok := data["worldbooks"].([]any); ok {
 			if len(worldbooks) != 0 {
 				t.Errorf("expected empty worldbooks array, got %d items", len(worldbooks))
 			}
 		}
 
-		if characters, ok := data["characters"].([]interface{}); ok {
+		if characters, ok := data["characters"].([]any); ok {
 			if len(characters) != 0 {
 				t.Errorf("expected empty characters array, got %d items", len(characters))
 			}
 		}
 
-		if chapters, ok := data["chapters"].([]interface{}); ok {
+		if chapters, ok := data["chapters"].([]any); ok {
 			if len(chapters) != 0 {
 				t.Errorf("expected empty chapters array, got %d items", len(chapters))
 			}

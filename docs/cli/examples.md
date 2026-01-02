@@ -23,13 +23,6 @@ novelmaker-obs backend add claude \
   --base_url "https://openrouter.ai/api/v1" \
   --model "anthropic/claude-3.5-sonnet"
 
-# 新增本地後端（用於測試）
-novelmaker-obs backend add local \
-  --type openai \
-  --api_key "test" \
-  --base_url "http://localhost:1234/v1" \
-  --model "llama-3.1-8b"
-
 # 查看所有後端
 novelmaker-obs backend list
 ```

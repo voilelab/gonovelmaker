@@ -73,7 +73,6 @@ nav:
     - 使用說明: plugin/obsidian.md
   - 世界書結構:
     - 檔案結構: worldbook/schema.md
-    - 範例: worldbook/examples.md
 
 extra:
   social:

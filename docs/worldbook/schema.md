@@ -57,27 +57,10 @@ frontmatter 之後的內容用於描述專案概要、世界觀、系統提示�
 name: 魔法學院編年史
 ---
 
-## 專案概要
-
 一個充滿魔法的奇幻世界，故事發生在艾瑟利亞大陸的魔法學院中。
-
-## 世界觀
 
 艾瑟利亞大陸分為五個王國，魔法是這個世界的核心力量。
 魔法學院是培養魔法師的聖地，每年招收來自各地的有天賦的年輕人。
-
-## 寫作風格
-
-- 節奏明快，對話精簡
-- 著重描寫魔法場景
-- 角色性格鮮明
-- 融入成長與冒險主題
-
-## 系統提示詞
-
-你是一位奇幻小說作家，擅長描寫魔法學院的日常與冒險。
-請使用生動的語言，營造神秘而充滿魔力的氛圍。
-角色對話要符合各自的性格特點，情節發展要合理有趣。
 ```
 
 ## World/ 目錄
@@ -96,16 +79,9 @@ tags: [標籤1, 標籤2, ...]
 |------|------|------|------|
 | `tags` | array | ❌ | 分類標籤 |
 
-### 常用標籤
+### 標籤說明
 
-- `world` - 世界觀總覽
-- `magic-system` - 魔法系統
-- `geography` - 地理設定
-- `history` - 歷史背景
-- `culture` - 文化習俗
-- `religion` - 宗教信仰
-- `technology` - 科技水準
-- `politics` - 政治體系
+標籤是用來做 RAG 檢索的關鍵字，建議使用與條目內容相關的詞彙。
 
 ### 範例
 
@@ -156,7 +132,6 @@ tags: [magic-system, rules]
 name: 角色名稱
 main: true
 prompt: 角色生成提示詞
-image: 角色圖片檔名
 ---
 ```
 
@@ -164,8 +139,7 @@ image: 角色圖片檔名
 |------|------|------|------|
 | `name` | string | ✅ | 角色名稱 |
 | `main` | boolean | ❌ | 是否為主要角色 |
-| `prompt` | string | ❌ | 用於重新生成的提示詞 |
-| `image` | string | ❌ | 角色圖片檔案名稱 |
+| `prompt` | string | ✅ | 用於重新生成的提示詞 |
 
 ### 建議結構
 
@@ -294,13 +268,6 @@ image: alice_firewing.png
 - 鄉村出身的自卑感 vs. 想要證明自己的決心
 - 遵守學院規則 vs. 好奇心驅使的冒險慾望
 
-## 角色發展軌跡
-
-- **第1-5章**：適應學院生活，展現天賦但也鬧出不少麻煩
-- **第6-10章**：發現學院的秘密，開始質疑既有規則
-- **第11-15章**：面對真正的危機，成長為可靠的魔法師
-- **第16-20章**：決戰時刻，做出重要抉擇
-
 ## 備註
 
 艾莉絲代表著「平凡中的不平凡」主題，
@@ -336,8 +303,6 @@ Character/
 index: 1
 title: 章節標題
 prompt: 生成提示詞
-word_count: 3500
-status: draft
 ---
 ```
 
@@ -345,9 +310,7 @@ status: draft
 |------|------|------|------|
 | `index` | integer | ✅ | 章節順序（用於排序） |
 | `title` | string | ✅ | 章節標題 |
-| `prompt` | string | ❌ | 用於重新生成的提示詞 |
-| `word_count` | integer | ❌ | 字數統計 |
-| `status` | string | ❌ | 狀態：draft, reviewing, final |
+| `prompt` | string | ✅ | 用於重新生成的提示詞 |
 
 ### 檔案命名規範
 
@@ -356,6 +319,7 @@ status: draft
 ```
 
 範例：
+
 - `001_prologue.md` - 序章
 - `002_ch1.md` - 第一章
 - `003_ch2.md` - 第二章
@@ -371,8 +335,6 @@ status: draft
 index: 5
 title: 第四章：秘密圖書館
 prompt: 艾莉絲在深夜偷偷潛入圖書館禁區，發現一本神秘的古老魔法書。氛圍神秘緊張，展現她的好奇心和勇氣。
-word_count: 3200
-status: draft
 ---
 
 月光透過高大的彩色玻璃窗灑進圖書館，在地板上投下斑駁的光影。
@@ -392,149 +354,6 @@ status: draft
 3. **高潮**：衝突或轉折點
 4. **結尾**：留下懸念或過渡到下一章
 
-## 雙向連結
-
-在 Obsidian 中使用雙向連結連接相關內容：
-
-### 語法
-
-```markdown
-[[檔案名稱]]
-[[檔案名稱|顯示文字]]
-```
-
-### 使用範例
-
-**在章節中引用角色：**
-
-```markdown
-[[艾莉絲·火羽|艾莉絲]]走進教室，看到[[托比·水鏡|托比]]已經在座位上等她。
-```
-
-**在角色檔案中引用世界觀：**
-
-```markdown
-她精通[[魔法系統#火系魔法|火系魔法]]和[[魔法系統#風系魔法|風系魔法]]。
-```
-
-**在章節中引用前面章節：**
-
-```markdown
-就像[[002_ch1#元素測試|第一章中的測試]]所顯示的，艾莉絲確實擁有罕見的天賦。
-```
-
-## 標籤系統
-
-使用標籤組織和分類內容：
-
-### World/ 建議標籤
-
-```yaml
-tags: [world, magic-system, geography, history, culture, politics]
-```
-
-### Character/ 建議標籤
-
-```yaml
-tags: [character, protagonist, antagonist, student, teacher, family]
-```
-
-### Story/ 建議標籤
-
-```yaml
-tags: [chapter, action, dialogue, mystery, romance, battle]
-```
-
-### 查詢標籤
-
-在 Obsidian 中使用標籤搜尋：
-
-```
-tag:#magic-system
-tag:#protagonist
-tag:#battle
-```
-
-## 檔案組織最佳實踐
-
-### 1. 保持結構一致
-
-所有相同類型的檔案使用相同的 frontmatter 格式和內容結構。
-
-### 2. 使用描述性檔名
-
-```
-✅ 好的：character_alice_firewing.md, 001_prologue.md
-❌ 不好的：char1.md, ch.md
-```
-
-### 3. 定期整理
-
-- 刪除未使用的草稿
-- 更新過時的設定
-- 同步角色關係變化
-
-### 4. 版本控制
-
-使用 Git 或其他版本控制系統：
-
-```bash
-git add .
-git commit -m "Add Chapter 5: Secret Library"
-git push
-```
-
-### 5. 備份重要內容
-
-```bash
-# 定期備份
-tar -czf backup-$(date +%Y%m%d).tar.gz \
-  Config/ Character/ Story/ World/
-```
-
-## Frontmatter 進階用法
-
-### 自訂欄位
-
-您可以加入任何自訂欄位：
-
-```yaml
----
-title: 第五章
-index: 5
-# 自訂欄位
-scene_location: 魔法學院圖書館
-time_of_day: 深夜
-pov_character: 艾莉絲
-mood: 神秘、緊張
----
-```
-
-### 多值欄位
-
-```yaml
----
-characters: [艾莉絲, 托比, 梅林教授]
-locations: [圖書館, 禁區, 密室]
-themes: [好奇心, 禁忌知識, 友誼]
----
-```
-
-### 使用 Dataview 查詢
-
-安裝 Dataview 外掛後可進行複雜查詢：
-
-```dataview
-TABLE 
-  title, 
-  word_count, 
-  status
-FROM "Story"
-WHERE status = "draft"
-SORT index ASC
-```
-
 ## 下一步
 
-- 💡 [世界書範例](examples.md) - 查看完整專案範例
 - 🔧 [CLI 命令](../cli/commands.md) - 學習檔案操作命令

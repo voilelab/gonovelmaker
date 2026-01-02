@@ -12,39 +12,7 @@ Novel Maker 是專為 gonovelmaker 設計的 Obsidian 外掛，提供圖形化�
 
 ## 安裝外掛
 
-### 方法一：使用 CLI 工具更新（推薦）
-
-在您的 vault 根目錄執行：
-
-```bash
-cd /path/to/your/novel-vault
-novelmaker-obs update-plugin
-```
-
-這會自動將最新的外掛檔案複製到正確位置：
-- `.obsidian/plugins/obsidian-novelmaker/main.js`
-- `.obsidian/plugins/obsidian-novelmaker/manifest.json`
-- `.obsidian/plugins/obsidian-novelmaker/styles.css`
-
-### 方法二：手動安裝
-
-1. 在 vault 根目錄建立外掛目錄：
-   ```bash
-   mkdir -p .obsidian/plugins/obsidian-novelmaker
-   ```
-
-2. 從 gonovelmaker 儲存庫複製檔案：
-   ```bash
-   cp cmd/novelmaker-obs/obsidian-novelmaker/* \
-      .obsidian/plugins/obsidian-novelmaker/
-   ```
-
-3. 重新啟動 Obsidian
-
-4. 在 Obsidian 設定中啟用外掛：
-   - Settings → Community plugins
-   - 找到 "Novel Maker"
-   - 開啟開關
+在 `novelmaker-obs init` 時會自動安裝 Obsidian 外掛到您的 vault 中。
 
 ## 啟用外掛
 
@@ -57,7 +25,7 @@ novelmaker-obs update-plugin
 7. 點擊開關啟用
 
 !!! warning "安全模式"
-    首次使用社群外掛時需要關閉安全模式。Novel Maker 是本地外掛，不會連線到外部服務。
+    首次使用社群外掛時需要關閉安全模式。Novel Maker 是本地外掛，除了 LLM API 請求外不會傳送任何資料到外部伺服器。
 
 ## 使用介面
 
@@ -104,70 +72,11 @@ novelmaker-obs update-plugin
 | `Novel Maker: Scan project` | 掃描專案結構 |
 | `Novel Maker: Open settings` | 開啟外掛設定 |
 
-### 右鍵選單
-
-在檔案瀏覽器中右鍵點擊檔案：
-
-**Story/ 目錄中的章節檔案：**
-- 🔄 重新生成此章節
-- 📊 章節統計
-- 🔗 顯示相關角色
-
-**Character/ 目錄中的角色檔案：**
-- 🔄 重新生成角色描述
-- 🎨 生成角色圖片
-- 📋 顯示出場章節
-
-### 編輯器工具列
-
-在編輯 Story/ 或 Character/ 中的檔案時，工具列會顯示額外按鈕：
-
-```
-[📝 編輯] [👁️ 預覽] [🔄 重新生成] [📊 統計]
-```
-
 ## 外掛設定
 
-在 Settings → Novel Maker 中配置：
+在 Settings → Novel Maker 中可調整外掛設定。
 
-### 基本設定
-
-```yaml
-API Configuration
-  ├─ OpenAI API Key: [your-api-key]
-  ├─ Model: gpt-4o
-  ├─ Image Model: dall-e-3
-  └─ API Endpoint: https://api.openai.com/v1
-
-Behavior
-  ├─ Auto-save after generation: ✓
-  ├─ Show notifications: ✓
-  └─ Confirm before regenerate: ✓
-
-Display
-  ├─ Show sidebar by default: ✓
-  ├─ Theme: Auto (follows Obsidian)
-  └─ Font size: Medium
-```
-
-### 進階設定
-
-```yaml
-Generation
-  ├─ Default prompt template: [選擇範本]
-  ├─ Context chapters: 3
-  ├─ Max tokens: 4000
-  └─ Temperature: 0.7
-
-File Management
-  ├─ Auto-number chapters: ✓
-  ├─ Chapter file pattern: {number}_{slug}.md
-  └─ Character file pattern: {name}.md
-
-Integration
-  ├─ Enable CLI sync: ✓
-  └─ Watch for external changes: ✓
-```
+![settings](setting.png)
 
 ## 工作流程範例
 
@@ -219,6 +128,7 @@ Integration
 | 生成角色 | `Ctrl/Cmd + Shift + C` |
 
 設定步驟：
+
 1. Settings → Hotkeys
 2. 搜尋 "Novel Maker"
 3. 為各命令設定快捷鍵
@@ -227,39 +137,8 @@ Integration
 
 ### 使用內建範本
 
-外掛包含預設範本：
-
 1. **章節範本**：`~/.novelmaker/templates/chapter_prompt.tmpl`
 2. **角色範本**：`~/.novelmaker/templates/character_prompt.tmpl`
-
-在外掛設定中選擇要使用的範本。
-
-### 建立自訂範本
-
-1. 在 vault 中建立 `Templates/` 目錄
-2. 建立範本檔案，例如 `my-chapter-template.tmpl`
-3. 在外掛設定中選擇自訂範本
-
-**範本語法範例：**
-
-```go
-你是一位{{.Genre}}小說作家。
-
-專案：{{.ProjectName}}
-世界觀：{{.World}}
-
-{{if .PrevChapter}}
-前一章摘要：
-{{.PrevChapter.Summary}}
-{{end}}
-
-請為以下章節生成內容：
-標題：{{.Title}}
-
-{{if .Prompt}}
-特別要求：{{.Prompt}}
-{{end}}
-```
 
 ## 整合功能
 
@@ -271,60 +150,12 @@ Integration
 - 在 Obsidian 中的修改會反映到 CLI 操作
 - Frontmatter 格式完全相容
 
-### Dataview 整合
-
-使用 Dataview 外掛建立動態視圖：
-
-**章節列表：**
-
-```dataview
-TABLE 
-  title as "標題",
-  index as "順序",
-  word_count as "字數"
-FROM "Story"
-SORT index ASC
-```
-
-**角色列表：**
-
-```dataview
-TABLE 
-  name as "名稱",
-  main as "主要角色",
-  appearances as "出場次數"
-FROM "Character"
-WHERE name
-```
-
-**進度追蹤：**
-
-```dataview
-TABLE
-  chapters as "已完成章節",
-  target_chapters as "目標章節",
-  round((chapters / target_chapters) * 100) + "%" as "進度"
-FROM "Config"
-```
-
-### Graph View 視覺化
-
-Obsidian 的圖形視圖可以顯示：
-
-- 角色之間的關係（通過雙向連結）
-- 章節之間的依賴
-- 世界觀元素的關聯
-
-在圖形視圖中：
-- 🟦 藍色節點 = 章節
-- 🟩 綠色節點 = 角色
-- 🟨 黃色節點 = 世界觀
-
 ## 疑難排解
 
 ### 外掛無法載入
 
 **症狀：**
+
 - 外掛列表中沒有顯示
 - 啟用後沒有反應
 
@@ -351,12 +182,14 @@ Obsidian 的圖形視圖可以顯示：
 ### API 連線失敗
 
 **症狀：**
+
 - 生成內容時顯示錯誤
 - 「API request failed」訊息
 
 **解決方案：**
 
 1. 檢查 API 金鑰設定：
+
    - Settings → Novel Maker → API Configuration
    - 確認 API Key 正確
 
@@ -369,31 +202,10 @@ Obsidian 的圖形視圖可以顯示：
 
 4. 查看 API 用量限制（OpenAI Dashboard）
 
-### 生成內容為空
-
-**症狀：**
-- 生成完成但檔案內容為空
-- 只有 frontmatter 沒有正文
-
-**解決方案：**
-
-1. 檢查專案結構：
-   ```bash
-   novelmaker-obs scan
-   ```
-
-2. 確認 Config/project.md 存在且正確
-
-3. 增加 API 超時時間：
-   - Settings → Novel Maker → Advanced
-   - Timeout: 300 seconds
-
-4. 查看詳細錯誤日誌：
-   - 開發者工具 → Console
-
 ### 外掛版本不相容
 
 **症狀：**
+
 - 外掛功能異常
 - 與 CLI 工具版本不匹配
 
@@ -401,7 +213,7 @@ Obsidian 的圖形視圖可以顯示：
 
 1. 更新 CLI 工具：
    ```bash
-   go install github.com/voilelab/gonovelmaker/cmd/novelmaker-obs@latest
+brew upgrade voilelab/novelmaker/novelmaker-obs 
    ```
 
 2. 更新外掛：
@@ -411,51 +223,6 @@ Obsidian 的圖形視圖可以顯示：
    ```
 
 3. 重啟 Obsidian
-
-## 最佳實踐
-
-### 工作區配置
-
-建議的工作區佈局：
-
-```
-┌─────────────────────────────────────────┐
-│  [檔案]  [搜尋]  [📚]                    │
-├──────────┬──────────────────────┬───────┤
-│          │                      │       │
-│  檔案    │    編輯器視窗        │  大綱 │
-│  樹狀圖  │                      │       │
-│          │                      │  標籤 │
-│  Novel   │                      │       │
-│  Maker   │                      │  統計 │
-│  側邊欄  │                      │       │
-│          │                      │       │
-└──────────┴──────────────────────┴───────┘
-```
-
-### 寫作流程
-
-1. **規劃階段**
-   - 在 Graph View 中規劃章節結構
-   - 使用空白章節建立大綱
-   - 標註角色關係
-
-2. **創作階段**
-   - 使用側邊欄快速生成
-   - 在編輯器中潤飾內容
-   - 利用 Dataview 追蹤進度
-
-3. **修改階段**
-   - 使用重新生成功能優化章節
-   - 檢視角色一致性
-   - 匯出並審閱全文
-
-### 效能優化
-
-- 定期清理未使用的圖片
-- 使用標籤組織內容
-- 啟用自動儲存
-- 定期備份 vault
 
 ## 下一步
 

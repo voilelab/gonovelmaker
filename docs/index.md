@@ -20,7 +20,8 @@
 ### 安裝
 
 ```bash
-go install github.com/voilelab/gonovelmaker/cmd/novelmaker-obs@latest
+brew tap voilelab/novelmaker https://github.com/voilelab/gonovelmaker
+brew install voilelab/novelmaker/novelmaker-obs
 ```
 
 ### 初始化專案

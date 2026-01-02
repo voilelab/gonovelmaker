@@ -17,12 +17,13 @@
 
 ## 安裝方法
 
-### 方法一：使用 go install（推薦）
+### 方法一：使用 brew install（推薦）
 
-這是最簡單的安裝方式，會自動下載並編譯最新版本：
+這是最簡單的安裝方式，會自動下載並編譯最新釋出版本：
 
 ```bash
-go install github.com/voilelab/gonovelmaker/cmd/novelmaker-obs@latest
+brew tap voilelab/novelmaker https://github.com/voilelab/gonovelmaker
+brew install voilelab/novelmaker/novelmaker-obs
 ```
 
 確認安裝成功：
@@ -30,9 +31,6 @@ go install github.com/voilelab/gonovelmaker/cmd/novelmaker-obs@latest
 ```bash
 novelmaker-obs --version
 ```
-
-!!! tip "PATH 設定"
-    確保 `$GOPATH/bin` 或 `$HOME/go/bin` 已加入您的 PATH 環境變數。
 
 ### 方法二：從原始碼建置
 
@@ -45,9 +43,6 @@ cd gonovelmaker
 
 # 2. 建置
 go build ./cmd/novelmaker-obs
-
-# 3. (可選) 安裝到系統
-go install ./cmd/novelmaker-obs
 ```
 
 ## 設定
@@ -194,21 +189,6 @@ novelmaker-obs config-check
 
 ## 常見問題
 
-### 找不到 novelmaker-obs 命令
-
-確保 Go 的 bin 目錄在您的 PATH 中：
-
-```bash
-# 在 ~/.zshrc 或 ~/.bashrc 中加入：
-export PATH=$PATH:$(go env GOPATH)/bin
-```
-
-然後重新載入 shell 設定：
-
-```bash
-source ~/.zshrc  # 或 source ~/.bashrc
-```
-
 ### API 金鑰錯誤
 
 檢查：
@@ -224,27 +204,10 @@ source ~/.zshrc  # 或 source ~/.bashrc
 - Go 版本 ≥ 1.25.4
 - 使用最新版本的 gonovelmaker
 
-更新到最新版：
-```bash
-go install github.com/voilelab/gonovelmaker/cmd/novelmaker-obs@latest
-```
-
 ## 更新
 
 定期更新以取得最新功能和錯誤修復：
 
 ```bash
-go install github.com/voilelab/gonovelmaker/cmd/novelmaker-obs@latest
-```
-
-## 解除安裝
-
-如需移除 gonovelmaker：
-
-```bash
-# 移除執行檔
-rm $(which novelmaker-obs)
-
-# 移除設定檔（可選）
-rm -rf ~/.novelmaker
+brew upgrade voilelab/novelmaker/novelmaker-obs
 ```

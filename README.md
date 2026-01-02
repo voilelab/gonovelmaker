@@ -72,14 +72,6 @@ image_model = "your-image-model"
 
 **設定選項說明：**
 
-**傳統設定：**
-- `openai_api_key` - 您的 OpenAI API 金鑰（生成命令必需）
-- `model` - 要使用的 OpenAI 文字生成模型（可選，預設為 `gpt-4o`）
-- `image_model` - 要使用的 OpenAI 圖片生成模型（可選，預設為 `dall-e-3`）
-- `base_url` - 自訂 OpenAI API 端點（可選，可用於相容 OpenAI API 的第三方服務）
-- `timeout` - API 請求超時時間（秒，可選，預設為 0 表示無限制）
-
-**多後端設定：**
 - `user_llm_backend` - 預設使用的後端名稱（例如："openai", "openrouter"）
 - `llm_backend.[名稱]` - 定義一個命名後端，可定義多個
   - `type` - 後端類型（目前支援 "openai"）

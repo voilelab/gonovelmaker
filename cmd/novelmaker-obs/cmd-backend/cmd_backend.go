@@ -6,11 +6,12 @@ import (
 )
 
 type BackendCmd struct {
-	backendAddCmd    *BackendAddCmd
-	backendRemoveCmd *BackendRemoveCmd
-	backendListCmd   *BackendListCmd
-	backendUseCmd    *BackendUseCmd
-	backendCheckCmd  *BackendCheckCmd
+	backendAddCmd                 *BackendAddCmd
+	backendRemoveCmd              *BackendRemoveCmd
+	backendListCmd                *BackendListCmd
+	backendUseCmd                 *BackendUseCmd
+	backendCheckCmd               *BackendCheckCmd
+	backendListAvailableModelsCmd *BackendListAvailableModelsCmd
 
 	cmd *cobra.Command
 }
@@ -28,12 +29,14 @@ func NewBackendCmd(llmbackendMaker llmbackend.LLMBackendMaker) *BackendCmd {
 	backendCmd.backendListCmd = NewBackendListCmd()
 	backendCmd.backendUseCmd = NewBackendUseCmd()
 	backendCmd.backendCheckCmd = NewBackendCheckCmd(llmbackendMaker)
+	backendCmd.backendListAvailableModelsCmd = NewBackendListAvailableModelsCmd(llmbackendMaker)
 
 	backendCmd.cmd.AddCommand(backendCmd.backendAddCmd.cmd)
 	backendCmd.cmd.AddCommand(backendCmd.backendRemoveCmd.cmd)
 	backendCmd.cmd.AddCommand(backendCmd.backendListCmd.cmd)
 	backendCmd.cmd.AddCommand(backendCmd.backendUseCmd.cmd)
 	backendCmd.cmd.AddCommand(backendCmd.backendCheckCmd.cmd)
+	backendCmd.cmd.AddCommand(backendCmd.backendListAvailableModelsCmd.cmd)
 
 	return backendCmd
 }

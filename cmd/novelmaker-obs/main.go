@@ -31,6 +31,7 @@ based on your existing content.`,
 	exportCmd := NewExportCmd()
 	updatePluginCmd := NewUpdatePluginCmd()
 	configTestCmd := NewConfigCheckCmd()
+	versionCmd := NewVersionCmd()
 
 	backendCmd := cmdbackend.NewBackendCmd(llmbackend.MakeOpenAI)
 
@@ -45,6 +46,8 @@ based on your existing content.`,
 	rootCmd.AddCommand(exportCmd.cmd)
 	rootCmd.AddCommand(updatePluginCmd.cmd)
 	rootCmd.AddCommand(configTestCmd.cmd)
+	rootCmd.AddCommand(versionCmd.cmd)
+
 	rootCmd.AddCommand(backendCmd.Command())
 
 	// Initialize config (creates empty config file if it doesn't exist)

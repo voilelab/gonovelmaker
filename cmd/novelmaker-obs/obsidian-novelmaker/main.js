@@ -1062,12 +1062,44 @@ class BackendModal extends Modal {
 		this.timeout = backend?.timeout || 60;
 		this.onSubmit = onSubmit;
 		this.apiKeyModified = false; // Track if user actually modified the API key
+		this.availableModels = []; // Store available models
+		this.modelsLoading = false; // Track loading state
 	}
 
-	onOpen() {
+	async fetchAvailableModels() {
+		if (!this.backend || !this.backend.name) {
+			return [];
+		}
+
+		try {
+			this.modelsLoading = true;
+			const vaultPath = this.app.vault.adapter.basePath;
+			const { stdout } = await execAsync(
+				`${this.plugin.settings.cliPath} backend list-available-models "${this.backend.name}" --json`,
+				{ cwd: vaultPath }
+			);
+			const result = JSON.parse(stdout);
+			if (result.success && Array.isArray(result.models)) {
+				return result.models;
+			}
+			return [];
+		} catch (error) {
+			console.error('Failed to fetch available models:', error);
+			return [];
+		} finally {
+			this.modelsLoading = false;
+		}
+	}
+
+	async onOpen() {
 		const { contentEl } = this;
 		
 		contentEl.createEl('h2', { text: this.backend ? '編輯 Backend' : '新增 Backend' });
+
+		// Fetch available models if editing existing backend
+		if (this.backend) {
+			this.availableModels = await this.fetchAvailableModels();
+		}
 
 		new Setting(contentEl)
 			.setName('Backend 名稱')
@@ -1117,10 +1149,27 @@ class BackendModal extends Modal {
 				text.inputEl.type = 'password';
 			});
 
-		new Setting(contentEl)
+		// Model selection with dropdown if available models are loaded
+		const modelSetting = new Setting(contentEl)
 			.setName('預設模型')
-			.setDesc('此 backend 的預設模型名稱（選填）')
-			.addText((text) => {
+			.setDesc('此 backend 的預設模型名稱（選填）');
+
+		if (this.availableModels.length > 0) {
+			// Use dropdown with available models
+			modelSetting.addDropdown((dropdown) => {
+				dropdown.addOption('', '（選擇模型...）');
+				this.availableModels.forEach(model => {
+					dropdown.addOption(model, model);
+				});
+				dropdown
+					.setValue(this.model)
+					.onChange((value) => {
+						this.model = value;
+					});
+			});
+		} else {
+			// Fallback to text input
+			modelSetting.addText((text) => {
 				text
 					.setPlaceholder('例如：gpt-4, claude-3-opus-20240229')
 					.setValue(this.model)
@@ -1129,6 +1178,7 @@ class BackendModal extends Modal {
 					});
 				text.inputEl.style.width = '100%';
 			});
+		}
 
 		new Setting(contentEl)
 			.setName(`API 請求超時 (秒) (${this.timeout} 秒)`)

@@ -20,6 +20,6 @@ class NovelmakerObs < Formula
   end
 
   test do
-    system "#{bin}/novelmaker-obs", "--version"
+    system "#{bin}/novelmaker-obs", "version"
   end
 end

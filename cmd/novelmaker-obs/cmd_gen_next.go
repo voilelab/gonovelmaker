@@ -22,8 +22,6 @@ type GenNextCmd struct {
 	prompt       string
 	prevChapters int
 	backend      string
-	apiKey       string
-	baseURL      string
 	model        string
 	timeout      int
 
@@ -53,8 +51,6 @@ and previous chapters using OpenAI API.`,
 
 	// Allow overriding config values per-command
 	g.cmd.Flags().StringVar(&g.backend, "backend", "", "LLM backend to use (optional, uses default if not specified)")
-	g.cmd.Flags().StringVar(&g.apiKey, "api-key", "", "OpenAI API key to override config (optional)")
-	g.cmd.Flags().StringVar(&g.baseURL, "base-url", "", "OpenAI base URL to override config (optional)")
 	g.cmd.Flags().StringVar(&g.model, "model", "", "Model to use, overrides config (optional)")
 	g.cmd.Flags().IntVar(&g.timeout, "timeout", 0, "Timeout in seconds for the API request (optional)")
 	return g
@@ -113,9 +109,7 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Determine effective API settings (flags override config)
-	effectiveAPIKey := nmutil.FirstNonEmptyString(g.apiKey, backend.APIKey)
 	effectiveModel := nmutil.FirstNonEmptyString(g.model, backend.Model)
-	effectiveBaseURL := nmutil.FirstNonEmptyString(g.baseURL, backend.BaseURL)
 	effectiveTimeout := time.Duration(nmutil.FirstNonZero(g.timeout, backend.Timeout)) * time.Second
 
 	if !g.json {
@@ -133,8 +127,8 @@ func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	llmBackend := g.llmBackendMaker(
-		effectiveAPIKey,
-		effectiveBaseURL,
+		backend.APIKey,
+		backend.BaseURL,
 		effectiveModel,
 	)
 

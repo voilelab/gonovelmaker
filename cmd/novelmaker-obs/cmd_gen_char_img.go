@@ -22,8 +22,6 @@ type GenCharImgCmd struct {
 	prompt     string
 	name       string
 	backend    string
-	apiKey     string
-	baseURL    string
 	imageModel string
 	timeout    int
 	outputDir  string
@@ -53,8 +51,6 @@ The image will be downloaded and saved to the Character directory.`,
 
 	// Allow overriding config values per-command
 	g.cmd.Flags().StringVar(&g.backend, "backend", "", "LLM backend to use (optional, uses default if not specified)")
-	g.cmd.Flags().StringVar(&g.apiKey, "api-key", "", "OpenAI API key to override config (optional)")
-	g.cmd.Flags().StringVar(&g.baseURL, "base-url", "", "OpenAI base URL to override config (optional)")
 	g.cmd.Flags().StringVar(&g.imageModel, "image-model", "", "Image model to use (e.g., dall-e-3, dall-e-2), overrides config (optional)")
 	g.cmd.Flags().IntVar(&g.timeout, "timeout", 60, "Timeout in seconds for the API request (optional)")
 	g.cmd.Flags().StringVar(&g.outputDir, "output-dir", "", "Output directory for the image (defaults to Character/)")
@@ -110,17 +106,9 @@ func (g *GenCharImgCmd) run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Determine effective API settings (flags override config)
-	effectiveAPIKey := backend.APIKey
-	if g.apiKey != "" {
-		effectiveAPIKey = g.apiKey
-	}
 	effectiveImageModel := backend.ImageModel
 	if g.imageModel != "" {
 		effectiveImageModel = g.imageModel
-	}
-	effectiveBaseURL := backend.BaseURL
-	if g.baseURL != "" {
-		effectiveBaseURL = g.baseURL
 	}
 	effectiveTimeout := time.Duration(g.timeout) * time.Second
 
@@ -140,8 +128,8 @@ func (g *GenCharImgCmd) run(cmd *cobra.Command, args []string) error {
 
 	// Create LLM backend for image generation
 	llmBackend := g.llmBackendMaker(
-		effectiveAPIKey,
-		effectiveBaseURL,
+		backend.APIKey,
+		backend.BaseURL,
 		effectiveImageModel,
 	)
 

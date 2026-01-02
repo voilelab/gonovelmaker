@@ -472,8 +472,6 @@ novelmaker-obs gen-next --title "章節標題" [flags]
 |------|------|------|--------|------|
 | `--prompt` | `-p` | string | - | 自訂生成提示 |
 | `--json` | `-j` | bool | false | JSON 輸出 |
-| `--api-key` | - | string | - | 覆蓋 API 金鑰 |
-| `--base-url` | - | string | - | 覆蓋 API 端點 |
 | `--model` | - | string | - | 覆蓋文字模型 |
 | `--timeout` | - | int | 0 | API 超時（秒） |
 
@@ -524,8 +522,6 @@ novelmaker-obs gen-curr --filepath "章節路徑" [flags]
 |------|------|------|--------|------|
 | `--prev-chapters` | `-c` | int | 3 | 用作上下文的前面章節數 |
 | `--json` | `-j` | bool | false | JSON 輸出 |
-| `--api-key` | - | string | - | 覆蓋 API 金鑰 |
-| `--base-url` | - | string | - | 覆蓋 API 端點 |
 | `--model` | - | string | - | 覆蓋文字模型 |
 | `--timeout` | - | int | 0 | API 超時（秒） |
 
@@ -619,8 +615,6 @@ novelmaker-obs gen-char --prompt "角色描述" [flags]
 |------|------|------|--------|------|
 | `--name` | `-n` | string | - | 指定角色名稱 |
 | `--json` | `-j` | bool | false | JSON 輸出 |
-| `--api-key` | - | string | - | 覆蓋 API 金鑰 |
-| `--base-url` | - | string | - | 覆蓋 API 端點 |
 | `--model` | - | string | - | 覆蓋文字模型 |
 | `--timeout` | - | int | 0 | API 超時（秒） |
 
@@ -669,8 +663,6 @@ novelmaker-obs gen-char-curr --filepath "角色路徑" [flags]
 | 參數 | 簡寫 | 類型 | 預設值 | 說明 |
 |------|------|------|--------|------|
 | `--json` | `-j` | bool | false | JSON 輸出 |
-| `--api-key` | - | string | - | 覆蓋 API 金鑰 |
-| `--base-url` | - | string | - | 覆蓋 API 端點 |
 | `--model` | - | string | - | 覆蓋文字模型 |
 | `--timeout` | - | int | 0 | API 超時（秒） |
 
@@ -717,8 +709,6 @@ novelmaker-obs gen-char-img --name "角色名稱" [flags]
 | `--prompt` | `-p` | string | - | 自訂圖片生成提示 |
 | `--output-dir` | - | string | Character/ | 圖片輸出目錄 |
 | `--json` | `-j` | bool | false | JSON 輸出 |
-| `--api-key` | - | string | - | 覆蓋 API 金鑰 |
-| `--base-url` | - | string | - | 覆蓋 API 端點 |
 | `--image-model` | - | string | - | 覆蓋圖片模型 |
 | `--timeout` | - | int | 60 | API 超時（秒） |
 
@@ -905,8 +895,6 @@ novelmaker-obs scan --json | jq -r '.chapters[-1].filepath'
 # 使用不同後端
 novelmaker-obs gen-next \
   --title "測試章節" \
-  --base-url "https://api.openrouter.ai/api/v1" \
-  --api-key "sk-or-xxx" \
   --model "anthropic/claude-3.5-sonnet"
 ```
 

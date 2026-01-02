@@ -93,8 +93,6 @@ novelmaker-obs [command] --help
 | 旗標 | 簡寫 | 說明 | 適用命令 |
 |------|------|------|----------|
 | `--json` | `-j` | 輸出 JSON 格式 | scan, gen-* |
-| `--api-key` | - | 覆蓋 API 金鑰 | gen-* |
-| `--base-url` | - | 覆蓋 API 端點 | gen-* |
 | `--model` | - | 覆蓋文字模型 | gen-* |
 | `--timeout` | - | 設定 API 超時 | gen-* |
 

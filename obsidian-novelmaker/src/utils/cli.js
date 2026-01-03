@@ -56,7 +56,8 @@ function openGeneratedFile(app, settings, filepath, delay = null) {
  * Build CLI command arguments array with common options
  */
 function buildCLICommand(baseCommand, options = {}) {
-	const args = [baseCommand];
+	// Split baseCommand by spaces to handle multi-word commands like "character gen"
+	const args = baseCommand.split(/\s+/);
 	
 	if (options.json) {
 		args.push('--json');

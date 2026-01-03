@@ -1,8 +1,8 @@
 class NovelmakerObs < Formula
   desc "CLI tool for managing novel projects in Obsidian vaults with OpenAI integration"
   homepage "https://github.com/voilelab/gonovelmaker"
-  url "https://github.com/voilelab/gonovelmaker/archive/refs/tags/v0.0.7.tar.gz"
-  sha256 "61083cbf31fd3435f4ee62b94704e60a22094b1b430231cfb8a4de4d183e66a3" # Run: shasum -a 256 <downloaded-file.tar.gz>
+  url "https://github.com/voilelab/gonovelmaker/archive/refs/tags/v0.0.10.tar.gz"
+  sha256 "c88bce97e8b977ac1a1689ca62305cbe35f52695120ac15e1d43d39386891e5b" # Run: shasum -a 256 <downloaded-file.tar.gz>
   license "MIT"
   head "https://github.com/voilelab/gonovelmaker.git", branch: "main"
 

@@ -1,6 +1,6 @@
 const { Modal, Notice, Setting } = require('obsidian');
 
-const { execAsync } = require('../utils/cli');
+const { execFileAsync } = require('../utils/cli');
 
 class BackendModal extends Modal {
 	constructor(app, plugin, backend = null, onSubmit) {
@@ -26,8 +26,9 @@ class BackendModal extends Modal {
 		try {
 			this.modelsLoading = true;
 			const vaultPath = this.app.vault.adapter.basePath;
-			const { stdout } = await execAsync(
-				`${this.plugin.settings.cliPath} backend list-available-models "${this.backend.name}" --json`,
+			const { stdout } = await execFileAsync(
+				this.plugin.settings.cliPath,
+				['backend', 'list-available-models', this.backend.name, '--json'],
 				{ cwd: vaultPath }
 			);
 			const result = JSON.parse(stdout);

@@ -1,7 +1,7 @@
 const { Notice, Setting, PluginSettingTab } = require('obsidian');
 const LoadingModal = require('../modals/loading');
 const BackendModal = require('../modals/backend');
-const { execAsync } = require('../utils/cli');
+const { execFileAsync } = require('../utils/cli');
 
 class NovelMakerSettingTab extends PluginSettingTab {
 	constructor(app, plugin) {
@@ -56,7 +56,7 @@ class NovelMakerSettingTab extends PluginSettingTab {
 		
 		try {
 			const vaultPath = this.app.vault.adapter.basePath;
-			const { stdout } = await execAsync(`${this.plugin.settings.cliPath} backend list --json`, { cwd: vaultPath });
+			const { stdout } = await execFileAsync(this.plugin.settings.cliPath, ['backend', 'list', '--json'], { cwd: vaultPath });
 			backendList = JSON.parse(stdout);
 			if (Array.isArray(backendList)) {
 				backends = backendList.map(b => b.name);
@@ -92,14 +92,14 @@ class NovelMakerSettingTab extends PluginSettingTab {
 
 			try {
 				const vaultPath = this.app.vault.adapter.basePath;
-				let cmd = `${this.plugin.settings.cliPath} backend add "${data.name}" --base_url "${data.base_url}" --api_key "${data.api_key}"`;
+				const args = ['backend', 'add', data.name, '--base_url', data.base_url, '--api_key', data.api_key];
 				if (data.model && data.model.trim()) {
-					cmd += ` --model "${data.model}"`;
+					args.push('--model', data.model);
 				}
 				if (data.timeout) {
-					cmd += ` --timeout ${data.timeout}`;
+					args.push('--timeout', String(data.timeout));
 				}
-				await execAsync(cmd, { cwd: vaultPath });
+				await execFileAsync(this.plugin.settings.cliPath, args, { cwd: vaultPath });
 				new Notice(`✅ Backend "${data.name}" 新增成功！`);
 				this.display();
 			} catch (error) {
@@ -154,7 +154,7 @@ class NovelMakerSettingTab extends PluginSettingTab {
 		useBtn.onclick = async () => {
 			try {
 				const vaultPath = this.app.vault.adapter.basePath;
-				await execAsync(`${this.plugin.settings.cliPath} backend use "${backend.name}"`, { cwd: vaultPath });
+				await execFileAsync(this.plugin.settings.cliPath, ['backend', 'use', backend.name], { cwd: vaultPath });
 				new Notice(`✅ 已將 "${backend.name}" 設為預設 backend`);
 				this.display();
 			} catch (error) {
@@ -171,7 +171,7 @@ class NovelMakerSettingTab extends PluginSettingTab {
 			loadingModal.open();
 			try {
 				const vaultPath = this.app.vault.adapter.basePath;
-				await execAsync(`${this.plugin.settings.cliPath} backend check "${backend.name}"`, { cwd: vaultPath });
+				await execFileAsync(this.plugin.settings.cliPath, ['backend', 'check', backend.name], { cwd: vaultPath });
 				new Notice(`✅ Backend "${backend.name}" 連線正常！`);
 			} catch (error) {
 				new Notice(`❌ Backend "${backend.name}" 連線失敗: ${error.message}`);
@@ -191,17 +191,17 @@ class NovelMakerSettingTab extends PluginSettingTab {
 
 				try {
 					const vaultPath = this.app.vault.adapter.basePath;
-					let cmd = `${this.plugin.settings.cliPath} backend add "${data.name}" --base_url "${data.base_url}"`;
+					const args = ['backend', 'add', data.name, '--base_url', data.base_url];
 					if (data.apiKeyModified && data.api_key && data.api_key.trim()) {
-						cmd += ` --api_key "${data.api_key}"`;
+						args.push('--api_key', data.api_key);
 					}
 					if (data.model && data.model.trim()) {
-						cmd += ` --model "${data.model}"`;
+						args.push('--model', data.model);
 					}
 					if (data.timeout) {
-						cmd += ` --timeout ${data.timeout}`;
+						args.push('--timeout', String(data.timeout));
 					}
-					await execAsync(cmd, { cwd: vaultPath });
+					await execFileAsync(this.plugin.settings.cliPath, args, { cwd: vaultPath });
 					new Notice(`✅ Backend "${data.name}" 更新成功！`);
 					this.display();
 				} catch (error) {
@@ -222,7 +222,7 @@ class NovelMakerSettingTab extends PluginSettingTab {
 			}
 			try {
 				const vaultPath = this.app.vault.adapter.basePath;
-				await execAsync(`${this.plugin.settings.cliPath} backend remove "${backend.name}"`, { cwd: vaultPath });
+				await execFileAsync(this.plugin.settings.cliPath, ['backend', 'remove', backend.name], { cwd: vaultPath });
 				new Notice(`✅ Backend "${backend.name}" 已刪除`);
 				this.display();
 			} catch (error) {

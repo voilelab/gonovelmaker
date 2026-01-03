@@ -1,6 +1,7 @@
 # gonovelmaker
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/voilelab/gonovelmaker)](https://goreportcard.com/report/github.com/voilelab/gonovelmaker)
+[![Go Tests](https://github.com/voilelab/gonovelmaker/actions/workflows/test.yml/badge.svg)](https://github.com/voilelab/gonovelmaker/actions/workflows/test.yml)
 
 [Documentation](https://voilelab.github.io/gonovelmaker/) | [Release Notes](https://github.com/voilelab/gonovelmaker/wiki/Release-Notes)
 

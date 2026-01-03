@@ -8,10 +8,16 @@ import (
 //go:embed dist
 var obsidianNovelmaker embed.FS
 
-func GetPluginFS() fs.FS {
-	sub, err := fs.Sub(obsidianNovelmaker, "dist")
+var subObsidianNovelmaker fs.FS
+
+func init() {
+	var err error
+	subObsidianNovelmaker, err = fs.Sub(obsidianNovelmaker, "dist")
 	if err != nil {
 		panic(err)
 	}
-	return sub
+}
+
+func GetPluginFS() fs.FS {
+	return subObsidianNovelmaker
 }

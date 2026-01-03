@@ -31,28 +31,9 @@ class ExportModal extends Modal {
 					.setButtonText('瀏覽...')
 					.onClick(async () => {
 						try {
-							// Try to get electron dialog using modern approach
-							let dialog;
-							
-							// First, try @electron/remote (modern replacement package)
-							try {
-								const remote = require('@electron/remote');
-								dialog = remote.dialog;
-							} catch (e) {
-								// Fallback: try getting dialog from electron directly
-								const electron = require('electron');
-								if (electron.dialog) {
-									dialog = electron.dialog;
-								} else if (electron.remote?.dialog) {
-									// Last resort: use deprecated remote (with warning)
-									console.warn('Using deprecated electron.remote as fallback');
-									dialog = electron.remote.dialog;
-								}
-							}
-							
-							if (!dialog) {
-								throw new Error('Dialog API not available');
-							}
+							// Use @electron/remote for dialog access
+							const remote = require('@electron/remote');
+							const dialog = remote.dialog;
 							
 							const result = await dialog.showSaveDialog({
 								title: '選擇匯出位置',
@@ -72,7 +53,7 @@ class ExportModal extends Modal {
 								}
 							}
 						} catch (error) {
-							// Fallback if dialog is not available
+							// Fallback if @electron/remote is not available
 							console.error('File dialog error:', error);
 							new Notice('⚠ 無法開啟檔案對話框，請手動輸入路徑');
 						}

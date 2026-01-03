@@ -30,7 +30,7 @@ function registerGenNextCommand(plugin) {
 				try {
 					const vaultPath = plugin.app.vault.adapter.basePath;
 					
-					const args = buildCLICommand('gen-next', {
+					const args = buildCLICommand('chapter gen-next', {
 						json: true,
 						title,
 						prompt,
@@ -69,7 +69,7 @@ function registerGenNextEmptyCommand(plugin) {
 				try {
 					const vaultPath = plugin.app.vault.adapter.basePath;
 					
-					const args = buildCLICommand('gen-next-empty', {
+					const args = buildCLICommand('chapter gen-empty', {
 						json: true,
 						title,
 						prompt,
@@ -109,7 +109,7 @@ function registerGenCurrCommand(plugin) {
 						try {
 							const vaultPath = plugin.app.vault.adapter.basePath;
 							
-							const args = buildCLICommand('gen-curr', {
+							const args = buildCLICommand('chapter regen', {
 								json: true,
 								filepath,
 								prevCount,

@@ -1,4 +1,4 @@
-package main
+package cmdchapter
 
 import (
 	"encoding/json"

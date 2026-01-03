@@ -1,4 +1,4 @@
-package main
+package cmdchapter
 
 import (
 	"encoding/json"
@@ -14,9 +14,12 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-type GenCurrCmd struct {
+const maxPrevChapters = 10
+
+type GenNextCmd struct {
 	json         bool
-	filepath     string
+	title        string
+	prompt       string
 	prevChapters int
 	backend      string
 	model        string
@@ -27,23 +30,24 @@ type GenCurrCmd struct {
 	cmd *cobra.Command
 }
 
-func NewGenCurrCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenCurrCmd {
-	g := &GenCurrCmd{
+func NewGenNextCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenNextCmd {
+	g := &GenNextCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
-		Use:   "gen-curr",
-		Short: "Regenerate an existing chapter using its chapter.prompt",
-		Long: `Regenerates an existing chapter based on the prompt stored in its frontmatter.
-The filepath should be relative to the vault root (e.g., "Story/001_ch1.md").`,
+		Use:   "gen-next",
+		Short: "Generate the next chapter using OpenAI API",
+		Long: `Generates a new chapter based on existing project configuration, worldbook, 
+and previous chapters using OpenAI API.`,
 		RunE: g.run,
 	}
 
 	g.cmd.Flags().BoolVarP(&g.json, "json", "j", false, "Output in JSON format")
 
-	g.cmd.Flags().StringVarP(&g.filepath, "filepath", "f", "", "Path to the chapter file relative to vault root (required)")
+	g.cmd.Flags().StringVarP(&g.title, "title", "t", "", "Title for the next chapter (required)")
+	g.cmd.Flags().StringVarP(&g.prompt, "prompt", "p", "", "Additional prompt/instruction for chapter generation (optional)")
 	g.cmd.Flags().IntVarP(&g.prevChapters, "prev-chapters", "c", 3, "Number of previous chapters to include as context (optional, default 3, max 10)")
-	g.cmd.MarkFlagRequired("filepath")
+	g.cmd.MarkFlagRequired("title")
 
 	// Allow overriding config values per-command
 	g.cmd.Flags().StringVar(&g.backend, "backend", "", "LLM backend to use (optional, uses default if not specified)")
@@ -52,7 +56,7 @@ The filepath should be relative to the vault root (e.g., "Story/001_ch1.md").`,
 	return g
 }
 
-func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
+func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {
@@ -89,16 +93,10 @@ func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load characters: %w", err)
 	}
 
-	// Load all chapters
+	// Load chapters
 	chapters, err := vault.LoadChapters()
 	if err != nil {
 		return fmt.Errorf("failed to load chapters: %w", err)
-	}
-
-	// Load the target chapter from the specified filepath
-	targetChapter, err := vault.LoadChapterByPath(g.filepath)
-	if err != nil {
-		return fmt.Errorf("failed to load target chapter from %s: %w", g.filepath, err)
 	}
 
 	// Get backend configuration
@@ -115,12 +113,11 @@ func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
 	effectiveTimeout := time.Duration(nmutil.FirstNonZero(g.timeout, backend.Timeout)) * time.Second
 
 	if !g.json {
-		fmt.Println("Regenerating chapter with OpenAI...")
+		fmt.Println("Generating next chapter with OpenAI...")
 		fmt.Printf("  Project: %s\n", project.Name)
 		fmt.Printf("  Model: %s\n", effectiveModel)
-		fmt.Printf("  Target: %s (Index: %d)\n", targetChapter.Title, targetChapter.Index)
-		fmt.Printf("  Prompt: %s\n", targetChapter.Prompt)
-		fmt.Printf("  Context: %d worldbook entries, %d characters, %d chapters\n", len(worldbooks), len(characters), len(chapters))
+		fmt.Printf("  Target: %s\n", g.title)
+		fmt.Printf("  Context: %d worldbook entries, %d characters, %d previous chapters\n", len(worldbooks), len(characters), len(chapters))
 	}
 
 	// Load chapter prompt template from vault
@@ -140,49 +137,57 @@ func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
 		effectiveTimeout,
 	)
 
-	// Get previous chapters (those with index < target chapter index)
-	var prevChapters []novelmaker.Chapter
-	for _, ch := range chapters {
-		if ch.Index < targetChapter.Index {
-			prevChapters = append(prevChapters, ch)
-		}
+	// Validate target title
+	if g.title == "" {
+		return fmt.Errorf("target title cannot be empty")
 	}
 
-	// Limit to the last N previous chapters
-	prevK := min(g.prevChapters, len(prevChapters), maxPrevChapters)
-	if len(prevChapters) > prevK {
-		prevChapters = prevChapters[len(prevChapters)-prevK:]
-	}
+	prevK := min(g.prevChapters, len(chapters), maxPrevChapters)
+	prevChapters := chapters[len(chapters)-prevK:]
 
-	// Call OpenAI API to regenerate content
+	// Call OpenAI API
 	content, usage, err := renderer.RenderChapter(
-		project, chapterPrompt, worldbooks, characters, prevChapters, targetChapter.Title, targetChapter.Prompt)
+		project, chapterPrompt, worldbooks, characters, prevChapters, g.title, g.prompt)
 	if err != nil {
 		return fmt.Errorf("failed to generate chapter: %w", err)
 	}
 
-	// Update the chapter with new content
-	targetChapter.Content = content
+	// Determine next index
+	nextIndex := 1
+	if len(chapters) > 0 {
+		maxIndex := 0
+		for _, ch := range chapters {
+			if ch.Index > maxIndex {
+				maxIndex = ch.Index
+			}
+		}
+		nextIndex = maxIndex + 1
+	}
 
-	// Update the chapter file
-	if err := vault.UpdateChapter(g.filepath, targetChapter); err != nil {
-		return fmt.Errorf("failed to update chapter file %s: %w", g.filepath, err)
+	ch := novelmaker.Chapter{
+		Index:   nextIndex,
+		Title:   g.title,
+		Prompt:  g.prompt,
+		Content: content,
+	}
+
+	filePath, err := vault.AddChapter(&ch)
+	if err != nil {
+		return fmt.Errorf("failed to add chapter to vault: %w", err)
 	}
 
 	if !g.json {
-		fmt.Printf("\n✓ Successfully regenerated chapter!\n")
-		fmt.Printf("  File: %s\n", g.filepath)
-		fmt.Printf("  Index: %d\n", targetChapter.Index)
-		fmt.Printf("  Title: %s\n", targetChapter.Title)
+		fmt.Printf("\n✓ Successfully generated chapter!\n")
+		fmt.Printf("  File: %s\n", filePath)
+		fmt.Printf("  Index: %d\n", nextIndex)
+		fmt.Printf("  Title: %s\n", g.title)
 		fmt.Printf("\nToken Usage:\n")
 		fmt.Printf("  Input tokens:  %d\n", usage.InputTokens)
 		fmt.Printf("  Output tokens: %d\n", usage.OutputTokens)
 		fmt.Printf("  Total tokens:  %d\n", usage.TotalTokens)
 	} else {
 		output := map[string]any{
-			"filepath":      g.filepath,
-			"index":         targetChapter.Index,
-			"title":         targetChapter.Title,
+			"filepath":      filePath,
 			"input_tokens":  usage.InputTokens,
 			"output_tokens": usage.OutputTokens,
 			"total_tokens":  usage.TotalTokens,

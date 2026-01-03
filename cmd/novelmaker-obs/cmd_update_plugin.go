@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
+	obsplugin "github.com/voilelab/gonovelmaker/obsidian-novelmaker"
 )
 
 type UpdatePluginCmd struct {
@@ -41,7 +42,7 @@ func (u *UpdatePluginCmd) run(cmd *cobra.Command, args []string) error {
 	}
 	defer vault.Close()
 
-	err = vault.UpdatePlugin(obsidianNovelmaker, "obsidian-novelmaker/dist")
+	err = vault.UpdatePlugin(obsplugin.GetPluginFS())
 	if err != nil {
 		return fmt.Errorf("failed to update Obsidian plugin files: %w", err)
 	}

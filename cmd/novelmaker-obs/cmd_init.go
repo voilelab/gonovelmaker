@@ -1,16 +1,13 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
+	obsplugin "github.com/voilelab/gonovelmaker/obsidian-novelmaker"
 )
-
-//go:embed obsidian-novelmaker/dist
-var obsidianNovelmaker embed.FS
 
 type InitCmd struct {
 	includePlugin bool
@@ -56,7 +53,7 @@ func (i *InitCmd) run(cmd *cobra.Command, args []string) error {
 	fmt.Println("✓ Successfully initialized novel project structure!")
 
 	if i.includePlugin {
-		err = vault.UpdatePlugin(obsidianNovelmaker, "obsidian-novelmaker/dist")
+		err = vault.UpdatePlugin(obsplugin.GetPluginFS())
 		if err != nil {
 			return fmt.Errorf("failed to copy Obsidian plugin files: %w", err)
 		}

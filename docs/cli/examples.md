@@ -60,15 +60,15 @@ Configured backends:
 ```bash
 # 使用 GPT-4o 生成日常對話章節
 novelmaker-obs backend use openai
-novelmaker-obs gen-next --title "第三章：日常訓練"
+novelmaker-obs chapter gen-next --title "第三章：日常訓練"
 
 # 切換到 Claude 生成需要深度思考的章節
 novelmaker-obs backend use claude
-novelmaker-obs gen-next --title "第四章：哲學辯論"
+novelmaker-obs chapter gen-next --title "第四章：哲學辯論"
 
 # 切換回 OpenAI 生成動作場景
 novelmaker-obs backend use openai
-novelmaker-obs gen-next --title "第五章：決戰時刻"
+novelmaker-obs chapter gen-next --title "第五章：決戰時刻"
 ```
 
 ---
@@ -172,13 +172,13 @@ novelmaker-obs backend add final \
 # 先用草稿模型生成
 novelmaker-obs backend use draft
 for i in {1..10}; do
-  novelmaker-obs gen-next --title "第${i}章（草稿）"
+  novelmaker-obs chapter gen-next --title "第${i}章（草稿）"
 done
 
 # 滿意後用高品質模型重新生成重要章節
 novelmaker-obs backend use final
-novelmaker-obs gen-curr --filepath "Story/001_ch1.md"
-novelmaker-obs gen-curr --filepath "Story/010_ch10.md"
+novelmaker-obs chapter regen --filepath "Story/001_ch1.md"
+novelmaker-obs chapter regen --filepath "Story/010_ch10.md"
 ```
 
 ---
@@ -231,17 +231,17 @@ tags: [world, magic-system, geography]
 
 ```bash
 # 生成主角
-novelmaker-obs gen-char \
+novelmaker-obs character gen \
   --name "艾莉絲" \
   --prompt "16歲的魔法學院新生，擁有罕見的雙元素天賦（火與風），性格活潑好奇，來自鄉村，對魔法充滿熱情"
 
 # 生成導師角色
-novelmaker-obs gen-char \
+novelmaker-obs character gen \
   --name "梅林教授" \
   --prompt "50歲的資深魔法教授，專精空間魔法，外表嚴肅但內心溫暖，曾是傳奇魔法師"
 
 # 生成好友
-novelmaker-obs gen-char \
+novelmaker-obs character gen \
   --name "托比" \
   --prompt "同班同學，擅長水系魔法，性格溫和，家族世代都是治療師"
 ```
@@ -250,17 +250,17 @@ novelmaker-obs gen-char \
 
 ```bash
 # 第一章
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "第一章：入學典禮" \
   --prompt "描寫艾莉絲第一次踏入魔法學院的場景，展現學院的宏偉和魔法的奇妙"
 
 # 第二章
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "第二章：元素測試" \
   --prompt "新生進行元素親和力測試，艾莉絲展現出雙元素天賦，引起轟動"
 
 # 第三章
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "第三章：初次課堂" \
   --prompt "梅林教授的第一堂課，艾莉絲認識托比，兩人成為朋友"
 ```
@@ -297,10 +297,10 @@ novelmaker-obs scan
 ```bash
 # 方法一：編輯 frontmatter 中的 prompt，然後重新生成
 # 編輯 Story/001_ch1.md，修改 prompt 欄位
-novelmaker-obs gen-curr --filepath "Story/001_ch1.md"
+novelmaker-obs chapter regen --filepath "Story/001_ch1.md"
 
 # 方法二：建立新版本
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "第一章：入學典禮（修訂版）" \
   --prompt "更詳細地描寫學院建築，增加神秘氣氛，減少對話比例"
 ```
@@ -309,16 +309,16 @@ novelmaker-obs gen-next \
 
 ```bash
 # 使用不同模型生成
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "第四章：秘密圖書館" \
   --model "gpt-4o" \
   --prompt "較為嚴肅的語氣，增加懸疑感"
 
 # 或使用不同後端
 # 先在 config.toml 中配置 Claude
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "第五章：禁忌魔法" \
-  --base-url "https://openrouter.ai/api/v1" \
+  --backend "claude" \
   --model "anthropic/claude-3.5-sonnet"
 ```
 
@@ -326,7 +326,7 @@ novelmaker-obs gen-next \
 
 ```bash
 # 生成後期章節時使用更多前文
-novelmaker-obs gen-curr \
+novelmaker-obs chapter regen \
   --filepath "Story/010_ch10.md" \
   --prev-chapters 8
 ```
@@ -339,16 +339,16 @@ novelmaker-obs gen-curr \
 
 ```bash
 # 基本生成
-novelmaker-obs gen-char-img --name "艾莉絲"
+novelmaker-obs character gen-img --name "艾莉絲"
 
 # 自訂風格
-novelmaker-obs gen-char-img \
+novelmaker-obs character gen-img \
   --name "艾莉絲" \
   --prompt "Anime style portrait of a 16-year-old girl with long red hair, bright green eyes, wearing a blue magic academy uniform with a phoenix emblem, confident smile, magical aura, detailed illustration"
 
 # 生成所有主要角色的圖片
 for char in "艾莉絲" "梅林教授" "托比"; do
-  novelmaker-obs gen-char-img --name "$char"
+  novelmaker-obs character gen-img --name "$char"
   sleep 10  # DALL-E 有速率限制
 done
 ```
@@ -371,7 +371,7 @@ done
 #!/bin/bash
 while IFS='|' read -r name prompt; do
   echo "生成角色：$name"
-  novelmaker-obs gen-char --name "$name" --prompt "$prompt"
+  novelmaker-obs character gen --name "$name" --prompt "$prompt"
   sleep 2
 done < characters.txt
 ```
@@ -410,7 +410,7 @@ git add .
 git commit -m "Initial project structure"
 
 # 生成新章節後
-novelmaker-obs gen-next --title "新章節"
+novelmaker-obs chapter gen-next --title "新章節"
 git add Story/
 git commit -m "Add new chapter"
 
@@ -466,7 +466,7 @@ read -p "今天要寫的章節標題：" TITLE
 read -p "章節提示（可選）：" PROMPT
 
 # 建立空白章節
-novelmaker-obs gen-next-empty \
+novelmaker-obs chapter gen-empty \
   --title "第${NEXT_NUM}章：${TITLE}" \
   --prompt "$PROMPT"
 
@@ -484,14 +484,14 @@ echo "✅ 章節已建立，開始創作吧！"
 # ai-assist.sh - 半自動創作流程
 
 # 1. 生成章節大綱
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "第六章：試煉" \
   --prompt "只生成章節大綱，包含3-5個場景"
 
 # 2. 人工審閱和編輯大綱
 
 # 3. 根據修改後的大綱生成完整內容
-novelmaker-obs gen-curr \
+novelmaker-obs chapter regen \
   --filepath "Story/006_ch6.md"
 
 # 4. 自動生成摘要
@@ -510,7 +510,7 @@ for file in Story/*.md; do
   # 檢查是否為空白章節
   if ! grep -q "^[^#]" "$file"; then
     echo "處理：$file"
-    novelmaker-obs gen-curr --filepath "${file#./}"
+    novelmaker-obs chapter regen --filepath "${file#./}"
     sleep 5  # 避免 API 速率限制
   fi
 done
@@ -641,7 +641,7 @@ open -a Obsidian .
 
 ```bash
 # 使用更詳細的提示
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "第七章" \
   --prompt "場景：魔法學院圖書館深夜。艾莉絲發現一本古老的魔法書。
   氛圍：神秘、緊張。
@@ -654,20 +654,20 @@ novelmaker-obs gen-next \
 
 ```bash
 # 嘗試不同模型
-novelmaker-obs gen-next --title "測試" --model "gpt-4o"
-novelmaker-obs gen-next --title "測試" --model "gpt-4o-mini"
+novelmaker-obs chapter gen-next --title "測試" --model "gpt-4o"
+novelmaker-obs chapter gen-next --title "測試" --model "gpt-4o-mini"
 ```
 
 ### 問題：API 超時
 
 ```bash
 # 增加超時時間
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "長章節" \
   --timeout 300
 
 # 或減少上下文
-novelmaker-obs gen-curr \
+novelmaker-obs chapter regen \
   --filepath "Story/010_ch10.md" \
   --prev-chapters 2
 ```
@@ -718,7 +718,7 @@ iconv -f ISO-8859-1 -t UTF-8 Story/001.md > Story/001_utf8.md
    ```bash
    # 先生成所有空白章節
    for i in {1..20}; do
-     novelmaker-obs gen-next-empty --title "第${i}章"
+     novelmaker-obs chapter gen-empty --title "第${i}章"
    done
    ```
 

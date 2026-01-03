@@ -450,14 +450,99 @@ Note: No default backend set. Use 'backend use <name>' to set one.
 
 ---
 
+### backend list-available-models
+
+列出後端可用的所有模型。
+
+```bash
+novelmaker-obs backend list-available-models <backend> [flags]
+```
+
+**必需參數：**
+
+| 參數 | 類型 | 說明 |
+|------|------|------|
+| `<backend>` | string | 後端名稱 |
+
+**可選參數：**
+
+| 參數 | 類型 | 預設值 | 說明 |
+|------|------|--------|------|
+| `--timeout` | int | 30 | 請求超時（秒） |
+| `--json` | bool | false | 以 JSON 格式輸出 |
+| `--no-cache` | bool | false | 跳過快取，取得最新資料 |
+| `--refresh` | bool | false | 更新快取資料 |
+
+**功能：**
+
+- 查詢後端 API 列出所有可用模型
+- 快取結果 24 小時以提升效能
+- 支援手動更新快取
+- 顯示模型總數和列表
+
+**範例：**
+
+```bash
+# 列出 OpenAI 可用模型
+novelmaker-obs backend list-available-models openai
+
+# 取得最新資料（不使用快取）
+novelmaker-obs backend list-available-models openai --no-cache
+
+# 更新快取
+novelmaker-obs backend list-available-models openai --refresh
+
+# JSON 輸出
+novelmaker-obs backend list-available-models openai --json
+```
+
+**輸出範例：**
+
+```
+Fetching available models from backend 'openai'...
+  Type:     openai
+
+Fetching models... ✅ SUCCESS
+
+Available models (15):
+  • gpt-4o
+  • gpt-4o-mini
+  • gpt-4-turbo
+  • gpt-3.5-turbo
+  • dall-e-2
+  • dall-e-3
+  ...
+```
+
+**JSON 輸出範例：**
+
+```json
+{
+  "success": true,
+  "backend": "openai",
+  "count": 15,
+  "models": [
+    "gpt-4o",
+    "gpt-4o-mini",
+    "gpt-4-turbo",
+    "gpt-3.5-turbo",
+    "dall-e-2",
+    "dall-e-3"
+  ],
+  "from_cache": false
+}
+```
+
+---
+
 ## 章節生成命令
 
-### gen-next
+### chapter gen-next
 
 生成下一個章節。
 
 ```bash
-novelmaker-obs gen-next --title "章節標題" [flags]
+novelmaker-obs chapter gen-next --title "章節標題" [flags]
 ```
 
 **必需參數：**
@@ -487,27 +572,27 @@ novelmaker-obs gen-next --title "章節標題" [flags]
 
 ```bash
 # 基本使用
-novelmaker-obs gen-next --title "第二章：冒險開始"
+novelmaker-obs chapter gen-next --title "第二章：冒險開始"
 
 # 使用自訂提示
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "第三章：決戰" \
   --prompt "描寫一場激烈的魔法對決"
 
 # 使用不同模型
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "第四章" \
   --model gpt-4o-mini
 ```
 
 ---
 
-### gen-curr
+### chapter regen
 
 重新生成現有章節。
 
 ```bash
-novelmaker-obs gen-curr --filepath "章節路徑" [flags]
+novelmaker-obs chapter regen --filepath "章節路徑" [flags]
 ```
 
 **必需參數：**
@@ -536,27 +621,27 @@ novelmaker-obs gen-curr --filepath "章節路徑" [flags]
 
 ```bash
 # 重新生成章節
-novelmaker-obs gen-curr --filepath "Story/002_ch2.md"
+novelmaker-obs chapter regen --filepath "Story/002_ch2.md"
 
 # 使用更多前文上下文
-novelmaker-obs gen-curr \
+novelmaker-obs chapter regen \
   --filepath "Story/005_ch5.md" \
   --prev-chapters 5
 
 # JSON 輸出
-novelmaker-obs gen-curr \
+novelmaker-obs chapter regen \
   --filepath "Story/003_ch3.md" \
   --json
 ```
 
 ---
 
-### gen-next-empty
+### chapter gen-empty
 
 建立空白章節範本。
 
 ```bash
-novelmaker-obs gen-next-empty --title "章節標題" [flags]
+novelmaker-obs chapter gen-empty --title "章節標題" [flags]
 ```
 
 **必需參數：**
@@ -583,10 +668,10 @@ novelmaker-obs gen-next-empty --title "章節標題" [flags]
 
 ```bash
 # 建立空白章節
-novelmaker-obs gen-next-empty --title "第六章：待續"
+novelmaker-obs chapter gen-empty --title "第六章：待續"
 
 # 附帶提示說明
-novelmaker-obs gen-next-empty \
+novelmaker-obs chapter gen-empty \
   --title "第七章：高潮" \
   --prompt "描寫最終決戰，需要融入前面所有伏筆"
 ```
@@ -595,25 +680,25 @@ novelmaker-obs gen-next-empty \
 
 ## 角色生成命令
 
-### gen-char
+### character gen
 
 生成新角色檔案。
 
 ```bash
-novelmaker-obs gen-char --prompt "角色描述" [flags]
+novelmaker-obs character gen --name "角色名稱" [flags]
 ```
 
 **必需參數：**
 
 | 參數 | 簡寫 | 類型 | 說明 |
 |------|------|------|------|
-| `--prompt` | `-p` | string | 角色描述或生成提示 |
+| `--name` | `-n` | string | 角色名稱 |
 
 **可選參數：**
 
 | 參數 | 簡寫 | 類型 | 預設值 | 說明 |
 |------|------|------|--------|------|
-| `--name` | `-n` | string | - | 指定角色名稱 |
+| `--prompt` | `-p` | string | - | 角色描述或生成提示 |
 | `--json` | `-j` | bool | false | JSON 輸出 |
 | `--model` | - | string | - | 覆蓋文字模型 |
 | `--timeout` | - | int | 0 | API 超時（秒） |
@@ -629,27 +714,29 @@ novelmaker-obs gen-char --prompt "角色描述" [flags]
 
 ```bash
 # 基本使用
-novelmaker-obs gen-char \
+novelmaker-obs character gen \
+  --name "梅林" \
   --prompt "一位神秘的魔法師，擅長時間魔法"
 
 # 指定角色名稱
-novelmaker-obs gen-char \
-  --prompt "主角的摯友，勇敢但衝動" \
-  --name "艾倫"
+novelmaker-obs character gen \
+  --name "艾倫" \
+  --prompt "主角的摯友，勇敢但衝動"
 
 # 詳細描述
-novelmaker-obs gen-char \
+novelmaker-obs character gen \
+  --name "黑暗領主" \
   --prompt "反派角色：野心勃勃的貴族，掌握黑魔法，曾經是主角的導師"
 ```
 
 ---
 
-### gen-char-curr
+### character regen
 
 重新生成現有角色。
 
 ```bash
-novelmaker-obs gen-char-curr --filepath "角色路徑" [flags]
+novelmaker-obs character regen --filepath "角色路徑" [flags]
 ```
 
 **必需參數：**
@@ -677,23 +764,23 @@ novelmaker-obs gen-char-curr --filepath "角色路徑" [flags]
 
 ```bash
 # 重新生成角色
-novelmaker-obs gen-char-curr \
+novelmaker-obs character regen \
   --filepath "Character/protagonist.md"
 
 # JSON 輸出
-novelmaker-obs gen-char-curr \
+novelmaker-obs character regen \
   --filepath "Character/villain.md" \
   --json
 ```
 
 ---
 
-### gen-char-img
+### character gen-img
 
 生成角色圖片。
 
 ```bash
-novelmaker-obs gen-char-img --name "角色名稱" [flags]
+novelmaker-obs character gen-img --name "角色名稱" [flags]
 ```
 
 **必需參數：**
@@ -724,20 +811,20 @@ novelmaker-obs gen-char-img --name "角色名稱" [flags]
 
 ```bash
 # 基本使用
-novelmaker-obs gen-char-img --name "愛麗絲"
+novelmaker-obs character gen-img --name "愛麗絲"
 
 # 自訂提示
-novelmaker-obs gen-char-img \
+novelmaker-obs character gen-img \
   --name "魔法師梅林" \
   --prompt "Portrait of a wise old wizard with long white beard, wearing blue robes with stars, holding a magical staff, fantasy art style"
 
 # 指定輸出目錄
-novelmaker-obs gen-char-img \
+novelmaker-obs character gen-img \
   --name "主角" \
   --output-dir "assets/characters/"
 
 # 增加超時時間
-novelmaker-obs gen-char-img \
+novelmaker-obs character gen-img \
   --name "反派" \
   --timeout 120
 ```
@@ -860,12 +947,12 @@ novelmaker-obs init
 
 # 生成三個角色
 for char in "主角" "配角" "反派"; do
-  novelmaker-obs gen-char --name "$char" --prompt "待設定"
+  novelmaker-obs character gen --name "$char" --prompt "待設定"
 done
 
 # 生成前五章
 for i in {1..5}; do
-  novelmaker-obs gen-next --title "第${i}章"
+  novelmaker-obs chapter gen-next --title "第${i}章"
 done
 
 # 匯出
@@ -893,8 +980,9 @@ novelmaker-obs scan --json | jq -r '.chapters[-1].filepath'
 
 ```bash
 # 使用不同後端
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "測試章節" \
+  --backend "claude" \
   --model "anthropic/claude-3.5-sonnet"
 ```
 
@@ -919,7 +1007,7 @@ novelmaker-obs init
 
 ```bash
 # 增加超時時間
-novelmaker-obs gen-next \
+novelmaker-obs chapter gen-next \
   --title "長章節" \
   --timeout 300
 ```

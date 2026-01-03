@@ -49,6 +49,7 @@ novelmaker-obs [command] --help
 |------|------|------|
 | `backend add` | 新增/編輯後端 | 設定 LLM API 後端 |
 | `backend list` | 列出後端 | 查看所有已設定的後端 |
+| `backend list-available-models` | 列出可用模型 | 查詢後端支援的所有模型 |
 | `backend check` | 檢查後端 | 測試後端連線是否正常 |
 | `backend use` | 設定預設後端 | 切換使用的後端 |
 | `backend remove` | 移除後端 | 刪除後端設定 |
@@ -59,12 +60,12 @@ novelmaker-obs [command] --help
 
 | 命令 | 功能 | 用途 |
 |------|------|------|
-| `gen-next` | 生成下一章節 | 基於現有內容生成新章節 |
-| `gen-curr` | 重新生成章節 | 重新生成現有章節 |
-| `gen-next-empty` | 建立空白章節 | 建立章節範本供手動撰寫 |
-| `gen-char` | 生成角色 | 建立新的角色檔案 |
-| `gen-char-curr` | 重新生成角色 | 更新現有角色描述 |
-| `gen-char-img` | 生成角色圖片 | 使用 DALL-E 生成角色圖像 |
+| `chapter gen-next` | 生成下一章節 | 基於現有內容生成新章節 |
+| `chapter regen` | 重新生成章節 | 重新生成現有章節 |
+| `chapter gen-empty` | 建立空白章節 | 建立章節範本供手動撰寫 |
+| `character gen` | 生成角色 | 建立新的角色檔案 |
+| `character regen` | 重新生成角色 | 更新現有角色描述 |
+| `character gen-img` | 生成角色圖片 | 使用 DALL-E 生成角色圖像 |
 
 ### 匯出與外掛
 
@@ -134,12 +135,12 @@ graph LR
 
 3. **建立世界觀和角色**
    ```bash
-   novelmaker-obs gen-char --prompt "主角設定"
+   novelmaker-obs character gen --name "主角" --prompt "主角設定"
    ```
 
 4. **生成章節**
    ```bash
-   novelmaker-obs gen-next --title "第一章"
+   novelmaker-obs chapter gen-next --title "第一章"
    ```
 
 5. **檢視專案狀態**
@@ -199,7 +200,7 @@ graph LR
 ```bash
 # 設定檔中設定 model = "gpt-4o"
 # 但命令列覆蓋為 gpt-4o-mini
-novelmaker-obs gen-next --title "測試" --model gpt-4o-mini
+novelmaker-obs chapter gen-next --title "測試" --model gpt-4o-mini
 ```
 
 ## 效能考量
@@ -214,7 +215,7 @@ novelmaker-obs gen-next --title "測試" --model gpt-4o-mini
 
 ### API 用量優化
 
-- 使用 `gen-next-empty` 建立草稿，手動編輯後再生成
+- 使用 `chapter gen-empty` 建立草稿，手動編輯後再生成
 - 調整 `--prev-chapters` 參數控制上下文大小
 - 使用較小的模型（如 gpt-4o-mini）進行測試
 

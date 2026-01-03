@@ -12,7 +12,7 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-func TestGenCharCmd_Run_Success(t *testing.T) {
+func TestGenCmd_Run_Success(t *testing.T) {
 	t.Run("generate character with dummy backend", func(t *testing.T) {
 		tmpDir := setupCompleteVault(t)
 		oldWd, _ := os.Getwd()
@@ -202,7 +202,7 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 	})
 }
 
-func TestGenCharCmd_Run_JSONOutput(t *testing.T) {
+func TestGenCmd_Run_JSONOutput(t *testing.T) {
 	t.Run("json output format", func(t *testing.T) {
 		tmpDir := setupCompleteVault(t)
 		oldWd, _ := os.Getwd()
@@ -255,7 +255,7 @@ func TestGenCharCmd_Run_JSONOutput(t *testing.T) {
 	})
 }
 
-func TestGenCharCmd_Run_ErrorCases(t *testing.T) {
+func TestGenCmd_Run_ErrorCases(t *testing.T) {
 	t.Run("error when project not found", func(t *testing.T) {
 		tmpDir := createTestVault(t)
 		oldWd, _ := os.Getwd()

@@ -11,7 +11,7 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 )
 
-func TestGenCharCurrCmd_Run_Success(t *testing.T) {
+func TestRegenCmd_Run_Success(t *testing.T) {
 	t.Run("regenerate character with dummy backend", func(t *testing.T) {
 		tmpDir := setupCompleteVault(t)
 		oldWd, _ := os.Getwd()
@@ -95,7 +95,7 @@ func TestGenCharCurrCmd_Run_Success(t *testing.T) {
 	})
 }
 
-func TestGenCharCurrCmd_Run_JSONOutput(t *testing.T) {
+func TestRegenCmd_Run_JSONOutput(t *testing.T) {
 	t.Run("json output format", func(t *testing.T) {
 		tmpDir := setupCompleteVault(t)
 		oldWd, _ := os.Getwd()
@@ -170,7 +170,7 @@ func TestGenCharCurrCmd_Run_JSONOutput(t *testing.T) {
 	})
 }
 
-func TestGenCharCurrCmd_Run_ErrorCases(t *testing.T) {
+func TestRegenCmd_Run_ErrorCases(t *testing.T) {
 	t.Run("error when character file not found", func(t *testing.T) {
 		tmpDir := setupCompleteVault(t)
 		oldWd, _ := os.Getwd()

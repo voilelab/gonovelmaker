@@ -7,12 +7,12 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/config"
 )
 
-type BackendRemoveCmd struct {
+type removeCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendRemoveCmd() *BackendRemoveCmd {
-	removeCmd := &BackendRemoveCmd{}
+func NewBackendRemoveCmd() *removeCmd {
+	removeCmd := &removeCmd{}
 	removeCmd.cmd = &cobra.Command{
 		Use:   "remove <name>",
 		Short: "Remove an LLM backend configuration",
@@ -24,7 +24,7 @@ func NewBackendRemoveCmd() *BackendRemoveCmd {
 	return removeCmd
 }
 
-func (b *BackendRemoveCmd) run(cmd *cobra.Command, args []string) error {
+func (b *removeCmd) run(cmd *cobra.Command, args []string) error {
 	name := args[0]
 
 	// Load current config

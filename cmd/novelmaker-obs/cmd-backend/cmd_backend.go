@@ -6,12 +6,12 @@ import (
 )
 
 type BackendCmd struct {
-	backendAddCmd                 *BackendAddCmd
-	backendRemoveCmd              *BackendRemoveCmd
-	backendListCmd                *BackendListCmd
-	backendUseCmd                 *BackendUseCmd
-	backendCheckCmd               *BackendCheckCmd
-	backendListAvailableModelsCmd *BackendListAvailableModelsCmd
+	addCmd                 *addCmd
+	removeCmd              *removeCmd
+	listCmd                *listCmd
+	useCmd                 *useCmd
+	checkCmd               *checkCmd
+	listAvailableModelsCmd *listAvailableModelsCmd
 
 	cmd *cobra.Command
 }
@@ -24,19 +24,19 @@ func NewBackendCmd(llmbackendMaker llmbackend.LLMBackendMaker) *BackendCmd {
 		Long:  `Commands to add, remove, list, and configure LLM backends.`,
 	}
 
-	backendCmd.backendAddCmd = NewBackendAddCmd()
-	backendCmd.backendRemoveCmd = NewBackendRemoveCmd()
-	backendCmd.backendListCmd = NewBackendListCmd()
-	backendCmd.backendUseCmd = NewBackendUseCmd()
-	backendCmd.backendCheckCmd = NewBackendCheckCmd(llmbackendMaker)
-	backendCmd.backendListAvailableModelsCmd = NewBackendListAvailableModelsCmd(llmbackendMaker)
+	backendCmd.addCmd = NewBackendAddCmd()
+	backendCmd.removeCmd = NewBackendRemoveCmd()
+	backendCmd.listCmd = NewBackendListCmd()
+	backendCmd.useCmd = NewBackendUseCmd()
+	backendCmd.checkCmd = NewBackendCheckCmd(llmbackendMaker)
+	backendCmd.listAvailableModelsCmd = NewBackendListAvailableModelsCmd(llmbackendMaker)
 
-	backendCmd.cmd.AddCommand(backendCmd.backendAddCmd.cmd)
-	backendCmd.cmd.AddCommand(backendCmd.backendRemoveCmd.cmd)
-	backendCmd.cmd.AddCommand(backendCmd.backendListCmd.cmd)
-	backendCmd.cmd.AddCommand(backendCmd.backendUseCmd.cmd)
-	backendCmd.cmd.AddCommand(backendCmd.backendCheckCmd.cmd)
-	backendCmd.cmd.AddCommand(backendCmd.backendListAvailableModelsCmd.cmd)
+	backendCmd.cmd.AddCommand(backendCmd.addCmd.cmd)
+	backendCmd.cmd.AddCommand(backendCmd.removeCmd.cmd)
+	backendCmd.cmd.AddCommand(backendCmd.listCmd.cmd)
+	backendCmd.cmd.AddCommand(backendCmd.useCmd.cmd)
+	backendCmd.cmd.AddCommand(backendCmd.checkCmd.cmd)
+	backendCmd.cmd.AddCommand(backendCmd.listAvailableModelsCmd.cmd)
 
 	return backendCmd
 }

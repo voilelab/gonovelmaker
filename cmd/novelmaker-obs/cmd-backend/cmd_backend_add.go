@@ -7,7 +7,7 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/config"
 )
 
-type BackendAddCmd struct {
+type addCmd struct {
 	backendType string
 	apiKey      string
 	baseURL     string
@@ -18,8 +18,8 @@ type BackendAddCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendAddCmd() *BackendAddCmd {
-	addCmd := &BackendAddCmd{}
+func NewBackendAddCmd() *addCmd {
+	addCmd := &addCmd{}
 	addCmd.cmd = &cobra.Command{
 		Use:   "add <name>",
 		Short: "Add or edit an LLM backend configuration",
@@ -38,7 +38,7 @@ func NewBackendAddCmd() *BackendAddCmd {
 	return addCmd
 }
 
-func (b *BackendAddCmd) run(cmd *cobra.Command, args []string) error {
+func (b *addCmd) run(cmd *cobra.Command, args []string) error {
 	name := args[0]
 
 	// Load current config

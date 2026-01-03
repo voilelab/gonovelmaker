@@ -23,14 +23,18 @@ class ExportModal extends Modal {
 						this.outputPath = value;
 					});
 				text.inputEl.style.width = '100%';
+				// Store reference to update later
+				this.pathTextComponent = text;
 			})
 			.addButton((btn) =>
 				btn
 					.setButtonText('瀏覽...')
 					.onClick(async () => {
 						try {
-							// Use Electron's dialog
-							const { dialog } = require('electron').remote;
+							// Use @electron/remote for dialog access
+							const remote = require('@electron/remote');
+							const dialog = remote.dialog;
+							
 							const result = await dialog.showSaveDialog({
 								title: '選擇匯出位置',
 								defaultPath: 'novel.txt',
@@ -43,14 +47,13 @@ class ExportModal extends Modal {
 
 							if (!result.canceled && result.filePath) {
 								this.outputPath = result.filePath;
-								// Update the text input with selected path
-								const textInput = pathSetting.controlEl.querySelector('input[type="text"]');
-								if (textInput) {
-									textInput.value = this.outputPath;
+								// Update the text input using the component reference
+								if (this.pathTextComponent) {
+									this.pathTextComponent.setValue(result.filePath);
 								}
 							}
 						} catch (error) {
-							// Fallback if electron.remote is not available
+							// Fallback if @electron/remote is not available
 							console.error('File dialog error:', error);
 							new Notice('⚠ 無法開啟檔案對話框，請手動輸入路徑');
 						}

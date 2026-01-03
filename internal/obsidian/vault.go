@@ -79,7 +79,13 @@ func (v *Vault) Close() error {
 	return v.root.Close()
 }
 
-func (v *Vault) UpdatePlugin(pluginFS embed.FS, pluginName string) error {
+func (v *Vault) UpdatePlugin(pluginFS embed.FS, pluginSrcPath string) error {
+	// Extract plugin name from path (e.g., "obsidian-novelmaker/dist" -> "obsidian-novelmaker")
+	pluginName := filepath.Dir(pluginSrcPath)
+	if pluginName == "." {
+		pluginName = pluginSrcPath
+	}
+
 	err := v.root.MkdirAll(filepath.Join(".obsidian", "plugins", pluginName), 0755)
 	if err != nil {
 		return fmt.Errorf("failed to create plugins directory: %w", err)
@@ -90,7 +96,7 @@ func (v *Vault) UpdatePlugin(pluginFS embed.FS, pluginName string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open plugin directory %s: %w", pluginPath, err)
 	}
-	return nmutil.CopyFS(pluginFS, pluginName, dstRoot)
+	return nmutil.CopyFS(pluginFS, pluginSrcPath, dstRoot)
 }
 
 func (v *Vault) Initialize() error {

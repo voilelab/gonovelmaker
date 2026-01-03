@@ -41,7 +41,7 @@ func (u *UpdatePluginCmd) run(cmd *cobra.Command, args []string) error {
 	}
 	defer vault.Close()
 
-	err = vault.UpdatePlugin(obsidianNovelmaker, "obsidian-novelmaker")
+	err = vault.UpdatePlugin(obsidianNovelmaker, "obsidian-novelmaker/dist")
 	if err != nil {
 		return fmt.Errorf("failed to update Obsidian plugin files: %w", err)
 	}

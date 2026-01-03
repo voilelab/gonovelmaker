@@ -35,7 +35,7 @@ type listAvailableModelsCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendListAvailableModelsCmd(llmbackendMaker llmbackend.LLMBackendMaker) *listAvailableModelsCmd {
+func newListAvailableModelsCmd(llmbackendMaker llmbackend.LLMBackendMaker) *listAvailableModelsCmd {
 	listModelsCmd := &listAvailableModelsCmd{
 		llmbackendMaker: llmbackendMaker,
 	}

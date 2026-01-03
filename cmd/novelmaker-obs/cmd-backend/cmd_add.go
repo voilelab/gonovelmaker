@@ -18,7 +18,7 @@ type addCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendAddCmd() *addCmd {
+func newAddCmd() *addCmd {
 	addCmd := &addCmd{}
 	addCmd.cmd = &cobra.Command{
 		Use:   "add <name>",

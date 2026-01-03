@@ -6,9 +6,9 @@ import (
 )
 
 type ChapterCmd struct {
-	genNextCmd  *GenNextCmd
-	genEmptyCmd *GenEmptyCmd
-	regenCmd    *RegenCmd
+	genNextCmd  *genNextCmd
+	genEmptyCmd *genEmptyCmd
+	regenCmd    *regenCmd
 
 	cmd *cobra.Command
 }
@@ -23,9 +23,9 @@ func NewChapterCmd(llmBackendMaker llmbackend.LLMBackendMaker) *ChapterCmd {
 	}
 
 	// Create subcommands
-	c.genNextCmd = NewGenNextCmd(llmBackendMaker)
-	c.genEmptyCmd = NewGenEmptyCmd()
-	c.regenCmd = NewRegenCmd(llmBackendMaker)
+	c.genNextCmd = newGenNextCmd(llmBackendMaker)
+	c.genEmptyCmd = newGenEmptyCmd()
+	c.regenCmd = newRegenCmd(llmBackendMaker)
 
 	c.cmd.AddCommand(c.genNextCmd.cmd)
 	c.cmd.AddCommand(c.genEmptyCmd.cmd)

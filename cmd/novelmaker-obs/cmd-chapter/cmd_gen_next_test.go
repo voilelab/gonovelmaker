@@ -20,7 +20,7 @@ func TestGenNextCmd_Run_Success(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter Three - The Great Adventure"
 		genNextCmd.prompt = "Write about Alice meeting a dragon."
 		genNextCmd.prevChapters = 2
@@ -129,7 +129,7 @@ Create a detailed character profile.`
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Prologue"
 		genNextCmd.prompt = "Write a prologue."
 		genNextCmd.prevChapters = 3
@@ -170,7 +170,7 @@ Create a detailed character profile.`
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter Three"
 		genNextCmd.prompt = "This is a custom prompt with specific instructions."
 		genNextCmd.prevChapters = 1
@@ -216,7 +216,7 @@ Create a detailed character profile.`
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter Three"
 		genNextCmd.prompt = "" // Empty prompt
 		genNextCmd.prevChapters = 2
@@ -251,7 +251,7 @@ func TestGenNextCmd_Run_JSONOutput(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter Three"
 		genNextCmd.prompt = "Test prompt"
 		genNextCmd.prevChapters = 2
@@ -305,7 +305,7 @@ func TestGenNextCmd_Run_ErrorCases(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter One"
 
 		err := genNextCmd.run(genNextCmd.cmd, []string{})
@@ -326,7 +326,7 @@ func TestGenNextCmd_Run_ErrorCases(t *testing.T) {
 		// Change to a directory that doesn't have a config
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter One"
 
 		err := genNextCmd.run(genNextCmd.cmd, []string{})
@@ -341,7 +341,7 @@ func TestGenNextCmd_Run_ErrorCases(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "" // Empty title
 
 		err := genNextCmd.run(genNextCmd.cmd, []string{})

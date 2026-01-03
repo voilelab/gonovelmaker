@@ -14,7 +14,7 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-type RegenCmd struct {
+type regenCmd struct {
 	json         bool
 	filepath     string
 	prevChapters int
@@ -27,8 +27,8 @@ type RegenCmd struct {
 	cmd *cobra.Command
 }
 
-func NewRegenCmd(llmBackendMaker llmbackend.LLMBackendMaker) *RegenCmd {
-	g := &RegenCmd{
+func newRegenCmd(llmBackendMaker llmbackend.LLMBackendMaker) *regenCmd {
+	g := &regenCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
@@ -52,7 +52,7 @@ The filepath should be relative to the vault root (e.g., "Story/001_ch1.md").`,
 	return g
 }
 
-func (g *RegenCmd) run(cmd *cobra.Command, args []string) error {
+func (g *regenCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {

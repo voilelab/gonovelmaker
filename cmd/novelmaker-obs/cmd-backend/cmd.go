@@ -24,12 +24,12 @@ func NewBackendCmd(llmbackendMaker llmbackend.LLMBackendMaker) *BackendCmd {
 		Long:  `Commands to add, remove, list, and configure LLM backends.`,
 	}
 
-	backendCmd.addCmd = NewBackendAddCmd()
-	backendCmd.removeCmd = NewBackendRemoveCmd()
-	backendCmd.listCmd = NewBackendListCmd()
-	backendCmd.useCmd = NewBackendUseCmd()
-	backendCmd.checkCmd = NewBackendCheckCmd(llmbackendMaker)
-	backendCmd.listAvailableModelsCmd = NewBackendListAvailableModelsCmd(llmbackendMaker)
+	backendCmd.addCmd = newAddCmd()
+	backendCmd.removeCmd = newRemoveCmd()
+	backendCmd.listCmd = newListCmd()
+	backendCmd.useCmd = newUseCmd()
+	backendCmd.checkCmd = newCheckCmd(llmbackendMaker)
+	backendCmd.listAvailableModelsCmd = newListAvailableModelsCmd(llmbackendMaker)
 
 	backendCmd.cmd.AddCommand(backendCmd.addCmd.cmd)
 	backendCmd.cmd.AddCommand(backendCmd.removeCmd.cmd)

@@ -10,7 +10,7 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-type GenEmptyCmd struct {
+type genEmptyCmd struct {
 	json   bool
 	title  string
 	prompt string
@@ -18,8 +18,8 @@ type GenEmptyCmd struct {
 	cmd *cobra.Command
 }
 
-func NewGenEmptyCmd() *GenEmptyCmd {
-	g := &GenEmptyCmd{}
+func newGenEmptyCmd() *genEmptyCmd {
+	g := &genEmptyCmd{}
 	g.cmd = &cobra.Command{
 		Use:   "gen-empty",
 		Short: "Generate an empty next chapter without AI content",
@@ -36,7 +36,7 @@ This is useful for manually writing chapters or creating placeholders.`,
 	return g
 }
 
-func (g *GenEmptyCmd) run(cmd *cobra.Command, args []string) error {
+func (g *genEmptyCmd) run(cmd *cobra.Command, args []string) error {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("failed to get current directory: %w", err)

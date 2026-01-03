@@ -6,9 +6,9 @@ import (
 )
 
 type CharacterCmd struct {
-	genCmd    *GenCmd
-	regenCmd  *RegenCmd
-	genImgCmd *GenImgCmd
+	genCmd    *genCmd
+	regenCmd  *regenCmd
+	genImgCmd *genImgCmd
 
 	cmd *cobra.Command
 }
@@ -23,9 +23,9 @@ func NewCharacterCmd(llmBackendMaker llmbackend.LLMBackendMaker) *CharacterCmd {
 	}
 
 	// Create subcommands
-	c.genCmd = NewGenCmd(llmBackendMaker)
-	c.regenCmd = NewRegenCmd(llmBackendMaker)
-	c.genImgCmd = NewGenImgCmd(llmBackendMaker)
+	c.genCmd = newGenCmd(llmBackendMaker)
+	c.regenCmd = newRegenCmd(llmBackendMaker)
+	c.genImgCmd = newGenImgCmd(llmBackendMaker)
 
 	c.cmd.AddCommand(c.genCmd.cmd)
 	c.cmd.AddCommand(c.regenCmd.cmd)

@@ -52,7 +52,7 @@ func TestRegenCmd_Run_Success(t *testing.T) {
 		vault.Close()
 
 		// Run gen-char-curr command
-		genCharCurrCmd := NewRegenCmd(llmbackend.MakeDummy)
+		genCharCurrCmd := newRegenCmd(llmbackend.MakeDummy)
 		genCharCurrCmd.filepath = aliceFilePath
 
 		err = genCharCurrCmd.run(genCharCurrCmd.cmd, []string{})
@@ -121,7 +121,7 @@ func TestRegenCmd_Run_JSONOutput(t *testing.T) {
 		// Use the first character
 		testFilePath := "Character/alice.md" // Assuming alice exists
 
-		genCharCurrCmd := NewRegenCmd(llmbackend.MakeDummy)
+		genCharCurrCmd := newRegenCmd(llmbackend.MakeDummy)
 		genCharCurrCmd.filepath = testFilePath
 		genCharCurrCmd.json = true
 
@@ -177,7 +177,7 @@ func TestRegenCmd_Run_ErrorCases(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCurrCmd := NewRegenCmd(llmbackend.MakeDummy)
+		genCharCurrCmd := newRegenCmd(llmbackend.MakeDummy)
 		genCharCurrCmd.filepath = "Character/nonexistent.md"
 
 		err := genCharCurrCmd.run(genCharCurrCmd.cmd, []string{})
@@ -196,7 +196,7 @@ func TestRegenCmd_Run_ErrorCases(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCurrCmd := NewRegenCmd(llmbackend.MakeDummy)
+		genCharCurrCmd := newRegenCmd(llmbackend.MakeDummy)
 		genCharCurrCmd.filepath = "Character/test.md"
 
 		err := genCharCurrCmd.run(genCharCurrCmd.cmd, []string{})
@@ -206,7 +206,7 @@ func TestRegenCmd_Run_ErrorCases(t *testing.T) {
 	})
 
 	t.Run("requires filepath flag", func(t *testing.T) {
-		cmd := NewRegenCmd(llmbackend.MakeDummy)
+		cmd := newRegenCmd(llmbackend.MakeDummy)
 		cmd.cmd.SetArgs([]string{})
 		err := cmd.cmd.Execute()
 		if err == nil {
@@ -215,7 +215,7 @@ func TestRegenCmd_Run_ErrorCases(t *testing.T) {
 	})
 
 	t.Run("accepts valid filepath", func(t *testing.T) {
-		cmd := NewRegenCmd(llmbackend.MakeDummy)
+		cmd := newRegenCmd(llmbackend.MakeDummy)
 		if err := cmd.cmd.ParseFlags([]string{"--filepath", "Character/alice.md"}); err != nil {
 			t.Fatalf("failed to parse valid flags: %v", err)
 		}

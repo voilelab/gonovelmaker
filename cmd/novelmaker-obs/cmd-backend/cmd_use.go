@@ -11,7 +11,7 @@ type useCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendUseCmd() *useCmd {
+func newUseCmd() *useCmd {
 	useCmd := &useCmd{}
 	useCmd.cmd = &cobra.Command{
 		Use:   "use <name>",

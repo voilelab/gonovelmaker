@@ -14,7 +14,7 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-type GenCmd struct {
+type genCmd struct {
 	json    bool
 	prompt  string
 	name    string
@@ -27,8 +27,8 @@ type GenCmd struct {
 	cmd *cobra.Command
 }
 
-func NewGenCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenCmd {
-	g := &GenCmd{
+func newGenCmd(llmBackendMaker llmbackend.LLMBackendMaker) *genCmd {
+	g := &genCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
@@ -52,7 +52,7 @@ using OpenAI API.`,
 	return g
 }
 
-func (g *GenCmd) run(cmd *cobra.Command, args []string) error {
+func (g *genCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {

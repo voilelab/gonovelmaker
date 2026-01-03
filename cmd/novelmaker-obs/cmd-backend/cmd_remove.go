@@ -11,7 +11,7 @@ type removeCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendRemoveCmd() *removeCmd {
+func newRemoveCmd() *removeCmd {
 	removeCmd := &removeCmd{}
 	removeCmd.cmd = &cobra.Command{
 		Use:   "remove <name>",

@@ -17,7 +17,7 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 )
 
-type GenImgCmd struct {
+type genImgCmd struct {
 	json       bool
 	prompt     string
 	name       string
@@ -31,8 +31,8 @@ type GenImgCmd struct {
 	cmd *cobra.Command
 }
 
-func NewGenImgCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenImgCmd {
-	g := &GenImgCmd{
+func newGenImgCmd(llmBackendMaker llmbackend.LLMBackendMaker) *genImgCmd {
+	g := &genImgCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
@@ -58,7 +58,7 @@ The image will be downloaded and saved to the Character directory.`,
 	return g
 }
 
-func (g *GenImgCmd) run(cmd *cobra.Command, args []string) error {
+func (g *genImgCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {

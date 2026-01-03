@@ -15,7 +15,7 @@ type listCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendListCmd() *listCmd {
+func newListCmd() *listCmd {
 	listCmd := &listCmd{}
 	listCmd.cmd = &cobra.Command{
 		Use:   "list",

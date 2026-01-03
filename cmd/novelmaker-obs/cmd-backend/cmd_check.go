@@ -20,7 +20,7 @@ type checkCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendCheckCmd(llmbackendMaker llmbackend.LLMBackendMaker) *checkCmd {
+func newCheckCmd(llmbackendMaker llmbackend.LLMBackendMaker) *checkCmd {
 	checkCmd := &checkCmd{
 		llmbackendMaker: llmbackendMaker,
 	}

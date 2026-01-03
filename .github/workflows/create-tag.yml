@@ -1,0 +1,177 @@
+name: Create Version Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0, v1.2.3)'
+        required: true
+        type: string
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Error: Version must be in format v1.2.3"
+            exit 1
+          fi
+          echo "✅ Version format is valid: $VERSION"
+
+      - name: Check if tag exists
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "❌ Error: Tag $VERSION already exists"
+            exit 1
+          fi
+          echo "✅ Tag $VERSION does not exist yet"
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and push tag
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          COMMIT_SHA=$(git rev-parse HEAD)
+          
+          echo "📝 Creating tag $VERSION on commit $COMMIT_SHA"
+          git tag -a "$VERSION" -m "Release $VERSION"
+          
+          echo "🚀 Pushing tag to remote"
+          git push origin "$VERSION"
+          
+          echo "✅ Successfully created and pushed tag $VERSION"
+          echo "🔗 Commit: $COMMIT_SHA"
+
+      - name: Calculate tarball SHA256
+        id: tarball
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          TARBALL_URL="https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
+          
+          echo "📦 Downloading tarball from: $TARBALL_URL"
+          
+          # Retry logic: GitHub needs time to generate tarball after tag push
+          MAX_ATTEMPTS=12
+          ATTEMPT=0
+          SUCCESS=false
+          
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "⏳ Attempt $ATTEMPT/$MAX_ATTEMPTS..."
+            
+            if curl -sSL "$TARBALL_URL" -o "/tmp/release.tar.gz" 2>/dev/null; then
+              # Verify it's a valid tarball (not a GitHub error page)
+              if file /tmp/release.tar.gz | grep -q "gzip compressed"; then
+                echo "✅ Tarball downloaded successfully"
+                SUCCESS=true
+                break
+              else
+                echo "⚠️  Downloaded file is not a valid tarball, retrying..."
+              fi
+            else
+              echo "⚠️  Download failed, retrying..."
+            fi
+            
+            if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+              sleep 5
+            fi
+          done
+          
+          if [ "$SUCCESS" = false ]; then
+            echo "❌ Failed to download tarball after $MAX_ATTEMPTS attempts"
+            exit 1
+          fi
+          
+          echo "🔐 Calculating SHA256..."
+          SHA256=$(shasum -a 256 /tmp/release.tar.gz | awk '{print $1}')
+          
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+          echo "tarball_url=$TARBALL_URL" >> $GITHUB_OUTPUT
+          
+          echo "✅ SHA256: $SHA256"
+          
+          rm /tmp/release.tar.gz
+
+      - name: Update Homebrew Formula
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          SHA256="${{ steps.tarball.outputs.sha256 }}"
+          TARBALL_URL="${{ steps.tarball.outputs.tarball_url }}"
+          
+          echo "📝 Updating Formula/novelmaker-obs.rb"
+          
+          sed -i.bak "s|url \".*\"|url \"$TARBALL_URL\"|" Formula/novelmaker-obs.rb
+          sed -i.bak "s|sha256 \".*\"|sha256 \"$SHA256\"|" Formula/novelmaker-obs.rb
+          
+          rm Formula/novelmaker-obs.rb.bak
+          
+          echo "✅ Formula updated"
+
+      - name: Create Formula Update PR
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update Homebrew formula to ${{ github.event.inputs.version }}'
+          branch: update-formula-${{ github.event.inputs.version }}
+          delete-branch: true
+          title: '🍺 Update Homebrew Formula to ${{ github.event.inputs.version }}'
+          body: |
+            ## 更新 Homebrew Formula
+            
+            此 PR 更新 Homebrew formula 到版本 **${{ github.event.inputs.version }}**
+            
+            ### 變更內容
+            - 版本: `${{ github.event.inputs.version }}`
+            - SHA256: `${{ steps.tarball.outputs.sha256 }}`
+            - Tarball URL: ${{ steps.tarball.outputs.tarball_url }}
+            
+            ### 驗證
+            Tag 已成功推送到 main branch，tarball 已由 GitHub 自動生成。
+            
+            **請在合併前測試 formula 安裝是否正常。**
+            
+            ---
+            _此 PR 由 [create-tag.yml](${{ github.server_url }}/${{ github.repository }}/blob/main/.github/workflows/create-tag.yml) 自動創建_
+          labels: |
+            automated
+            homebrew
+          assignees: ${{ github.actor }}
+          reviewers: ${{ github.actor }}
+
+      - name: Create release summary
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          COMMIT_SHA=$(git rev-parse HEAD)
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          
+          echo "## 🏷️ Tag Created Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: \`$VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: \`$COMMIT_SHA\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: \`main\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Release Tarball" >> $GITHUB_STEP_SUMMARY
+          echo "- **SHA256**: \`${{ steps.tarball.outputs.sha256 }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: ${{ steps.tarball.outputs.tarball_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Latest Commit Message" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "$COMMIT_MSG" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

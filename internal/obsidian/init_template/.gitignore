@@ -1,0 +1,8 @@
+# Exclude workspace layout (prevents constant merge conflicts)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Exclude internal cache/indexing
+.obsidian/graph.json
+.obsidian/appearance.json
+.obsidian/cache/

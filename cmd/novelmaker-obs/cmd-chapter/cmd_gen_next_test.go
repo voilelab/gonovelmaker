@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/voilelab/gonovelmaker/cmd/novelmaker-obs/testutil"
 	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 	"github.com/voilelab/gonovelmaker/novelmaker"
@@ -15,7 +16,7 @@ import (
 
 func TestGenNextCmd_Run_Success(t *testing.T) {
 	t.Run("generate next chapter with dummy backend", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -72,7 +73,7 @@ func TestGenNextCmd_Run_Success(t *testing.T) {
 	})
 
 	t.Run("generate first chapter in empty vault", func(t *testing.T) {
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 
 		// Create a .novelmaker config directory and config.toml file
 		configDir := filepath.Join(tmpDir, ".novelmaker")
@@ -103,7 +104,7 @@ name: New Project
 system_prompt: You are a writer.
 ---
 A new world.`
-		writeTestFile(t, tmpDir, "Config/project.md", projectContent)
+		testutil.WriteTestFile(t, tmpDir, "Config/project.md", projectContent)
 
 		// Create chapter prompt template
 		chapterPromptContent := `---
@@ -111,14 +112,14 @@ system: |
     You are a professional novel writing assistant.
 ---
 `
-		writeTestFile(t, tmpDir, "Config/chapter_prompt.md", chapterPromptContent)
+		testutil.WriteTestFile(t, tmpDir, "Config/chapter_prompt.md", chapterPromptContent)
 
 		// Create character prompt template
 		characterPromptContent := `---
 system: You are a character development AI assistant.
 ---
 Create a detailed character profile.`
-		writeTestFile(t, tmpDir, "Config/character_prompt.md", characterPromptContent)
+		testutil.WriteTestFile(t, tmpDir, "Config/character_prompt.md", characterPromptContent)
 
 		// Create empty directories
 		os.MkdirAll(filepath.Join(tmpDir, "World"), 0755)
@@ -165,7 +166,7 @@ Create a detailed character profile.`
 	})
 
 	t.Run("generate with custom prompt", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -211,7 +212,7 @@ Create a detailed character profile.`
 	})
 
 	t.Run("generate without prompt", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -246,7 +247,7 @@ Create a detailed character profile.`
 
 func TestGenNextCmd_Run_JSONOutput(t *testing.T) {
 	t.Run("json output format", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -300,7 +301,7 @@ func TestGenNextCmd_Run_JSONOutput(t *testing.T) {
 
 func TestGenNextCmd_Run_ErrorCases(t *testing.T) {
 	t.Run("error when project not found", func(t *testing.T) {
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -319,7 +320,7 @@ func TestGenNextCmd_Run_ErrorCases(t *testing.T) {
 	})
 
 	t.Run("error when config cannot be loaded", func(t *testing.T) {
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 
@@ -336,7 +337,7 @@ func TestGenNextCmd_Run_ErrorCases(t *testing.T) {
 	})
 
 	t.Run("error with empty title", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)

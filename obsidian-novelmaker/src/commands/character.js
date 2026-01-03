@@ -37,7 +37,7 @@ function registerGenCharCommand(plugin) {
 						backend: plugin.settings.backend,
 					});
 					
-					const { stdout, stderr } = await executeCLI(plugin, cmd, vaultPath);
+					const { stdout } = await executeCLI(plugin, cmd, vaultPath);
 					const output = parseJSONOutput(stdout);
 
 					openGeneratedFile(plugin.app, plugin.settings, output.filepath);
@@ -77,7 +77,7 @@ function registerGenCharCurrCommand(plugin) {
 								backend: plugin.settings.backend,
 							});
 							
-							const { stdout, stderr } = await executeCLI(plugin, cmd, vaultPath);
+							const { stdout } = await executeCLI(plugin, cmd, vaultPath);
 							
 							try {
 								const output = parseJSONOutput(stdout);
@@ -125,7 +125,7 @@ function registerGenCharImgCommand(plugin) {
 								backend: plugin.settings.backend,
 							});
 							
-							const { stdout, stderr } = await executeCLI(plugin, cmd, vaultPath);
+							const { stdout } = await executeCLI(plugin, cmd, vaultPath);
 							const output = parseJSONOutput(stdout);
 
 							if (output && output.filepath) {

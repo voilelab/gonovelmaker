@@ -1,4 +1,4 @@
-const { Modal, Notice, Setting } = require('obsidian');
+const { Modal, Setting } = require('obsidian');
 
 class GenCurrModal extends Modal {
 	constructor(app, activeFile, onSubmit) {

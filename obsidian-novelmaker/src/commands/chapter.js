@@ -38,7 +38,7 @@ function registerGenNextCommand(plugin) {
 						backend: plugin.settings.backend,
 					});
 					
-					const { stdout, stderr } = await executeCLI(plugin, cmd, vaultPath);
+					const { stdout } = await executeCLI(plugin, cmd, vaultPath);
 					const output = parseJSONOutput(stdout);
 
 					openGeneratedFile(plugin.app, plugin.settings, output.filepath);
@@ -75,7 +75,7 @@ function registerGenNextEmptyCommand(plugin) {
 						prompt,
 					});
 					
-					const { stdout, stderr } = await executeCLI(plugin, cmd, vaultPath);
+					const { stdout } = await executeCLI(plugin, cmd, vaultPath);
 					const output = parseJSONOutput(stdout);
 
 					openGeneratedFile(plugin.app, plugin.settings, output.filepath);
@@ -117,7 +117,7 @@ function registerGenCurrCommand(plugin) {
 								timeout: plugin.settings.timeout,
 							});
 							
-							const { stdout, stderr } = await executeCLI(plugin, cmd, vaultPath);
+							const { stdout } = await executeCLI(plugin, cmd, vaultPath);
 							
 							try {
 								const output = parseJSONOutput(stdout);

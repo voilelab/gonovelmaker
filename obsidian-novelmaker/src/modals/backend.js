@@ -1,8 +1,6 @@
 const { Modal, Notice, Setting } = require('obsidian');
-const { exec } = require('child_process');
-const { promisify } = require('util');
 
-const execAsync = promisify(exec);
+const { execAsync } = require('../utils/cli');
 
 class BackendModal extends Modal {
 	constructor(app, plugin, backend = null, onSubmit) {

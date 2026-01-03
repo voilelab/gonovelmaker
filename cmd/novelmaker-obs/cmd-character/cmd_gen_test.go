@@ -1,4 +1,4 @@
-package main
+package cmdcharacter
 
 import (
 	"encoding/json"
@@ -7,19 +7,20 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/voilelab/gonovelmaker/cmd/novelmaker-obs/testutil"
 	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-func TestGenCharCmd_Run_Success(t *testing.T) {
+func TestGenCmd_Run_Success(t *testing.T) {
 	t.Run("generate character with dummy backend", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
+		genCharCmd := newGenCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "Charlie"
 		genCharCmd.prompt = "A wise old wizard with a mysterious past."
 
@@ -70,12 +71,12 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 	})
 
 	t.Run("generate character without prompt", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
+		genCharCmd := newGenCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "Diana"
 		genCharCmd.prompt = "" // Empty prompt
 
@@ -115,12 +116,12 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 	})
 
 	t.Run("generate character with custom prompt", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
+		genCharCmd := newGenCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "Emma"
 		genCharCmd.prompt = "A fierce warrior queen with unmatched battle skills."
 
@@ -161,12 +162,12 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 	})
 
 	t.Run("generate character with special characters in name", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
+		genCharCmd := newGenCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "Sir John O'Brien III"
 		genCharCmd.prompt = "A noble knight"
 
@@ -202,14 +203,14 @@ func TestGenCharCmd_Run_Success(t *testing.T) {
 	})
 }
 
-func TestGenCharCmd_Run_JSONOutput(t *testing.T) {
+func TestGenCmd_Run_JSONOutput(t *testing.T) {
 	t.Run("json output format", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
+		genCharCmd := newGenCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "Frank"
 		genCharCmd.prompt = "A mysterious stranger"
 		genCharCmd.json = true
@@ -255,14 +256,14 @@ func TestGenCharCmd_Run_JSONOutput(t *testing.T) {
 	})
 }
 
-func TestGenCharCmd_Run_ErrorCases(t *testing.T) {
+func TestGenCmd_Run_ErrorCases(t *testing.T) {
 	t.Run("error when project not found", func(t *testing.T) {
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
+		genCharCmd := newGenCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "TestChar"
 
 		err := genCharCmd.run(genCharCmd.cmd, []string{})
@@ -276,14 +277,14 @@ func TestGenCharCmd_Run_ErrorCases(t *testing.T) {
 	})
 
 	t.Run("error when config cannot be loaded", func(t *testing.T) {
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 
 		// Change to a directory that doesn't have a config
 		os.Chdir(tmpDir)
 
-		genCharCmd := NewGenCharCmd(llmbackend.MakeDummy)
+		genCharCmd := newGenCmd(llmbackend.MakeDummy)
 		genCharCmd.name = "TestChar"
 
 		err := genCharCmd.run(genCharCmd.cmd, []string{})

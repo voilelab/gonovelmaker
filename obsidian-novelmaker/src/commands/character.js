@@ -30,7 +30,7 @@ function registerGenCharCommand(plugin) {
 				try {
 					const vaultPath = plugin.app.vault.adapter.basePath;
 					
-					const args = buildCLICommand('gen-char', {
+					const args = buildCLICommand('character gen', {
 						json: true,
 						name,
 						prompt,
@@ -71,7 +71,7 @@ function registerGenCharCurrCommand(plugin) {
 						try {
 							const vaultPath = plugin.app.vault.adapter.basePath;
 							
-							const args = buildCLICommand('gen-char-curr', {
+							const args = buildCLICommand('character regen', {
 								json: true,
 								filepath,
 								backend: plugin.settings.backend,
@@ -118,7 +118,7 @@ function registerGenCharImgCommand(plugin) {
 						try {
 							const vaultPath = plugin.app.vault.adapter.basePath;
 							
-							const args = buildCLICommand('gen-char-img', {
+							const args = buildCLICommand('character gen-img', {
 								json: true,
 								name,
 								prompt,

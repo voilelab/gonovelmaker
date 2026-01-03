@@ -1,4 +1,4 @@
-package main
+package cmdchapter
 
 import (
 	"encoding/json"
@@ -14,36 +14,36 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-type GenCharCmd struct {
-	json    bool
-	prompt  string
-	name    string
-	backend string
-	model   string
-	timeout int
+type regenCmd struct {
+	json         bool
+	filepath     string
+	prevChapters int
+	backend      string
+	model        string
+	timeout      int
 
 	llmBackendMaker llmbackend.LLMBackendMaker
 
 	cmd *cobra.Command
 }
 
-func NewGenCharCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenCharCmd {
-	g := &GenCharCmd{
+func newRegenCmd(llmBackendMaker llmbackend.LLMBackendMaker) *regenCmd {
+	g := &regenCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
-		Use:   "gen-char",
-		Short: "Generate a new character using OpenAI API",
-		Long: `Generates a new character profile based on the project context and a user-provided prompt 
-using OpenAI API.`,
+		Use:   "regen",
+		Short: "Regenerate an existing chapter using its chapter.prompt",
+		Long: `Regenerates an existing chapter based on the prompt stored in its frontmatter.
+The filepath should be relative to the vault root (e.g., "Story/001_ch1.md").`,
 		RunE: g.run,
 	}
 
 	g.cmd.Flags().BoolVarP(&g.json, "json", "j", false, "Output in JSON format")
 
-	g.cmd.Flags().StringVarP(&g.name, "name", "n", "", "Name for the character (required)")
-	g.cmd.Flags().StringVarP(&g.prompt, "prompt", "p", "", "Description/prompt for the character to generate")
-	g.cmd.MarkFlagRequired("name")
+	g.cmd.Flags().StringVarP(&g.filepath, "filepath", "f", "", "Path to the chapter file relative to vault root (required)")
+	g.cmd.Flags().IntVarP(&g.prevChapters, "prev-chapters", "c", 3, "Number of previous chapters to include as context (optional, default 3, max 10)")
+	g.cmd.MarkFlagRequired("filepath")
 
 	// Allow overriding config values per-command
 	g.cmd.Flags().StringVar(&g.backend, "backend", "", "LLM backend to use (optional, uses default if not specified)")
@@ -52,7 +52,7 @@ using OpenAI API.`,
 	return g
 }
 
-func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
+func (g *regenCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {
@@ -83,10 +83,22 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load worldbooks: %w", err)
 	}
 
-	// Load existing characters for context
+	// Load characters
 	characters, err := vault.LoadCharacters()
 	if err != nil {
 		return fmt.Errorf("failed to load characters: %w", err)
+	}
+
+	// Load all chapters
+	chapters, err := vault.LoadChapters()
+	if err != nil {
+		return fmt.Errorf("failed to load chapters: %w", err)
+	}
+
+	// Load the target chapter from the specified filepath
+	targetChapter, err := vault.LoadChapterByPath(g.filepath)
+	if err != nil {
+		return fmt.Errorf("failed to load target chapter from %s: %w", g.filepath, err)
 	}
 
 	// Get backend configuration
@@ -103,17 +115,18 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 	effectiveTimeout := time.Duration(nmutil.FirstNonZero(g.timeout, backend.Timeout)) * time.Second
 
 	if !g.json {
-		fmt.Println("Generating character with OpenAI...")
+		fmt.Println("Regenerating chapter with OpenAI...")
 		fmt.Printf("  Project: %s\n", project.Name)
 		fmt.Printf("  Model: %s\n", effectiveModel)
-		fmt.Printf("  Prompt: %s\n", g.prompt)
-		fmt.Printf("  Context: %d worldbook entries, %d existing characters\n", len(worldbooks), len(characters))
+		fmt.Printf("  Target: %s (Index: %d)\n", targetChapter.Title, targetChapter.Index)
+		fmt.Printf("  Prompt: %s\n", targetChapter.Prompt)
+		fmt.Printf("  Context: %d worldbook entries, %d characters, %d chapters\n", len(worldbooks), len(characters), len(chapters))
 	}
 
-	// Load character prompt template from vault
-	characterPrompt, err := vault.LoadCharacterPrompt()
+	// Load chapter prompt template from vault
+	chapterPrompt, err := vault.LoadChapterPrompt()
 	if err != nil {
-		return fmt.Errorf("failed to load character prompt: %w", err)
+		return fmt.Errorf("failed to load chapter prompt from vault: %w", err)
 	}
 
 	llmBackend := g.llmBackendMaker(
@@ -127,37 +140,49 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 		effectiveTimeout,
 	)
 
-	// Call OpenAI API
-	profile, usage, err := renderer.RenderCharacter(
-		project, characterPrompt, worldbooks, characters, g.prompt, g.name)
-	if err != nil {
-		return fmt.Errorf("failed to generate character: %w", err)
+	// Get previous chapters (those with index < target chapter index)
+	var prevChapters []novelmaker.Chapter
+	for _, ch := range chapters {
+		if ch.Index < targetChapter.Index {
+			prevChapters = append(prevChapters, ch)
+		}
 	}
 
-	// Create character struct
-	ch := novelmaker.Character{
-		Name:    g.name,
-		Main:    false,
-		Prompt:  g.prompt,
-		Profile: profile,
+	// Limit to the last N previous chapters
+	prevK := min(g.prevChapters, len(prevChapters), maxPrevChapters)
+	if len(prevChapters) > prevK {
+		prevChapters = prevChapters[len(prevChapters)-prevK:]
 	}
 
-	filePath, err := vault.AddCharacter(&ch)
+	// Call OpenAI API to regenerate content
+	content, usage, err := renderer.RenderChapter(
+		project, chapterPrompt, worldbooks, characters, prevChapters, targetChapter.Title, targetChapter.Prompt)
 	if err != nil {
-		return fmt.Errorf("failed to add character to vault: %w", err)
+		return fmt.Errorf("failed to generate chapter: %w", err)
+	}
+
+	// Update the chapter with new content
+	targetChapter.Content = content
+
+	// Update the chapter file
+	if err := vault.UpdateChapter(g.filepath, targetChapter); err != nil {
+		return fmt.Errorf("failed to update chapter file %s: %w", g.filepath, err)
 	}
 
 	if !g.json {
-		fmt.Printf("\n✓ Successfully generated character!\n")
-		fmt.Printf("  File: %s\n", filePath)
-		fmt.Printf("  Name: %s\n", g.name)
+		fmt.Printf("\n✓ Successfully regenerated chapter!\n")
+		fmt.Printf("  File: %s\n", g.filepath)
+		fmt.Printf("  Index: %d\n", targetChapter.Index)
+		fmt.Printf("  Title: %s\n", targetChapter.Title)
 		fmt.Printf("\nToken Usage:\n")
 		fmt.Printf("  Input tokens:  %d\n", usage.InputTokens)
 		fmt.Printf("  Output tokens: %d\n", usage.OutputTokens)
 		fmt.Printf("  Total tokens:  %d\n", usage.TotalTokens)
 	} else {
 		output := map[string]any{
-			"filepath":      filePath,
+			"filepath":      g.filepath,
+			"index":         targetChapter.Index,
+			"title":         targetChapter.Title,
 			"input_tokens":  usage.InputTokens,
 			"output_tokens": usage.OutputTokens,
 			"total_tokens":  usage.TotalTokens,
@@ -168,5 +193,6 @@ func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("failed to encode JSON output: %w", err)
 		}
 	}
+
 	return nil
 }

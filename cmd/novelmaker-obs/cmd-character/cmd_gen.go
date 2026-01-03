@@ -1,4 +1,4 @@
-package main
+package cmdcharacter
 
 import (
 	"encoding/json"
@@ -14,34 +14,36 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-type GenCharCurrCmd struct {
-	json     bool
-	filepath string
-	backend  string
-	model    string
-	timeout  int
+type genCmd struct {
+	json    bool
+	prompt  string
+	name    string
+	backend string
+	model   string
+	timeout int
 
 	llmBackendMaker llmbackend.LLMBackendMaker
 
 	cmd *cobra.Command
 }
 
-func NewGenCharCurrCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenCharCurrCmd {
-	g := &GenCharCurrCmd{
+func newGenCmd(llmBackendMaker llmbackend.LLMBackendMaker) *genCmd {
+	g := &genCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
-		Use:   "gen-char-curr",
-		Short: "Regenerate an existing character using its stored prompt",
-		Long: `Regenerates an existing character profile based on the prompt stored in its frontmatter.
-The filepath should be relative to the vault root (e.g., "Character/alice.md").`,
+		Use:   "gen",
+		Short: "Generate a new character using OpenAI API",
+		Long: `Generates a new character profile based on the project context and a user-provided prompt 
+using OpenAI API.`,
 		RunE: g.run,
 	}
 
 	g.cmd.Flags().BoolVarP(&g.json, "json", "j", false, "Output in JSON format")
 
-	g.cmd.Flags().StringVarP(&g.filepath, "filepath", "f", "", "Path to the character file relative to vault root (required)")
-	g.cmd.MarkFlagRequired("filepath")
+	g.cmd.Flags().StringVarP(&g.name, "name", "n", "", "Name for the character (required)")
+	g.cmd.Flags().StringVarP(&g.prompt, "prompt", "p", "", "Description/prompt for the character to generate")
+	g.cmd.MarkFlagRequired("name")
 
 	// Allow overriding config values per-command
 	g.cmd.Flags().StringVar(&g.backend, "backend", "", "LLM backend to use (optional, uses default if not specified)")
@@ -50,7 +52,7 @@ The filepath should be relative to the vault root (e.g., "Character/alice.md").`
 	return g
 }
 
-func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
+func (g *genCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {
@@ -87,12 +89,6 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to load characters: %w", err)
 	}
 
-	// Load the target character from the specified filepath
-	targetCharacter, err := vault.LoadCharacterByPath(g.filepath)
-	if err != nil {
-		return fmt.Errorf("failed to load target character from %s: %w", g.filepath, err)
-	}
-
 	// Get backend configuration
 	backend := cfg.GetBackend(g.backend)
 	if backend == nil {
@@ -107,11 +103,10 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 	effectiveTimeout := time.Duration(nmutil.FirstNonZero(g.timeout, backend.Timeout)) * time.Second
 
 	if !g.json {
-		fmt.Println("Regenerating character with OpenAI...")
+		fmt.Println("Generating character with OpenAI...")
 		fmt.Printf("  Project: %s\n", project.Name)
 		fmt.Printf("  Model: %s\n", effectiveModel)
-		fmt.Printf("  Character: %s\n", targetCharacter.Name)
-		fmt.Printf("  Prompt: %s\n", targetCharacter.Prompt)
+		fmt.Printf("  Prompt: %s\n", g.prompt)
 		fmt.Printf("  Context: %d worldbook entries, %d existing characters\n", len(worldbooks), len(characters))
 	}
 
@@ -132,33 +127,37 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 		effectiveTimeout,
 	)
 
-	// Call OpenAI API to regenerate character profile
+	// Call OpenAI API
 	profile, usage, err := renderer.RenderCharacter(
-		project, characterPrompt, worldbooks, characters, targetCharacter.Prompt, targetCharacter.Name)
+		project, characterPrompt, worldbooks, characters, g.prompt, g.name)
 	if err != nil {
 		return fmt.Errorf("failed to generate character: %w", err)
 	}
 
-	// Update the character with new profile
-	targetCharacter.Profile = profile
+	// Create character struct
+	ch := novelmaker.Character{
+		Name:    g.name,
+		Main:    false,
+		Prompt:  g.prompt,
+		Profile: profile,
+	}
 
-	// Update the character file
-	if err := vault.UpdateCharacter(g.filepath, targetCharacter); err != nil {
-		return fmt.Errorf("failed to update character file %s: %w", g.filepath, err)
+	filePath, err := vault.AddCharacter(&ch)
+	if err != nil {
+		return fmt.Errorf("failed to add character to vault: %w", err)
 	}
 
 	if !g.json {
-		fmt.Printf("\n✓ Successfully regenerated character!\n")
-		fmt.Printf("  File: %s\n", g.filepath)
-		fmt.Printf("  Name: %s\n", targetCharacter.Name)
+		fmt.Printf("\n✓ Successfully generated character!\n")
+		fmt.Printf("  File: %s\n", filePath)
+		fmt.Printf("  Name: %s\n", g.name)
 		fmt.Printf("\nToken Usage:\n")
 		fmt.Printf("  Input tokens:  %d\n", usage.InputTokens)
 		fmt.Printf("  Output tokens: %d\n", usage.OutputTokens)
 		fmt.Printf("  Total tokens:  %d\n", usage.TotalTokens)
 	} else {
 		output := map[string]any{
-			"filepath":      g.filepath,
-			"name":          targetCharacter.Name,
+			"filepath":      filePath,
 			"input_tokens":  usage.InputTokens,
 			"output_tokens": usage.OutputTokens,
 			"total_tokens":  usage.TotalTokens,
@@ -169,6 +168,5 @@ func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("failed to encode JSON output: %w", err)
 		}
 	}
-
 	return nil
 }

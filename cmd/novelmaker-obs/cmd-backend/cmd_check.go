@@ -11,7 +11,7 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 )
 
-type BackendCheckCmd struct {
+type checkCmd struct {
 	timeout    int
 	jsonOutput bool
 
@@ -20,8 +20,8 @@ type BackendCheckCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendCheckCmd(llmbackendMaker llmbackend.LLMBackendMaker) *BackendCheckCmd {
-	checkCmd := &BackendCheckCmd{
+func newCheckCmd(llmbackendMaker llmbackend.LLMBackendMaker) *checkCmd {
+	checkCmd := &checkCmd{
 		llmbackendMaker: llmbackendMaker,
 	}
 
@@ -39,7 +39,7 @@ func NewBackendCheckCmd(llmbackendMaker llmbackend.LLMBackendMaker) *BackendChec
 	return checkCmd
 }
 
-func (b *BackendCheckCmd) run(cmd *cobra.Command, args []string) error {
+func (b *checkCmd) run(cmd *cobra.Command, args []string) error {
 	name := args[0]
 
 	// Load current config

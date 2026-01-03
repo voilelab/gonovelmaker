@@ -9,14 +9,14 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/config"
 )
 
-type BackendListCmd struct {
+type listCmd struct {
 	jsonOutput bool
 
 	cmd *cobra.Command
 }
 
-func NewBackendListCmd() *BackendListCmd {
-	listCmd := &BackendListCmd{}
+func newListCmd() *listCmd {
+	listCmd := &listCmd{}
 	listCmd.cmd = &cobra.Command{
 		Use:   "list",
 		Short: "List all configured LLM backends",
@@ -29,7 +29,7 @@ func NewBackendListCmd() *BackendListCmd {
 	return listCmd
 }
 
-func (b *BackendListCmd) run(cmd *cobra.Command, args []string) error {
+func (b *listCmd) run(cmd *cobra.Command, args []string) error {
 	// Load current config
 	cfg, err := config.Load()
 	if err != nil {

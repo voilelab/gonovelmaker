@@ -24,7 +24,7 @@ type modelsCache struct {
 	Models    []string  `json:"models"`
 }
 
-type BackendListAvailableModelsCmd struct {
+type listAvailableModelsCmd struct {
 	timeout      int
 	jsonOutput   bool
 	noCache      bool
@@ -35,8 +35,8 @@ type BackendListAvailableModelsCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendListAvailableModelsCmd(llmbackendMaker llmbackend.LLMBackendMaker) *BackendListAvailableModelsCmd {
-	listModelsCmd := &BackendListAvailableModelsCmd{
+func newListAvailableModelsCmd(llmbackendMaker llmbackend.LLMBackendMaker) *listAvailableModelsCmd {
+	listModelsCmd := &listAvailableModelsCmd{
 		llmbackendMaker: llmbackendMaker,
 	}
 
@@ -56,7 +56,7 @@ func NewBackendListAvailableModelsCmd(llmbackendMaker llmbackend.LLMBackendMaker
 	return listModelsCmd
 }
 
-func (b *BackendListAvailableModelsCmd) run(cmd *cobra.Command, args []string) error {
+func (b *listAvailableModelsCmd) run(cmd *cobra.Command, args []string) error {
 	name := args[0]
 
 	// Load current config
@@ -181,7 +181,7 @@ func (b *BackendListAvailableModelsCmd) run(cmd *cobra.Command, args []string) e
 	return nil
 }
 
-func (b *BackendListAvailableModelsCmd) getCacheDir() (string, error) {
+func (b *listAvailableModelsCmd) getCacheDir() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("failed to get home directory: %w", err)
@@ -190,7 +190,7 @@ func (b *BackendListAvailableModelsCmd) getCacheDir() (string, error) {
 	return cacheDir, nil
 }
 
-func (b *BackendListAvailableModelsCmd) getCachePath(backendName string) (string, error) {
+func (b *listAvailableModelsCmd) getCachePath(backendName string) (string, error) {
 	cacheDir, err := b.getCacheDir()
 	if err != nil {
 		return "", err
@@ -198,7 +198,7 @@ func (b *BackendListAvailableModelsCmd) getCachePath(backendName string) (string
 	return filepath.Join(cacheDir, fmt.Sprintf("models-%s.json", backendName)), nil
 }
 
-func (b *BackendListAvailableModelsCmd) loadCache(backendName string) ([]string, error) {
+func (b *listAvailableModelsCmd) loadCache(backendName string) ([]string, error) {
 	cachePath, err := b.getCachePath(backendName)
 	if err != nil {
 		return nil, err
@@ -226,7 +226,7 @@ func (b *BackendListAvailableModelsCmd) loadCache(backendName string) ([]string,
 	return cache.Models, nil
 }
 
-func (b *BackendListAvailableModelsCmd) saveCache(backendName string, models []string) error {
+func (b *listAvailableModelsCmd) saveCache(backendName string, models []string) error {
 	cachePath, err := b.getCachePath(backendName)
 	if err != nil {
 		return err

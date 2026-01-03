@@ -1,4 +1,4 @@
-package main
+package cmdchapter
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ import (
 
 const maxPrevChapters = 10
 
-type GenNextCmd struct {
+type genNextCmd struct {
 	json         bool
 	title        string
 	prompt       string
@@ -30,8 +30,8 @@ type GenNextCmd struct {
 	cmd *cobra.Command
 }
 
-func NewGenNextCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenNextCmd {
-	g := &GenNextCmd{
+func newGenNextCmd(llmBackendMaker llmbackend.LLMBackendMaker) *genNextCmd {
+	g := &genNextCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
@@ -56,7 +56,7 @@ and previous chapters using OpenAI API.`,
 	return g
 }
 
-func (g *GenNextCmd) run(cmd *cobra.Command, args []string) error {
+func (g *genNextCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {

@@ -7,12 +7,12 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/config"
 )
 
-type BackendUseCmd struct {
+type useCmd struct {
 	cmd *cobra.Command
 }
 
-func NewBackendUseCmd() *BackendUseCmd {
-	useCmd := &BackendUseCmd{}
+func newUseCmd() *useCmd {
+	useCmd := &useCmd{}
 	useCmd.cmd = &cobra.Command{
 		Use:   "use <name>",
 		Short: "Set the default LLM backend to use",
@@ -24,7 +24,7 @@ func NewBackendUseCmd() *BackendUseCmd {
 	return useCmd
 }
 
-func (b *BackendUseCmd) run(cmd *cobra.Command, args []string) error {
+func (b *useCmd) run(cmd *cobra.Command, args []string) error {
 	name := args[0]
 
 	// Load current config

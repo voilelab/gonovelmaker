@@ -1,4 +1,4 @@
-package main
+package cmdchapter
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/voilelab/gonovelmaker/cmd/novelmaker-obs/testutil"
 	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 	"github.com/voilelab/gonovelmaker/novelmaker"
@@ -15,12 +16,12 @@ import (
 
 func TestGenNextCmd_Run_Success(t *testing.T) {
 	t.Run("generate next chapter with dummy backend", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter Three - The Great Adventure"
 		genNextCmd.prompt = "Write about Alice meeting a dragon."
 		genNextCmd.prevChapters = 2
@@ -72,7 +73,7 @@ func TestGenNextCmd_Run_Success(t *testing.T) {
 	})
 
 	t.Run("generate first chapter in empty vault", func(t *testing.T) {
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 
 		// Create a .novelmaker config directory and config.toml file
 		configDir := filepath.Join(tmpDir, ".novelmaker")
@@ -103,7 +104,7 @@ name: New Project
 system_prompt: You are a writer.
 ---
 A new world.`
-		writeTestFile(t, tmpDir, "Config/project.md", projectContent)
+		testutil.WriteTestFile(t, tmpDir, "Config/project.md", projectContent)
 
 		// Create chapter prompt template
 		chapterPromptContent := `---
@@ -111,14 +112,14 @@ system: |
     You are a professional novel writing assistant.
 ---
 `
-		writeTestFile(t, tmpDir, "Config/chapter_prompt.md", chapterPromptContent)
+		testutil.WriteTestFile(t, tmpDir, "Config/chapter_prompt.md", chapterPromptContent)
 
 		// Create character prompt template
 		characterPromptContent := `---
 system: You are a character development AI assistant.
 ---
 Create a detailed character profile.`
-		writeTestFile(t, tmpDir, "Config/character_prompt.md", characterPromptContent)
+		testutil.WriteTestFile(t, tmpDir, "Config/character_prompt.md", characterPromptContent)
 
 		// Create empty directories
 		os.MkdirAll(filepath.Join(tmpDir, "World"), 0755)
@@ -129,7 +130,7 @@ Create a detailed character profile.`
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Prologue"
 		genNextCmd.prompt = "Write a prologue."
 		genNextCmd.prevChapters = 3
@@ -165,12 +166,12 @@ Create a detailed character profile.`
 	})
 
 	t.Run("generate with custom prompt", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter Three"
 		genNextCmd.prompt = "This is a custom prompt with specific instructions."
 		genNextCmd.prevChapters = 1
@@ -211,12 +212,12 @@ Create a detailed character profile.`
 	})
 
 	t.Run("generate without prompt", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter Three"
 		genNextCmd.prompt = "" // Empty prompt
 		genNextCmd.prevChapters = 2
@@ -246,12 +247,12 @@ Create a detailed character profile.`
 
 func TestGenNextCmd_Run_JSONOutput(t *testing.T) {
 	t.Run("json output format", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter Three"
 		genNextCmd.prompt = "Test prompt"
 		genNextCmd.prevChapters = 2
@@ -300,12 +301,12 @@ func TestGenNextCmd_Run_JSONOutput(t *testing.T) {
 
 func TestGenNextCmd_Run_ErrorCases(t *testing.T) {
 	t.Run("error when project not found", func(t *testing.T) {
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter One"
 
 		err := genNextCmd.run(genNextCmd.cmd, []string{})
@@ -319,14 +320,14 @@ func TestGenNextCmd_Run_ErrorCases(t *testing.T) {
 	})
 
 	t.Run("error when config cannot be loaded", func(t *testing.T) {
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 
 		// Change to a directory that doesn't have a config
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "Chapter One"
 
 		err := genNextCmd.run(genNextCmd.cmd, []string{})
@@ -336,12 +337,12 @@ func TestGenNextCmd_Run_ErrorCases(t *testing.T) {
 	})
 
 	t.Run("error with empty title", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genNextCmd := NewGenNextCmd(llmbackend.MakeDummy)
+		genNextCmd := newGenNextCmd(llmbackend.MakeDummy)
 		genNextCmd.title = "" // Empty title
 
 		err := genNextCmd.run(genNextCmd.cmd, []string{})

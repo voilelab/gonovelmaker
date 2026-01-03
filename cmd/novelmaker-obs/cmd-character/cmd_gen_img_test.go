@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/voilelab/gonovelmaker/cmd/novelmaker-obs/testutil"
 	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 )
@@ -64,7 +65,7 @@ func TestGenCharImgCmd_Run_Success(t *testing.T) {
 		server := mockImageServer()
 		defer server.Close()
 
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -97,7 +98,7 @@ func TestGenCharImgCmd_Run_Success(t *testing.T) {
 		server := mockImageServer()
 		defer server.Close()
 
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -122,7 +123,7 @@ func TestGenCharImgCmd_Run_Success(t *testing.T) {
 		server := mockImageServer()
 		defer server.Close()
 
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -148,7 +149,7 @@ func TestGenCharImgCmd_Run_Success(t *testing.T) {
 		server := mockImageServer()
 		defer server.Close()
 
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -165,7 +166,7 @@ main: false
 prompt: A noble knight
 ---
 Sir John O'Brien III is a noble knight with a mysterious past.`
-		writeTestFile(t, tmpDir, "Character/sir-john-obrien-iii.md", specialChar)
+		testutil.WriteTestFile(t, tmpDir, "Character/sir-john-obrien-iii.md", specialChar)
 		vault.Close()
 
 		genCharImgCmd := newGenImgCmd(testBackendMaker(server.URL))
@@ -189,7 +190,7 @@ func TestGenCharImgCmd_Run_JSONOutput(t *testing.T) {
 		server := mockImageServer()
 		defer server.Close()
 
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -250,7 +251,7 @@ func TestGenCharImgCmd_Run_JSONOutput(t *testing.T) {
 
 func TestGenCharImgCmd_Run_ErrorCases(t *testing.T) {
 	t.Run("error when character not found", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -272,7 +273,7 @@ func TestGenCharImgCmd_Run_ErrorCases(t *testing.T) {
 		server := mockImageServer()
 		defer server.Close()
 
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -295,7 +296,7 @@ func TestGenCharImgCmd_Run_ErrorCases(t *testing.T) {
 		server := mockImageServer()
 		defer server.Close()
 
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 
@@ -317,7 +318,7 @@ func TestGenCharImgCmd_Run_ConfigOverrides(t *testing.T) {
 		server := mockImageServer()
 		defer server.Close()
 
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -342,7 +343,7 @@ func TestGenCharImgCmd_Run_ConfigOverrides(t *testing.T) {
 		server := mockImageServer()
 		defer server.Close()
 
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)

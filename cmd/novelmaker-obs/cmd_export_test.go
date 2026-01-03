@@ -5,11 +5,13 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/voilelab/gonovelmaker/cmd/novelmaker-obs/testutil"
 )
 
 func TestExportCmd_Run_Success(t *testing.T) {
 	t.Run("export to txt format", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -59,7 +61,7 @@ func TestExportCmd_Run_Success(t *testing.T) {
 	})
 
 	t.Run("export with absolute path", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -82,7 +84,7 @@ func TestExportCmd_Run_Success(t *testing.T) {
 	})
 
 	t.Run("export with relative path", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -104,7 +106,7 @@ func TestExportCmd_Run_Success(t *testing.T) {
 	})
 
 	t.Run("export with nested directory path", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)

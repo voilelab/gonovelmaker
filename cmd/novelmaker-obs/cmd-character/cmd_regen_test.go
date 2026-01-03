@@ -7,13 +7,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/voilelab/gonovelmaker/cmd/novelmaker-obs/testutil"
 	"github.com/voilelab/gonovelmaker/internal/llmbackend"
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 )
 
 func TestRegenCmd_Run_Success(t *testing.T) {
 	t.Run("regenerate character with dummy backend", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -97,7 +98,7 @@ func TestRegenCmd_Run_Success(t *testing.T) {
 
 func TestRegenCmd_Run_JSONOutput(t *testing.T) {
 	t.Run("json output format", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -172,7 +173,7 @@ func TestRegenCmd_Run_JSONOutput(t *testing.T) {
 
 func TestRegenCmd_Run_ErrorCases(t *testing.T) {
 	t.Run("error when character file not found", func(t *testing.T) {
-		tmpDir := setupCompleteVault(t)
+		tmpDir := testutil.SetupCompleteVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
@@ -191,7 +192,7 @@ func TestRegenCmd_Run_ErrorCases(t *testing.T) {
 	})
 
 	t.Run("error when config cannot be loaded", func(t *testing.T) {
-		tmpDir := createTestVault(t)
+		tmpDir := testutil.CreateTestVault(t)
 		oldWd, _ := os.Getwd()
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)

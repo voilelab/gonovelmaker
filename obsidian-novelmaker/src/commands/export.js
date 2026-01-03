@@ -18,12 +18,12 @@ function registerExportCommand(plugin) {
 				try {
 					const vaultPath = plugin.app.vault.adapter.basePath;
 					
-					const cmd = buildCLICommand(plugin.settings.cliPath, 'export', {
+					const args = buildCLICommand('export', {
 						output: outputPath,
 						type: 'txt',
 					});
 					
-					await executeCLI(plugin, cmd, vaultPath);
+					await executeCLI(plugin, plugin.settings.cliPath, args, vaultPath);
 					new Notice('✅ 小說匯出成功！');
 				} catch (error) {
 					new Notice(`❌ 錯誤: ${error.message}`);

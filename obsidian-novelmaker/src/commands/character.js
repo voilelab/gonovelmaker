@@ -30,14 +30,14 @@ function registerGenCharCommand(plugin) {
 				try {
 					const vaultPath = plugin.app.vault.adapter.basePath;
 					
-					const cmd = buildCLICommand(plugin.settings.cliPath, 'gen-char', {
+					const args = buildCLICommand('gen-char', {
 						json: true,
 						name,
 						prompt,
 						backend: plugin.settings.backend,
 					});
 					
-					const { stdout } = await executeCLI(plugin, cmd, vaultPath);
+					const { stdout } = await executeCLI(plugin, plugin.settings.cliPath, args, vaultPath);
 					const output = parseJSONOutput(stdout);
 
 					openGeneratedFile(plugin.app, plugin.settings, output.filepath);
@@ -71,13 +71,13 @@ function registerGenCharCurrCommand(plugin) {
 						try {
 							const vaultPath = plugin.app.vault.adapter.basePath;
 							
-							const cmd = buildCLICommand(plugin.settings.cliPath, 'gen-char-curr', {
+							const args = buildCLICommand('gen-char-curr', {
 								json: true,
 								filepath,
 								backend: plugin.settings.backend,
 							});
 							
-							const { stdout } = await executeCLI(plugin, cmd, vaultPath);
+							const { stdout } = await executeCLI(plugin, plugin.settings.cliPath, args, vaultPath);
 							
 							try {
 								const output = parseJSONOutput(stdout);
@@ -118,14 +118,14 @@ function registerGenCharImgCommand(plugin) {
 						try {
 							const vaultPath = plugin.app.vault.adapter.basePath;
 							
-							const cmd = buildCLICommand(plugin.settings.cliPath, 'gen-char-img', {
+							const args = buildCLICommand('gen-char-img', {
 								json: true,
 								name,
 								prompt,
 								backend: plugin.settings.backend,
 							});
 							
-							const { stdout } = await executeCLI(plugin, cmd, vaultPath);
+							const { stdout } = await executeCLI(plugin, plugin.settings.cliPath, args, vaultPath);
 							const output = parseJSONOutput(stdout);
 
 							if (output && output.filepath) {

@@ -30,7 +30,7 @@ function registerGenNextCommand(plugin) {
 				try {
 					const vaultPath = plugin.app.vault.adapter.basePath;
 					
-					const cmd = buildCLICommand(plugin.settings.cliPath, 'gen-next', {
+					const args = buildCLICommand('gen-next', {
 						json: true,
 						title,
 						prompt,
@@ -38,7 +38,7 @@ function registerGenNextCommand(plugin) {
 						backend: plugin.settings.backend,
 					});
 					
-					const { stdout } = await executeCLI(plugin, cmd, vaultPath);
+					const { stdout } = await executeCLI(plugin, plugin.settings.cliPath, args, vaultPath);
 					const output = parseJSONOutput(stdout);
 
 					openGeneratedFile(plugin.app, plugin.settings, output.filepath);
@@ -69,13 +69,13 @@ function registerGenNextEmptyCommand(plugin) {
 				try {
 					const vaultPath = plugin.app.vault.adapter.basePath;
 					
-					const cmd = buildCLICommand(plugin.settings.cliPath, 'gen-next-empty', {
+					const args = buildCLICommand('gen-next-empty', {
 						json: true,
 						title,
 						prompt,
 					});
 					
-					const { stdout } = await executeCLI(plugin, cmd, vaultPath);
+					const { stdout } = await executeCLI(plugin, plugin.settings.cliPath, args, vaultPath);
 					const output = parseJSONOutput(stdout);
 
 					openGeneratedFile(plugin.app, plugin.settings, output.filepath);
@@ -109,7 +109,7 @@ function registerGenCurrCommand(plugin) {
 						try {
 							const vaultPath = plugin.app.vault.adapter.basePath;
 							
-							const cmd = buildCLICommand(plugin.settings.cliPath, 'gen-curr', {
+							const args = buildCLICommand('gen-curr', {
 								json: true,
 								filepath,
 								prevCount,
@@ -117,7 +117,7 @@ function registerGenCurrCommand(plugin) {
 								timeout: plugin.settings.timeout,
 							});
 							
-							const { stdout } = await executeCLI(plugin, cmd, vaultPath);
+							const { stdout } = await executeCLI(plugin, plugin.settings.cliPath, args, vaultPath);
 							
 							try {
 								const output = parseJSONOutput(stdout);

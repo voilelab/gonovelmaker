@@ -1,14 +1,14 @@
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 const { promisify } = require('util');
 const { Notice } = require('obsidian');
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 /**
  * Execute CLI command and return JSON output
  */
-async function executeCLI(plugin, command, vaultPath) {
-	const { stdout, stderr } = await execAsync(command, { cwd: vaultPath });
+async function executeCLI(plugin, cliPath, args, vaultPath) {
+	const { stdout, stderr } = await execFileAsync(cliPath, args, { cwd: vaultPath });
 	
 	if (stdout) console.log(stdout);
 	if (stderr) console.error(stderr);
@@ -53,56 +53,56 @@ function openGeneratedFile(app, settings, filepath, delay = null) {
 }
 
 /**
- * Build CLI command with common options
+ * Build CLI command arguments array with common options
  */
-function buildCLICommand(cliPath, baseCommand, options = {}) {
-	let cmd = `${cliPath} ${baseCommand}`;
+function buildCLICommand(baseCommand, options = {}) {
+	const args = [baseCommand];
 	
 	if (options.json) {
-		cmd += ' --json';
+		args.push('--json');
 	}
 	
 	if (options.title) {
-		cmd += ` --title "${options.title}"`;
+		args.push('--title', options.title);
 	}
 	
 	if (options.name) {
-		cmd += ` --name "${options.name}"`;
+		args.push('--name', options.name);
 	}
 	
 	if (options.filepath) {
-		cmd += ` --filepath "${options.filepath}"`;
+		args.push('--filepath', options.filepath);
 	}
 	
 	if (options.prompt && options.prompt.trim()) {
-		cmd += ` --prompt "${options.prompt}"`;
+		args.push('--prompt', options.prompt);
 	}
 	
 	if (options.prevCount !== null && options.prevCount !== undefined) {
-		cmd += ` --prev-chapters ${options.prevCount}`;
+		args.push('--prev-chapters', String(options.prevCount));
 	}
 	
 	if (options.backend && options.backend.trim()) {
-		cmd += ` --backend "${options.backend}"`;
+		args.push('--backend', options.backend);
 	}
 	
 	if (options.timeout && !isNaN(options.timeout)) {
-		cmd += ` --timeout ${options.timeout}`;
+		args.push('--timeout', String(options.timeout));
 	}
 	
 	if (options.output) {
-		cmd += ` --output "${options.output}"`;
+		args.push('--output', options.output);
 	}
 	
 	if (options.type) {
-		cmd += ` --type ${options.type}`;
+		args.push('--type', options.type);
 	}
 	
-	return cmd;
+	return args;
 }
 
 module.exports = {
-	execAsync,
+	execFileAsync,
 	executeCLI,
 	parseJSONOutput,
 	openGeneratedFile,

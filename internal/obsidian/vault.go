@@ -61,6 +61,8 @@ const (
 	worldDirName  = "World"
 	charDirName   = "Character"
 	storyDirName  = "Story"
+
+	pluginName = "obsidian-novelmaker"
 )
 
 type Vault struct {
@@ -80,12 +82,6 @@ func (v *Vault) Close() error {
 }
 
 func (v *Vault) UpdatePlugin(pluginFS embed.FS, pluginSrcPath string) error {
-	// Extract plugin name from path (e.g., "obsidian-novelmaker/dist" -> "obsidian-novelmaker")
-	pluginName := filepath.Dir(pluginSrcPath)
-	if pluginName == "." {
-		pluginName = pluginSrcPath
-	}
-
 	err := v.root.MkdirAll(filepath.Join(".obsidian", "plugins", pluginName), 0755)
 	if err != nil {
 		return fmt.Errorf("failed to create plugins directory: %w", err)

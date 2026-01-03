@@ -2,6 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/voilelab/gonovelmaker)](https://goreportcard.com/report/github.com/voilelab/gonovelmaker)
 [![Go Tests](https://github.com/voilelab/gonovelmaker/actions/workflows/test.yml/badge.svg)](https://github.com/voilelab/gonovelmaker/actions/workflows/test.yml)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 [Documentation](https://voilelab.github.io/gonovelmaker/) | [Release Notes](https://github.com/voilelab/gonovelmaker/wiki/Release-Notes)
 

@@ -1,0 +1,83 @@
+name: Update Obsidian Plugin
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'obsidian-novelmaker/**'
+      - '!obsidian-novelmaker/main.js'
+      - '!obsidian-novelmaker/manifest.json'
+      - '!obsidian-novelmaker/styles.css'
+
+jobs:
+  build-and-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: obsidian-novelmaker/package.json
+
+      - name: Install dependencies
+        working-directory: obsidian-novelmaker
+        run: npm install
+
+      - name: Build plugin
+        working-directory: obsidian-novelmaker
+        run: npm run build
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git add obsidian-novelmaker/main.js obsidian-novelmaker/manifest.json obsidian-novelmaker/styles.css
+          if git diff --cached --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.check_changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update obsidian plugin dist files'
+          branch: auto-update-plugin-dist
+          delete-branch: true
+          title: '🤖 Auto-update: Obsidian Plugin Distribution Files'
+          body: |
+            ## 自動更新 Obsidian Plugin
+
+            此 PR 由 GitHub Actions 自動生成，包含最新的 plugin 構建文件。
+
+            ### 變更內容
+            - 更新 `main.js`
+            - 更新 `manifest.json` (如有變更)
+            - 更新 `styles.css` (如有變更)
+
+            ### 構建資訊
+            - Commit: ${{ github.sha }}
+            - 觸發者: @${{ github.actor }}
+            - 工作流: ${{ github.workflow }}
+
+            **請在合併前檢查構建結果是否正確。**
+
+            ---
+            _此 PR 由 [update-plugin.yml](${{ github.server_url }}/${{ github.repository }}/blob/main/.github/workflows/update-plugin.yml) 自動創建_
+          labels: |
+            automated
+            plugin
+          assignees: ${{ github.actor }}
+          reviewers: ${{ github.actor }}

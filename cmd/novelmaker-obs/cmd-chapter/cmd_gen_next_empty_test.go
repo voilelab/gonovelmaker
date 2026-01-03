@@ -60,7 +60,7 @@ func TestGenNextEmptyCmd(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cmd := NewGenNextEmptyCmd()
+			cmd := NewGenEmptyCmd()
 			cmd.title = tt.title
 			cmd.prompt = tt.prompt
 			cmd.json = true

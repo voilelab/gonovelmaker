@@ -14,7 +14,7 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-type GenCurrCmd struct {
+type RegenCmd struct {
 	json         bool
 	filepath     string
 	prevChapters int
@@ -27,12 +27,12 @@ type GenCurrCmd struct {
 	cmd *cobra.Command
 }
 
-func NewGenCurrCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenCurrCmd {
-	g := &GenCurrCmd{
+func NewRegenCmd(llmBackendMaker llmbackend.LLMBackendMaker) *RegenCmd {
+	g := &RegenCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
-		Use:   "gen-curr",
+		Use:   "regen",
 		Short: "Regenerate an existing chapter using its chapter.prompt",
 		Long: `Regenerates an existing chapter based on the prompt stored in its frontmatter.
 The filepath should be relative to the vault root (e.g., "Story/001_ch1.md").`,
@@ -52,7 +52,7 @@ The filepath should be relative to the vault root (e.g., "Story/001_ch1.md").`,
 	return g
 }
 
-func (g *GenCurrCmd) run(cmd *cobra.Command, args []string) error {
+func (g *RegenCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {

@@ -14,7 +14,7 @@ class ExportModal extends Modal {
 
 		new Setting(contentEl)
 			.setName('輸出檔案路徑')
-			.setDesc('請輸入小說匯出的完整檔案路徑（例如：/path/to/novel.txt）')
+			.setDesc('請輸入小說匯出的完整檔案路徑（例如：C:\\Users\\novel.txt 或 /home/user/novel.txt）')
 			.addText((text) => {
 				text
 					.setPlaceholder('請輸入完整檔案路徑...')

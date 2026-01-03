@@ -12,50 +12,18 @@ class ExportModal extends Modal {
 		
 		contentEl.createEl('h2', { text: '匯出小說' });
 
-		const pathSetting = new Setting(contentEl)
+		new Setting(contentEl)
 			.setName('輸出檔案路徑')
-			.setDesc('選擇小說匯出的檔案路徑')
+			.setDesc('請輸入小說匯出的完整檔案路徑（例如：/path/to/novel.txt）')
 			.addText((text) => {
 				text
-					.setPlaceholder('選擇檔案位置...')
+					.setPlaceholder('請輸入完整檔案路徑...')
 					.setValue(this.outputPath)
 					.onChange((value) => {
 						this.outputPath = value;
 					});
 				text.inputEl.style.width = '100%';
-			})
-			.addButton((btn) =>
-				btn
-					.setButtonText('瀏覽...')
-					.onClick(async () => {
-						try {
-							// Use Electron's dialog
-							const { dialog } = require('electron').remote;
-							const result = await dialog.showSaveDialog({
-								title: '選擇匯出位置',
-								defaultPath: 'novel.txt',
-								filters: [
-									{ name: '文字檔案', extensions: ['txt'] },
-									{ name: '所有檔案', extensions: ['*'] }
-								],
-								properties: ['createDirectory', 'showOverwriteConfirmation']
-							});
-
-							if (!result.canceled && result.filePath) {
-								this.outputPath = result.filePath;
-								// Update the text input with selected path
-								const textInput = pathSetting.controlEl.querySelector('input[type="text"]');
-								if (textInput) {
-									textInput.value = this.outputPath;
-								}
-							}
-						} catch (error) {
-							// Fallback if electron.remote is not available
-							console.error('File dialog error:', error);
-							new Notice('⚠ 無法開啟檔案對話框，請手動輸入路徑');
-						}
-					})
-			);
+			});
 
 		new Setting(contentEl)
 			.addButton((btn) =>

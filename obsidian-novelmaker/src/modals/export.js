@@ -23,6 +23,8 @@ class ExportModal extends Modal {
 						this.outputPath = value;
 					});
 				text.inputEl.style.width = '100%';
+				// Store reference to update later
+				this.pathTextComponent = text;
 			})
 			.addButton((btn) =>
 				btn
@@ -32,15 +34,20 @@ class ExportModal extends Modal {
 							// Try to get electron dialog using modern approach
 							let dialog;
 							
-							// First, try @electron/remote (if installed)
+							// First, try @electron/remote (modern replacement package)
 							try {
 								const remote = require('@electron/remote');
 								dialog = remote.dialog;
 							} catch (e) {
 								// Fallback: try getting dialog from electron directly
-								// In some Obsidian versions, dialog might be available this way
 								const electron = require('electron');
-								dialog = electron.dialog || electron.remote?.dialog;
+								if (electron.dialog) {
+									dialog = electron.dialog;
+								} else if (electron.remote?.dialog) {
+									// Last resort: use deprecated remote (with warning)
+									console.warn('Using deprecated electron.remote as fallback');
+									dialog = electron.remote.dialog;
+								}
 							}
 							
 							if (!dialog) {
@@ -59,10 +66,9 @@ class ExportModal extends Modal {
 
 							if (!result.canceled && result.filePath) {
 								this.outputPath = result.filePath;
-								// Update the text input with selected path
-								const textInput = pathSetting.controlEl.querySelector('input[type="text"]');
-								if (textInput) {
-									textInput.value = this.outputPath;
+								// Update the text input using the component reference
+								if (this.pathTextComponent) {
+									this.pathTextComponent.setValue(result.filePath);
 								}
 							}
 						} catch (error) {

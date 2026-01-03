@@ -1,0 +1,194 @@
+/* Styles for the plugin */
+
+/* Warning message styling */
+.novelmaker-api-warning {
+	background-color: rgba(255, 153, 0, 0.1);
+	border: 1px solid rgba(255, 153, 0, 0.3);
+	border-radius: 4px;
+	padding: 12px;
+	margin: 10px 0 20px 0;
+	font-size: 0.9em;
+	line-height: 1.5;
+}
+
+.novelmaker-warning-icon {
+	color: #ff9900;
+	font-weight: bold;
+}
+
+.novelmaker-warning-text {
+	color: var(--text-normal);
+}
+
+.loading-modal .modal-close-button {
+	display: none !important;
+}
+
+/* Result modal styling */
+.novelmaker-result-success {
+	background-color: rgba(40, 167, 69, 0.1);
+	border: 1px solid rgba(40, 167, 69, 0.3);
+	border-radius: 6px;
+	padding: 12px 16px;
+	margin: 16px 0;
+	font-size: 1em;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.novelmaker-success-icon {
+	font-size: 1.2em;
+}
+
+.novelmaker-result-info {
+	margin: 12px 0;
+	padding: 8px 12px;
+	background-color: var(--background-secondary);
+	border-radius: 4px;
+	font-family: var(--font-monospace);
+	font-size: 0.9em;
+	word-break: break-all;
+}
+
+.novelmaker-result-info strong {
+	margin-right: 8px;
+	color: var(--text-muted);
+}
+
+/* Token usage styling */
+.novelmaker-token-usage {
+	margin: 20px 0;
+	padding: 16px;
+	background: linear-gradient(135deg, rgba(88, 166, 255, 0.08) 0%, rgba(147, 112, 219, 0.08) 100%);
+	border: 1px solid rgba(88, 166, 255, 0.2);
+	border-radius: 8px;
+}
+
+.novelmaker-token-usage h3 {
+	margin: 0 0 12px 0;
+	font-size: 1em;
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+.novelmaker-token-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.novelmaker-token-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 12px;
+	background-color: var(--background-primary);
+	border-radius: 4px;
+	transition: background-color 0.2s ease;
+}
+
+.novelmaker-token-row:hover {
+	background-color: var(--background-secondary);
+}
+
+.novelmaker-token-label {
+	font-size: 0.9em;
+	color: var(--text-muted);
+	font-weight: 500;
+}
+
+.novelmaker-token-value {
+	font-size: 1em;
+	font-weight: 600;
+	color: var(--text-accent);
+	font-family: var(--font-monospace);
+}
+
+.novelmaker-token-total {
+	margin-top: 4px;
+	border-top: 2px solid rgba(88, 166, 255, 0.3);
+	padding-top: 12px;
+	background: linear-gradient(90deg, rgba(88, 166, 255, 0.1) 0%, rgba(147, 112, 219, 0.1) 100%);
+}
+
+.novelmaker-token-total .novelmaker-token-label {
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+.novelmaker-token-total .novelmaker-token-value {
+	font-size: 1.1em;
+	font-weight: 700;
+	color: var(--text-accent-hover);
+}
+
+/* Backend Management Styles */
+.novelmaker-backend-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.8em;
+	margin-bottom: 0.5em;
+	background-color: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+}
+
+.novelmaker-backend-item:hover {
+	background-color: var(--background-secondary-alt);
+}
+
+.novelmaker-backend-info {
+	flex: 1;
+	min-width: 0;
+}
+
+.novelmaker-backend-info strong {
+	font-size: 1em;
+	color: var(--text-normal);
+}
+
+.novelmaker-backend-info small {
+	color: var(--text-muted);
+	font-size: 0.85em;
+	word-break: break-all;
+}
+
+.novelmaker-backend-default {
+	color: var(--text-accent);
+	font-weight: normal;
+	font-size: 0.85em;
+	margin-left: 0.3em;
+}
+
+.novelmaker-backend-actions {
+	display: flex;
+	gap: 0.4em;
+	flex-shrink: 0;
+	margin-left: 1em;
+}
+
+.novelmaker-backend-actions button {
+	padding: 0.3em 0.6em;
+	font-size: 0.85em;
+	border-radius: 4px;
+	cursor: pointer;
+	border: 1px solid var(--background-modifier-border);
+	background-color: var(--interactive-normal);
+	color: var(--text-normal);
+	transition: background-color 0.2s;
+}
+
+.novelmaker-backend-actions button:hover {
+	background-color: var(--interactive-hover);
+}
+
+.novelmaker-backend-actions button.mod-warning {
+	color: var(--text-error);
+	border-color: var(--text-error);
+}
+
+.novelmaker-backend-actions button.mod-warning:hover {
+	background-color: var(--background-modifier-error);
+}

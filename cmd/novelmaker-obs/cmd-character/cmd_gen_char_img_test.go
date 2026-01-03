@@ -69,7 +69,7 @@ func TestGenCharImgCmd_Run_Success(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharImgCmd := NewGenCharImgCmd(testBackendMaker(server.URL))
+		genCharImgCmd := NewGenImgCmd(testBackendMaker(server.URL))
 		genCharImgCmd.name = "Alice"
 
 		err := genCharImgCmd.run(genCharImgCmd.cmd, []string{})
@@ -102,7 +102,7 @@ func TestGenCharImgCmd_Run_Success(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharImgCmd := NewGenCharImgCmd(testBackendMaker(server.URL))
+		genCharImgCmd := NewGenImgCmd(testBackendMaker(server.URL))
 		genCharImgCmd.name = "Bob"
 		genCharImgCmd.prompt = "A detailed portrait of a wise wizard with a long white beard"
 
@@ -128,7 +128,7 @@ func TestGenCharImgCmd_Run_Success(t *testing.T) {
 		os.Chdir(tmpDir)
 
 		customOutputDir := filepath.Join(tmpDir, "CustomImages")
-		genCharImgCmd := NewGenCharImgCmd(testBackendMaker(server.URL))
+		genCharImgCmd := NewGenImgCmd(testBackendMaker(server.URL))
 		genCharImgCmd.name = "Alice"
 		genCharImgCmd.outputDir = customOutputDir
 
@@ -168,7 +168,7 @@ Sir John O'Brien III is a noble knight with a mysterious past.`
 		writeTestFile(t, tmpDir, "Character/sir-john-obrien-iii.md", specialChar)
 		vault.Close()
 
-		genCharImgCmd := NewGenCharImgCmd(testBackendMaker(server.URL))
+		genCharImgCmd := NewGenImgCmd(testBackendMaker(server.URL))
 		genCharImgCmd.name = "Sir John O'Brien III"
 
 		err = genCharImgCmd.run(genCharImgCmd.cmd, []string{})
@@ -194,7 +194,7 @@ func TestGenCharImgCmd_Run_JSONOutput(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharImgCmd := NewGenCharImgCmd(testBackendMaker(server.URL))
+		genCharImgCmd := NewGenImgCmd(testBackendMaker(server.URL))
 		genCharImgCmd.name = "Alice"
 		genCharImgCmd.json = true
 
@@ -255,7 +255,7 @@ func TestGenCharImgCmd_Run_ErrorCases(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharImgCmd := NewGenCharImgCmd(llmbackend.MakeDummy)
+		genCharImgCmd := NewGenImgCmd(llmbackend.MakeDummy)
 		genCharImgCmd.name = "NonExistentCharacter"
 
 		err := genCharImgCmd.run(genCharImgCmd.cmd, []string{})
@@ -277,7 +277,7 @@ func TestGenCharImgCmd_Run_ErrorCases(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharImgCmd := NewGenCharImgCmd(testBackendMaker(server.URL))
+		genCharImgCmd := NewGenImgCmd(testBackendMaker(server.URL))
 		genCharImgCmd.name = "TestChar"
 
 		err := genCharImgCmd.run(genCharImgCmd.cmd, []string{})
@@ -302,7 +302,7 @@ func TestGenCharImgCmd_Run_ErrorCases(t *testing.T) {
 		// Change to a directory that doesn't have a config
 		os.Chdir(tmpDir)
 
-		genCharImgCmd := NewGenCharImgCmd(testBackendMaker(server.URL))
+		genCharImgCmd := NewGenImgCmd(testBackendMaker(server.URL))
 		genCharImgCmd.name = "TestChar"
 
 		err := genCharImgCmd.run(genCharImgCmd.cmd, []string{})
@@ -322,7 +322,7 @@ func TestGenCharImgCmd_Run_ConfigOverrides(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharImgCmd := NewGenCharImgCmd(testBackendMaker(server.URL))
+		genCharImgCmd := NewGenImgCmd(testBackendMaker(server.URL))
 		genCharImgCmd.name = "Alice"
 		genCharImgCmd.imageModel = "dall-e-2"
 
@@ -347,7 +347,7 @@ func TestGenCharImgCmd_Run_ConfigOverrides(t *testing.T) {
 		defer os.Chdir(oldWd)
 		os.Chdir(tmpDir)
 
-		genCharImgCmd := NewGenCharImgCmd(testBackendMaker(server.URL))
+		genCharImgCmd := NewGenImgCmd(testBackendMaker(server.URL))
 		genCharImgCmd.name = "Bob"
 		genCharImgCmd.timeout = 120
 

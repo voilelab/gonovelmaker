@@ -14,7 +14,7 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-type GenCharCmd struct {
+type GenCmd struct {
 	json    bool
 	prompt  string
 	name    string
@@ -27,12 +27,12 @@ type GenCharCmd struct {
 	cmd *cobra.Command
 }
 
-func NewGenCharCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenCharCmd {
-	g := &GenCharCmd{
+func NewGenCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenCmd {
+	g := &GenCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
-		Use:   "gen-char",
+		Use:   "gen",
 		Short: "Generate a new character using OpenAI API",
 		Long: `Generates a new character profile based on the project context and a user-provided prompt 
 using OpenAI API.`,
@@ -52,7 +52,7 @@ using OpenAI API.`,
 	return g
 }
 
-func (g *GenCharCmd) run(cmd *cobra.Command, args []string) error {
+func (g *GenCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {

@@ -14,7 +14,7 @@ import (
 	"github.com/voilelab/gonovelmaker/novelmaker"
 )
 
-type GenCharCurrCmd struct {
+type RegenCmd struct {
 	json     bool
 	filepath string
 	backend  string
@@ -26,12 +26,12 @@ type GenCharCurrCmd struct {
 	cmd *cobra.Command
 }
 
-func NewGenCharCurrCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenCharCurrCmd {
-	g := &GenCharCurrCmd{
+func NewRegenCmd(llmBackendMaker llmbackend.LLMBackendMaker) *RegenCmd {
+	g := &RegenCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
-		Use:   "gen-char-curr",
+		Use:   "regen",
 		Short: "Regenerate an existing character using its stored prompt",
 		Long: `Regenerates an existing character profile based on the prompt stored in its frontmatter.
 The filepath should be relative to the vault root (e.g., "Character/alice.md").`,
@@ -50,7 +50,7 @@ The filepath should be relative to the vault root (e.g., "Character/alice.md").`
 	return g
 }
 
-func (g *GenCharCurrCmd) run(cmd *cobra.Command, args []string) error {
+func (g *RegenCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {

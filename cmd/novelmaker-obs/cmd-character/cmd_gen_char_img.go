@@ -17,7 +17,7 @@ import (
 	"github.com/voilelab/gonovelmaker/internal/obsidian"
 )
 
-type GenCharImgCmd struct {
+type GenImgCmd struct {
 	json       bool
 	prompt     string
 	name       string
@@ -31,12 +31,12 @@ type GenCharImgCmd struct {
 	cmd *cobra.Command
 }
 
-func NewGenCharImgCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenCharImgCmd {
-	g := &GenCharImgCmd{
+func NewGenImgCmd(llmBackendMaker llmbackend.LLMBackendMaker) *GenImgCmd {
+	g := &GenImgCmd{
 		llmBackendMaker: llmBackendMaker,
 	}
 	g.cmd = &cobra.Command{
-		Use:   "gen-char-img",
+		Use:   "gen-img",
 		Short: "Generate an image for a character using OpenAI DALL-E API",
 		Long: `Generates an image for a character based on their profile using OpenAI's DALL-E API.
 The image will be downloaded and saved to the Character directory.`,
@@ -58,7 +58,7 @@ The image will be downloaded and saved to the Character directory.`,
 	return g
 }
 
-func (g *GenCharImgCmd) run(cmd *cobra.Command, args []string) error {
+func (g *GenImgCmd) run(cmd *cobra.Command, args []string) error {
 	// Load config
 	cfg, err := config.Load()
 	if err != nil {

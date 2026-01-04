@@ -3,9 +3,11 @@ package config
 import (
 	_ "embed"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -54,6 +56,13 @@ func Load() (*Config, error) {
 		}
 		return cfg, nil
 	}
+
+	// Ensure log directory exists
+	logDir := filepath.Join(configDir, "log")
+	os.MkdirAll(logDir, 0755)
+
+	// Setup slog to write to log file
+	setupLogger(logDir)
 
 	// Read and parse the config file
 	data, err := os.ReadFile(configPath)
@@ -180,4 +189,31 @@ func (c *Config) SetDefaultBackend(name string) error {
 	}
 	c.UserLLMBackend = name
 	return nil
+}
+
+// setupLogger configures slog to write to a log file in the specified directory
+func setupLogger(logDir string) {
+	// Create log file with timestamp
+	logFileName := fmt.Sprintf("novelmaker-%s.log", time.Now().Format("2006-01-02"))
+	logFilePath := filepath.Join(logDir, logFileName)
+
+	// Open log file (create if not exists, append if exists)
+	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		// If we can't open the log file, just use stderr
+		slog.Warn("failed to open log file, using stderr", "error", err)
+		return
+	}
+
+	// Create a multi-writer to write to both file and stderr
+	multiWriter := io.MultiWriter(logFile, os.Stderr)
+
+	// Create a new JSON handler that writes to both outputs
+	handler := slog.NewJSONHandler(multiWriter, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	})
+
+	// Set the default logger
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
 }

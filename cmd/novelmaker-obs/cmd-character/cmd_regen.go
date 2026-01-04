@@ -3,6 +3,7 @@ package cmdcharacter
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
@@ -130,6 +131,15 @@ func (g *regenCmd) run(cmd *cobra.Command, args []string) error {
 	renderer := novelmaker.NewRenderer(
 		llmBackend,
 		effectiveTimeout,
+	)
+
+	slog.Info("Regenerating character",
+		"project", project.Name,
+		"model", effectiveModel,
+		"character_name", targetCharacter.Name,
+		"prompt", targetCharacter.Prompt,
+		"context_worldbooks", len(worldbooks),
+		"context_characters", len(characters),
 	)
 
 	// Call OpenAI API to regenerate character profile

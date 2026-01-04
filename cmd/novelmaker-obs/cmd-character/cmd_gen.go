@@ -3,6 +3,7 @@ package cmdcharacter
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
@@ -125,6 +126,15 @@ func (g *genCmd) run(cmd *cobra.Command, args []string) error {
 	renderer := novelmaker.NewRenderer(
 		llmBackend,
 		effectiveTimeout,
+	)
+
+	slog.Info("Generating character",
+		"project", project.Name,
+		"model", effectiveModel,
+		"character_name", g.name,
+		"prompt", g.prompt,
+		"context_worldbooks", len(worldbooks),
+		"context_characters", len(characters),
 	)
 
 	// Call OpenAI API

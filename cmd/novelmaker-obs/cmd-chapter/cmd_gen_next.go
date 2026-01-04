@@ -3,6 +3,7 @@ package cmdchapter
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
@@ -144,6 +145,15 @@ func (g *genNextCmd) run(cmd *cobra.Command, args []string) error {
 
 	prevK := min(g.prevChapters, len(chapters), maxPrevChapters)
 	prevChapters := chapters[len(chapters)-prevK:]
+
+	slog.Info("Generating next chapter",
+		"project", project.Name,
+		"model", effectiveModel,
+		"title", g.title,
+		"prev_chapters", len(prevChapters),
+		"worldbook_entries", len(worldbooks),
+		"characters", len(characters),
+	)
 
 	// Call OpenAI API
 	content, usage, err := renderer.RenderChapter(

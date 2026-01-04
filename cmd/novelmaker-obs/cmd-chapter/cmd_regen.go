@@ -3,6 +3,7 @@ package cmdchapter
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
@@ -153,6 +154,16 @@ func (g *regenCmd) run(cmd *cobra.Command, args []string) error {
 	if len(prevChapters) > prevK {
 		prevChapters = prevChapters[len(prevChapters)-prevK:]
 	}
+
+	slog.Info("Regenerating chapter",
+		"project", project.Name,
+		"model", effectiveModel,
+		"title", targetChapter.Title,
+		"index", targetChapter.Index,
+		"prev_chapters", len(prevChapters),
+		"worldbook_entries", len(worldbooks),
+		"characters", len(characters),
+	)
 
 	// Call OpenAI API to regenerate content
 	content, usage, err := renderer.RenderChapter(

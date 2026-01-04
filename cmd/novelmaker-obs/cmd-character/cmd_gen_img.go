@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -143,6 +144,12 @@ func (g *genImgCmd) run(cmd *cobra.Command, args []string) error {
 		ctx, cancel = context.WithTimeout(ctx, effectiveTimeout)
 		defer cancel()
 	}
+
+	slog.Info("Generating character image",
+		"character", g.name,
+		"model", effectiveImageModel,
+		"prompt", imagePrompt,
+	)
 
 	imageURL, err := llmBackend.GenerateImage(imagePrompt, ctx)
 	if err != nil {

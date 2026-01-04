@@ -8,6 +8,7 @@ const NovelMakerSettingTab = require('./src/settings/settings-tab');
 const { registerChapterCommands } = require('./src/commands/chapter');
 const { registerCharacterCommands } = require('./src/commands/character');
 const { registerExportCommand } = require('./src/commands/export');
+const { registerLogsCommand } = require('./src/commands/logs');
 
 class NovelMakerPlugin extends Plugin {
 	async onload() {
@@ -21,6 +22,7 @@ class NovelMakerPlugin extends Plugin {
 		registerChapterCommands(this);
 		registerCharacterCommands(this);
 		registerExportCommand(this);
+		registerLogsCommand(this);
 	}
 
 	onunload() {

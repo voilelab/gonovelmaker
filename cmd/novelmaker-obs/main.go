@@ -28,6 +28,7 @@ based on your existing content.`,
 	updatePluginCmd := NewUpdatePluginCmd()
 	configTestCmd := NewConfigCheckCmd()
 	versionCmd := NewVersionCmd()
+	rewriteCmd := NewRewriteCmd(llmbackend.MakeOpenAI)
 
 	backendCmd := cmdbackend.NewBackendCmd(llmbackend.MakeOpenAI)
 	characterCmd := cmdcharacter.NewCharacterCmd(llmbackend.MakeOpenAI)
@@ -39,6 +40,7 @@ based on your existing content.`,
 	rootCmd.AddCommand(updatePluginCmd.cmd)
 	rootCmd.AddCommand(configTestCmd.cmd)
 	rootCmd.AddCommand(versionCmd.cmd)
+	rootCmd.AddCommand(rewriteCmd.cmd)
 
 	rootCmd.AddCommand(backendCmd.Command())
 	rootCmd.AddCommand(characterCmd.Command())

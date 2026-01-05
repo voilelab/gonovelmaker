@@ -19,6 +19,7 @@ import (
 
 type RewriteCmd struct {
 	json        bool
+	filepath    string
 	lineStart   int
 	lineEnd     int
 	contextPrev int
@@ -38,27 +39,29 @@ func NewRewriteCmd(llmBackendMaker llmbackend.LLMBackendMaker) *RewriteCmd {
 	}
 
 	r.cmd = &cobra.Command{
-		Use:   "rewrite [filepath]",
-		Short: "Rewrite a specific range of lines in a chapter file",
-		Long: `Rewrite a specific range of lines in a chapter file using AI.
+		Use:   "rewrite",
+		Short: "Rewrite a specific range of lines in a file",
+		Long: `Rewrite a specific range of lines in a file using AI.
 
 This command reads the specified file, extracts the target lines and context,
 sends them to the AI model for rewriting, and updates the file with the new content.
+The filepath should be relative to the vault root (e.g., "Story/001_ch1.md").
 
 Example:
-  novelmaker-obs rewrite Story/001_ch1.md --line-start 10 --line-end 15 --context-prev 5 --context-next 5
-  novelmaker-obs rewrite Story/001_ch1.md -s 10 -e 15 -p 5 -n 5 --model gpt-4`,
-		Args: cobra.ExactArgs(1),
+  novelmaker-obs rewrite --filepath Story/001_ch1.md --line-start 10 --line-end 15 --context-prev 5 --context-next 5
+  novelmaker-obs rewrite -f Story/001_ch1.md -s 10 -e 15 -p 5 -n 5 --model gpt-4`,
 		RunE: r.run,
 	}
 
 	r.cmd.Flags().BoolVarP(&r.json, "json", "j", false, "Output in JSON format")
 
+	r.cmd.Flags().StringVarP(&r.filepath, "filepath", "f", "", "Path to the file relative to vault root (required)")
 	r.cmd.Flags().IntVarP(&r.lineStart, "line-start", "s", 0, "Starting line number to rewrite (required, 1-indexed)")
 	r.cmd.Flags().IntVarP(&r.lineEnd, "line-end", "e", 0, "Ending line number to rewrite (required, 1-indexed, inclusive)")
 	r.cmd.Flags().IntVarP(&r.contextPrev, "context-prev", "p", 3, "Number of lines before the target as context (default 3)")
 	r.cmd.Flags().IntVarP(&r.contextNext, "context-next", "n", 3, "Number of lines after the target as context (default 3)")
 
+	r.cmd.MarkFlagRequired("filepath")
 	r.cmd.MarkFlagRequired("line-start")
 	r.cmd.MarkFlagRequired("line-end")
 
@@ -71,8 +74,6 @@ Example:
 }
 
 func (r *RewriteCmd) run(cmd *cobra.Command, args []string) error {
-	filepath := args[0]
-
 	// Validate line numbers
 	if r.lineStart < 1 {
 		return fmt.Errorf("line-start must be >= 1, got %d", r.lineStart)
@@ -128,13 +129,13 @@ func (r *RewriteCmd) run(cmd *cobra.Command, args []string) error {
 		fmt.Println("Rewriting lines with AI...")
 		fmt.Printf("  Project: %s\n", project.Name)
 		fmt.Printf("  Model: %s\n", effectiveModel)
-		fmt.Printf("  File: %s\n", filepath)
+		fmt.Printf("  File: %s\n", r.filepath)
 		fmt.Printf("  Lines: %d-%d\n", r.lineStart, r.lineEnd)
 		fmt.Printf("  Context: %d lines before, %d lines after\n", r.contextPrev, r.contextNext)
 	}
 
 	// Read the file and extract lines
-	fileLines, err := r.readFileLines(filepath)
+	fileLines, err := r.readFileLines(r.filepath)
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
@@ -177,7 +178,7 @@ func (r *RewriteCmd) run(cmd *cobra.Command, args []string) error {
 	slog.Info("Rewriting text",
 		"project", project.Name,
 		"model", effectiveModel,
-		"file", filepath,
+		"file", r.filepath,
 		"line_range", fmt.Sprintf("%d-%d", r.lineStart, r.lineEnd),
 	)
 
@@ -190,18 +191,19 @@ func (r *RewriteCmd) run(cmd *cobra.Command, args []string) error {
 
 	// Replace the target lines with rewritten content
 	rewrittenLines := strings.Split(strings.TrimSpace(rewrittenContent), "\n")
-	newFileLines := make([]string, 0, len(fileLines))
-	newFileLines = append(newFileLines, fileLines[:targetStartIdx]...)
-	newFileLines = append(newFileLines, rewrittenLines...)
-	newFileLines = append(newFileLines, fileLines[targetEndIdx:]...)
-
-	// Write back to file
-	newContent := strings.Join(newFileLines, "\n")
-	if err := os.WriteFile(filepath, []byte(newContent), 0644); err != nil {
-		return fmt.Errorf("failed to write file: %w", err)
-	}
 
 	if !r.json {
+		// In non-JSON mode, write to file immediately
+		newFileLines := make([]string, 0, len(fileLines))
+		newFileLines = append(newFileLines, fileLines[:targetStartIdx]...)
+		newFileLines = append(newFileLines, rewrittenLines...)
+		newFileLines = append(newFileLines, fileLines[targetEndIdx:]...)
+
+		newContent := strings.Join(newFileLines, "\n")
+		if err := os.WriteFile(r.filepath, []byte(newContent), 0644); err != nil {
+			return fmt.Errorf("failed to write file: %w", err)
+		}
+
 		fmt.Printf("\n✓ Successfully rewrote lines %d-%d!\n", r.lineStart, r.lineEnd)
 		fmt.Printf("  Original lines: %d\n", r.lineEnd-r.lineStart+1)
 		fmt.Printf("  New lines: %d\n", len(rewrittenLines))
@@ -212,8 +214,9 @@ func (r *RewriteCmd) run(cmd *cobra.Command, args []string) error {
 		fmt.Printf("\nRewritten content:\n")
 		fmt.Printf("  %s\n", strings.ReplaceAll(rewrittenContent, "\n", "\n  "))
 	} else {
+		// In JSON mode, only return the result without modifying the file
 		output := map[string]any{
-			"filepath":            filepath,
+			"filepath":            r.filepath,
 			"original_line_count": r.lineEnd - r.lineStart + 1,
 			"new_line_count":      len(rewrittenLines),
 			"input_tokens":        usage.InputTokens,

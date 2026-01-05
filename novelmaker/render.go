@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/voilelab/gonovelmaker/internal/llmbackend"
@@ -166,6 +167,10 @@ func (r *Renderer) RenderRewrite(
 		{Role: llmbackend.RoleSystem, Content: systemPrompt},
 		{Role: llmbackend.RoleUser, Content: promptContent},
 	}
+
+	slog.Info("Prepared rewrite prompt",
+		"system", systemPrompt,
+		"user", promptContent)
 
 	ctx := context.Background()
 	if r.timeout > 0 {

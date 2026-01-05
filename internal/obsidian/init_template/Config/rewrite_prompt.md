@@ -21,11 +21,11 @@ system: |
     修訂後句子長度變化不得超過 ±20%。
 ---
 
-【上下文（只讀）】
-{.ContextBefore}
+【上文（只讀）】
+{{.ContextBefore}}
 
 ▶【目標句子（唯一可修改）】
-{.TargetSentence}
+{{.TargetSentence}}
 
-【上下文（只讀）】
-{.ContextAfter}
+【下文（只讀）】
+{{.ContextAfter}}

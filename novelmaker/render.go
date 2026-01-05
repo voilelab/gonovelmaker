@@ -137,6 +137,7 @@ func (r *Renderer) RenderCharacter(
 
 // RewritePromptData holds the data for rendering rewrite prompts
 type RewritePromptData struct {
+	PromptGoal     string
 	ContextBefore  string
 	TargetSentence string
 	ContextAfter   string
@@ -144,9 +145,10 @@ type RewritePromptData struct {
 
 // RenderRewrite generates a rewritten text using the specified OpenAI model
 func (r *Renderer) RenderRewrite(
-	project *Project, rewritePrompt *RewritePrompt, contextBefore string, targetSentence string, contextAfter string) (string, llmbackend.UsageInfo, error) {
+	project *Project, rewritePrompt *RewritePrompt, promptGoal string, contextBefore string, targetSentence string, contextAfter string) (string, llmbackend.UsageInfo, error) {
 
 	data := RewritePromptData{
+		PromptGoal:     promptGoal,
 		ContextBefore:  contextBefore,
 		TargetSentence: targetSentence,
 		ContextAfter:   contextAfter,

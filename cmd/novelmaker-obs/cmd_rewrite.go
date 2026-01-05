@@ -20,6 +20,7 @@ import (
 type RewriteCmd struct {
 	json        bool
 	filepath    string
+	promptGoal  string
 	lineStart   int
 	lineEnd     int
 	contextPrev int
@@ -56,6 +57,7 @@ Example:
 	r.cmd.Flags().BoolVarP(&r.json, "json", "j", false, "Output in JSON format")
 
 	r.cmd.Flags().StringVarP(&r.filepath, "filepath", "f", "", "Path to the file relative to vault root (required)")
+	r.cmd.Flags().StringVarP(&r.promptGoal, "prompt", "g", "去除 AI 味的慣用詞與過度評述語氣", "Rewrite goal/instruction (optional, default: remove AI-like phrases)")
 	r.cmd.Flags().IntVarP(&r.lineStart, "line-start", "s", 0, "Starting line number to rewrite (required, 1-indexed)")
 	r.cmd.Flags().IntVarP(&r.lineEnd, "line-end", "e", 0, "Ending line number to rewrite (required, 1-indexed, inclusive)")
 	r.cmd.Flags().IntVarP(&r.contextPrev, "context-prev", "p", 3, "Number of lines before the target as context (default 3)")
@@ -184,7 +186,7 @@ func (r *RewriteCmd) run(cmd *cobra.Command, args []string) error {
 
 	// Call AI API
 	rewrittenContent, usage, err := renderer.RenderRewrite(
-		project, rewritePrompt, contextBefore, targetSentence, contextAfter)
+		project, rewritePrompt, r.promptGoal, contextBefore, targetSentence, contextAfter)
 	if err != nil {
 		return fmt.Errorf("failed to rewrite text: %w", err)
 	}

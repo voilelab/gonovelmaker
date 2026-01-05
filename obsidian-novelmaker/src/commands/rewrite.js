@@ -1,5 +1,6 @@
 const { Notice } = require('obsidian');
 const LoadingModal = require('../modals/loading');
+const RewritePromptModal = require('../modals/rewrite-prompt');
 const RewriteConfirmModal = require('../modals/rewrite-confirm');
 const { executeCLI, parseJSONOutput, buildCLICommand } = require('../utils/cli');
 
@@ -19,7 +20,29 @@ function registerRewriteCommand(plugin) {
 			}
 			
 			if (!checking) {
-				executeRewrite(plugin, editor, file);
+				// Get selection or current line
+				const selection = editor.getSelection();
+				let lineStart, lineEnd, selectedText;
+				
+				if (selection) {
+					// User has selected text
+					const from = editor.getCursor('from');
+					const to = editor.getCursor('to');
+					lineStart = from.line + 1; // Convert to 1-indexed
+					lineEnd = to.line + 1;
+					selectedText = selection;
+				} else {
+					// No selection, use current line
+					const cursor = editor.getCursor();
+					lineStart = cursor.line + 1;
+					lineEnd = cursor.line + 1;
+					selectedText = editor.getLine(cursor.line);
+				}
+				
+				// Show prompt goal input modal
+				new RewritePromptModal(plugin.app, async (promptGoal) => {
+					await executeRewrite(plugin, editor, file, lineStart, lineEnd, selectedText, promptGoal);
+				}).open();
 			}
 			
 			return true;
@@ -27,27 +50,8 @@ function registerRewriteCommand(plugin) {
 	});
 }
 
-async function executeRewrite(plugin, editor, file) {
+async function executeRewrite(plugin, editor, file, lineStart, lineEnd, selectedText, promptGoal) {
 	try {
-		// Get selection or current line
-		const selection = editor.getSelection();
-		let lineStart, lineEnd, selectedText;
-		
-		if (selection) {
-			// User has selected text
-			const from = editor.getCursor('from');
-			const to = editor.getCursor('to');
-			lineStart = from.line + 1; // Convert to 1-indexed
-			lineEnd = to.line + 1;
-			selectedText = selection;
-		} else {
-			// No selection, use current line
-			const cursor = editor.getCursor();
-			lineStart = cursor.line + 1;
-			lineEnd = cursor.line + 1;
-			selectedText = editor.getLine(cursor.line);
-		}
-		
 		// Default context lines
 		const contextPrev = 3;
 		const contextNext = 3;
@@ -65,6 +69,7 @@ async function executeRewrite(plugin, editor, file) {
 				lineEnd,
 				contextPrev,
 				contextNext,
+				promptGoal,
 				backend: plugin.settings.backend,
 				timeout: plugin.settings.timeout,
 			});

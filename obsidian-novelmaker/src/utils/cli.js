@@ -79,6 +79,10 @@ function buildCLICommand(baseCommand, options = {}) {
 		args.push('--prompt', options.prompt);
 	}
 	
+	if (options.promptGoal && options.promptGoal.trim()) {
+		args.push('--prompt', options.promptGoal);
+	}
+	
 	if (options.prevCount !== null && options.prevCount !== undefined) {
 		args.push('--prev-chapters', String(options.prevCount));
 	}

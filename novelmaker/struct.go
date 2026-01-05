@@ -15,6 +15,11 @@ type CharacterPrompt struct {
 	AssistantTemplate *template.Template
 }
 
+type RewritePrompt struct {
+	System            string
+	AssistantTemplate *template.Template
+}
+
 type Project struct {
 	Name      string    `json:"name"`
 	World     string    `json:"world"`

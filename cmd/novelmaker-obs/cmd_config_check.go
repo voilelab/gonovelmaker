@@ -17,12 +17,12 @@ func NewConfigCheckCmd() *ConfigCheckCmd {
 
 	c.cmd = &cobra.Command{
 		Use:   "config-check",
-		Short: "Check if chapter and character prompt templates can be parsed successfully",
-		Long: `Check if chapter and character prompt templates can be parsed successfully.
+		Short: "Check if chapter, character, and rewrite prompt templates can be parsed successfully",
+		Long: `Check if chapter, character, and rewrite prompt templates can be parsed successfully.
 
-This command reads Config/chapter_prompt.md and Config/character_prompt.md from 
-the vault and attempts to parse them. It reports any errors in the frontmatter 
-or template syntax.
+This command reads Config/chapter_prompt.md, Config/character_prompt.md, and 
+Config/rewrite_prompt.md from the vault and attempts to parse them. It reports 
+any errors in the frontmatter or template syntax.
 
 Example:
   novelmaker-obs config-check
@@ -70,6 +70,19 @@ func (c *ConfigCheckCmd) run(cmd *cobra.Command, args []string) error {
 	fmt.Println("✅ Character prompt parsed successfully")
 	if characterPrompt.System != "" {
 		fmt.Printf("   System prompt: %.80s...\n", characterPrompt.System)
+	}
+	fmt.Println()
+
+	// Test rewrite prompt
+	fmt.Println("📄 Checking Config/rewrite_prompt.md...")
+	rewritePrompt, err := vault.LoadRewritePrompt()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "❌ Failed to parse rewrite prompt: %v\n", err)
+		return err
+	}
+	fmt.Println("✅ Rewrite prompt parsed successfully")
+	if rewritePrompt.System != "" {
+		fmt.Printf("   System prompt: %.80s...\n", rewritePrompt.System)
 	}
 	fmt.Println()
 

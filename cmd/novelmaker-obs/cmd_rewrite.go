@@ -255,17 +255,3 @@ func (r *RewriteCmd) readFileLines(filepath string) ([]string, error) {
 
 	return lines, nil
 }
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}

@@ -45,7 +45,7 @@ func NewRewriteCmd(llmBackendMaker llmbackend.LLMBackendMaker) *RewriteCmd {
 		Long: `Rewrite a specific range of lines in a file using AI.
 
 This command reads the specified file, extracts the target lines and context,
-sends them to the AI model for rewriting, and updates the file with the new content.
+and sends them to the AI model for rewriting.
 The filepath should be relative to the vault root (e.g., "Story/001_ch1.md").
 
 Example:

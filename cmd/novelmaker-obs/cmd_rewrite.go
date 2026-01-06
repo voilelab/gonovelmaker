@@ -186,7 +186,7 @@ func (r *RewriteCmd) run(cmd *cobra.Command, args []string) error {
 
 	// Call AI API
 	rewrittenContent, usage, err := renderer.RenderRewrite(
-		project, rewritePrompt, r.promptGoal, contextBefore, targetSentence, contextAfter)
+		rewritePrompt, r.promptGoal, contextBefore, targetSentence, contextAfter)
 	if err != nil {
 		return fmt.Errorf("failed to rewrite text: %w", err)
 	}

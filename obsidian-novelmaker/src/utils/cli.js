@@ -79,6 +79,10 @@ function buildCLICommand(baseCommand, options = {}) {
 		args.push('--prompt', options.prompt);
 	}
 	
+	if (options.promptGoal && options.promptGoal.trim()) {
+		args.push('--prompt', options.promptGoal);
+	}
+	
 	if (options.prevCount !== null && options.prevCount !== undefined) {
 		args.push('--prev-chapters', String(options.prevCount));
 	}
@@ -97,6 +101,22 @@ function buildCLICommand(baseCommand, options = {}) {
 	
 	if (options.type) {
 		args.push('--type', options.type);
+	}
+	
+	if (options.lineStart !== null && options.lineStart !== undefined) {
+		args.push('--line-start', String(options.lineStart));
+	}
+	
+	if (options.lineEnd !== null && options.lineEnd !== undefined) {
+		args.push('--line-end', String(options.lineEnd));
+	}
+	
+	if (options.contextPrev !== null && options.contextPrev !== undefined) {
+		args.push('--context-prev', String(options.contextPrev));
+	}
+	
+	if (options.contextNext !== null && options.contextNext !== undefined) {
+		args.push('--context-next', String(options.contextNext));
 	}
 	
 	return args;

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/voilelab/gonovelmaker/internal/llmbackend"
@@ -117,6 +118,61 @@ func (r *Renderer) RenderCharacter(
 		{Role: llmbackend.RoleSystem, Content: systemPrompt},
 		{Role: llmbackend.RoleUser, Content: promptContent},
 	}
+
+	ctx := context.Background()
+	if r.timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, r.timeout)
+		defer cancel()
+	}
+
+	chatCompletion, usage, err := r.llmBackend.ChatCompletion(msgs, ctx)
+
+	if err != nil {
+		return "", llmbackend.UsageInfo{}, err
+	}
+
+	return chatCompletion, usage, nil
+}
+
+// RewritePromptData holds the data for rendering rewrite prompts
+type RewritePromptData struct {
+	PromptGoal     string
+	ContextBefore  string
+	TargetSentence string
+	ContextAfter   string
+}
+
+// RenderRewrite generates a rewritten text using the specified OpenAI model
+func (r *Renderer) RenderRewrite(
+	rewritePrompt *RewritePrompt, promptGoal string, contextBefore string, targetSentence string, contextAfter string) (string, llmbackend.UsageInfo, error) {
+
+	data := RewritePromptData{
+		PromptGoal:     promptGoal,
+		ContextBefore:  contextBefore,
+		TargetSentence: targetSentence,
+		ContextAfter:   contextAfter,
+	}
+
+	var buf bytes.Buffer
+	if err := rewritePrompt.AssistantTemplate.Execute(&buf, data); err != nil {
+		return "", llmbackend.UsageInfo{}, fmt.Errorf("failed to execute rewrite template: %w", err)
+	}
+	promptContent := buf.String()
+
+	systemPrompt := rewritePrompt.System
+	if systemPrompt == "" {
+		systemPrompt = "You are a helpful assistant that rewrites and improves text for novels."
+	}
+
+	msgs := []llmbackend.Message{
+		{Role: llmbackend.RoleSystem, Content: systemPrompt},
+		{Role: llmbackend.RoleUser, Content: promptContent},
+	}
+
+	slog.Info("Prepared rewrite prompt",
+		"system", systemPrompt,
+		"user", promptContent)
 
 	ctx := context.Background()
 	if r.timeout > 0 {

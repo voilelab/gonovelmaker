@@ -56,6 +56,11 @@ type CharacterPromptFrontmatter struct {
 	System string `yaml:"system"`
 }
 
+// RewritePromptFrontmatter represents the YAML frontmatter for rewrite prompt
+type RewritePromptFrontmatter struct {
+	System string `yaml:"system"`
+}
+
 const (
 	configDirName = "Config"
 	worldDirName  = "World"
@@ -479,6 +484,33 @@ func (v *Vault) LoadCharacterPrompt() (*novelmaker.CharacterPrompt, error) {
 	}
 
 	return &novelmaker.CharacterPrompt{
+		System:            fm.System,
+		AssistantTemplate: tmpl,
+	}, nil
+}
+
+// LoadRewritePrompt loads the rewrite prompt template from Config/rewrite_prompt.md
+func (v *Vault) LoadRewritePrompt() (*novelmaker.RewritePrompt, error) {
+	promptPath := filepath.Join(configDirName, "rewrite_prompt.md")
+	content, err := v.root.ReadFile(promptPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read rewrite prompt file %s: %w", promptPath, err)
+	}
+
+	fm, body, err := nmutil.ParseFrontmatter[RewritePromptFrontmatter](content)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse rewrite prompt frontmatter: %w", err)
+	}
+
+	// Parse the assistant template
+	tmpl, err := template.New("rewrite_assistant").Funcs(template.FuncMap{
+		"join": strings.Join,
+	}).Parse(body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse rewrite assistant template: %w", err)
+	}
+
+	return &novelmaker.RewritePrompt{
 		System:            fm.System,
 		AssistantTemplate: tmpl,
 	}, nil
